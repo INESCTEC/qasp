@@ -1,0 +1,117 @@
+{
+  "config": {
+    "n_qubits": 10,
+    "n_actions": 2,
+    "ansatz": "AngleAnsatz",
+    "ansatz_config": {
+      "n_layers": 4,
+      "rotations": "YZ",
+      "reuploading": true,
+      "include_imprimitive": true,
+      "imprimitive": "CNOT",
+      "imprimitive_pattern": "ring",
+      "include_final_imprimitive": true
+    },
+    "feature_map": "AngleEmbedding",
+    "feature_map_config": {
+      "features": 10,
+      "rotations": "Y",
+      "input_scaling": true
+    },
+    "observables": [
+      "Z 0",
+      "Z 1",
+      "Z 2",
+      "Z 3",
+      "Z 4",
+      "Z 5",
+      "Z 6",
+      "Z 7",
+      "Z 8",
+      "Z 9"
+    ],
+    "fc_layer": true,
+    "fc_bias": true,
+    "batch_mode": "sequential",
+    "input_activation": "tanh",
+    "init": "normal_0_1",
+    "shots": null
+  },
+  "seeds": [
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "batches": [
+    1,
+    8
+  ],
+  "repeats": 7,
+  "warmups": 2,
+  "versions": {
+    "torch": "2.14.1",
+    "pennylane": "0.45.1",
+    "pennylane-lightning": "0.45.0",
+    "numpy": "2.5.4"
+  },
+  "python": "3.13.3",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "cpu": "arm",
+  "torch_threads": 1,
+  "torch_interop_threads": 1,
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "dtype": "float64",
+  "backend_options": {
+    "lightning_qubit": {
+      "device": "lightning.qubit",
+      "diff_method": "adjoint"
+    },
+    "pp_k2": {
+      "device": "lightning.pp",
+      "diff_method": "backprop",
+      "pp_truncation": 2,
+      "pp_prune": false,
+      "pp_topM": null,
+      "pp_tau": 0.0
+    },
+    "pp_k3": {
+      "device": "lightning.pp",
+      "diff_method": "backprop",
+      "pp_truncation": 3,
+      "pp_prune": false,
+      "pp_topM": null,
+      "pp_tau": 0.0
+    }
+  },
+  "timing": "perf_counter_ns; whole PQDQN calls; shuffled backend order within every repeat; no optimizer/environment/target-network work",
+  "initialization": "QASP normal_0_1 = N(0,1) quantum weights/scales; default Torch linear head, then cast to float64",
+  "inputs": "CPU generator seeded 10000+model seed; normal(0,1); tanh inside model; batch 1 is first row of batch 8",
+  "targets": "actions alternate 0,1; targets linearly spaced 0.25 to 1.75; mean SmoothL1Loss(beta=1)",
+  "started_utc": "2026-10-14T10:00:27Z",
+  "script_sha256": "3510239bb714afadb20c3de6713fcdc3213302e70de63102ecbbdae36c7b8daf",
+  "parameter_count": 142,
+  "parameter_shapes": {
+    "qlayer.input_scaling_params": [
+      40
+    ],
+    "qlayer.params": [
+      80
+    ],
+    "fc_layer.weight": [
+      2,
+      10
+    ],
+    "fc_layer.bias": [
+      2
+    ]
+  },
+  "completed_utc": "2026-10-14T10:01:40Z",
+  "measured_script_snapshot": "benchmark_source.py",
+  "note": "The example source was subsequently formatted and lint-cleaned; benchmark_source.py is the byte-identical measured script. Current-source accuracy was independently recomputed from every saved seed."
+}

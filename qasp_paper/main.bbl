@@ -1,0 +1,308 @@
+\begin{thebibliography}{34}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[McClean et~al.(2018)McClean, Boixo, Smelyanskiy, Babbush, and
+  Neven]{mcclean2018barren}
+Jarrod~R. McClean, Sergio Boixo, Vadim~N. Smelyanskiy, Ryan Babbush, and
+  Hartmut Neven.
+\newblock Barren plateaus in quantum neural network training landscapes.
+\newblock \emph{Nature Communications}, 9\penalty0 (1):\penalty0 4812, 2018.
+\newblock \doi{10.1038/s41467-018-07090-4}.
+\newblock URL \url{https://doi.org/10.1038/s41467-018-07090-4}.
+
+\bibitem[Larocca et~al.(2022)Larocca, Czarnik, Sharma, Muraleedharan, Coles,
+  and Cerezo]{larocca2022diagnosing}
+Martin Larocca, Piotr Czarnik, Kunal Sharma, Gopikrishnan Muraleedharan,
+  Patrick~J. Coles, and M.~Cerezo.
+\newblock Diagnosing barren plateaus with tools from quantum optimal control.
+\newblock \emph{Quantum}, 6:\penalty0 824, 2022.
+\newblock \doi{10.22331/q-2022-09-29-824}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2022-09-29-824/}.
+
+\bibitem[Bergholm et~al.(2018)Bergholm, Izaac, Schuld, Gogolin, Ahmed, Ajith,
+  Alam, Alonso-Linaje, AkashNarayanan, Asadi, et~al.]{bergholm2018pennylane}
+Ville Bergholm, Josh Izaac, Maria Schuld, Christian Gogolin, Shahnawaz Ahmed,
+  Vishnu Ajith, M.~Sohaib Alam, Guillermo Alonso-Linaje, B.~AkashNarayanan, Ali
+  Asadi, et~al.
+\newblock {PennyLane}: Automatic differentiation of hybrid quantum-classical
+  computations.
+\newblock \emph{arXiv preprint arXiv:1811.04968}, 2018.
+\newblock \doi{10.48550/arXiv.1811.04968}.
+\newblock URL \url{https://arxiv.org/abs/1811.04968}.
+
+\bibitem[Paszke et~al.(2019)Paszke, Gross, Massa, Lerer, Bradbury, Chanan,
+  Killeen, Lin, Gimelshein, Antiga, et~al.]{paszke2019pytorch}
+Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory
+  Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, et~al.
+\newblock {PyTorch}: An imperative style, high-performance deep learning
+  library.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~32, pages 8024--8035, 2019.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper/2019/hash/bdbca288fee7f92f2bfa9f7012727740-Abstract.html}.
+
+\bibitem[Steiger et~al.(2018)Steiger, H{\"a}ner, and
+  Troyer]{steiger2018projectq}
+Damian~S. Steiger, Thomas H{\"a}ner, and Matthias Troyer.
+\newblock Projectq: An open source software framework for quantum computing.
+\newblock \emph{Quantum}, 2:\penalty0 49, 2018.
+\newblock \doi{10.22331/q-2018-01-31-49}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2018-01-31-49/}.
+
+\bibitem[LaRose et~al.(2022)LaRose, Mari, Kaiser, Karalekas, Alves, Czarnik,
+  El~Mandouh, Gordon, Hindy, Robertson, et~al.]{larose2022mitiq}
+Ryan LaRose, Andrea Mari, Sarah Kaiser, Peter~J. Karalekas, Andre~A. Alves,
+  Piotr Czarnik, Mohamed El~Mandouh, Max~H. Gordon, Yousef Hindy, Aaron
+  Robertson, et~al.
+\newblock Mitiq: A software package for error mitigation on noisy quantum
+  computers.
+\newblock \emph{Quantum}, 6:\penalty0 774, 2022.
+\newblock \doi{10.22331/q-2022-08-11-774}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2022-08-11-774/}.
+
+\bibitem[Zhang et~al.(2023)Zhang, Allcock, Wan, Liu, Sun, Yu, Yang, Qiu, Ye,
+  Chen, et~al.]{zhang2023tensorcircuit}
+Shi-Xin Zhang, Jonathan Allcock, Zhou-Quan Wan, Shuo Liu, Jiace Sun, Hao Yu,
+  Xing-Han Yang, Jiezhong Qiu, Zhaofeng Ye, Yu-Qin Chen, et~al.
+\newblock Tensorcircuit: A quantum software framework for the {NISQ} era.
+\newblock \emph{Quantum}, 7:\penalty0 912, 2023.
+\newblock \doi{10.22331/q-2023-02-02-912}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2023-02-02-912/}.
+
+\bibitem[Towers et~al.(2024)Towers, Kwiatkowski, Terry, Balis, De~Cola, Deleu,
+  Goul{\~a}o, Kallinteris, Krimmel, KG, Perez-Vicente, Pierr{\'e}, Schulhoff,
+  Tai, Tan, and Younis]{towers2024gymnasium}
+Mark Towers, Ariel Kwiatkowski, Jordan Terry, John~U. Balis, Gianluca De~Cola,
+  Tristan Deleu, Manuel Goul{\~a}o, Andreas Kallinteris, Markus Krimmel, Arjun
+  KG, Rodrigo Perez-Vicente, Andrea Pierr{\'e}, Sander Schulhoff, Jun~Jet Tai,
+  Hannah Tan, and Omar~G. Younis.
+\newblock Gymnasium: A standard interface for reinforcement learning
+  environments.
+\newblock \emph{arXiv preprint arXiv:2407.17032}, 2024.
+\newblock \doi{10.48550/arXiv.2407.17032}.
+\newblock URL \url{https://arxiv.org/abs/2407.17032}.
+
+\bibitem[Bou et~al.(2023)Bou, Bettini, Dittert, Kumar, Sodhani, Yang,
+  De~Fabritiis, and Moens]{bou2023torchrl}
+Albert Bou, Matteo Bettini, Sebastian Dittert, Vikash Kumar, Shagun Sodhani,
+  Xiaomeng Yang, Gianni De~Fabritiis, and Vincent Moens.
+\newblock {TorchRL}: A data-driven decision-making library for {PyTorch}.
+\newblock \emph{arXiv preprint arXiv:2306.00577}, 2023.
+\newblock \doi{10.48550/arXiv.2306.00577}.
+\newblock URL \url{https://arxiv.org/abs/2306.00577}.
+
+\bibitem[P{\'e}rez-Salinas et~al.(2020)P{\'e}rez-Salinas, Cervera-Lierta,
+  Gil-Fuster, and Latorre]{perezsalinas2020data}
+Adri{\'a}n P{\'e}rez-Salinas, Alba Cervera-Lierta, Elies Gil-Fuster, and
+  Jos{\'e}~I. Latorre.
+\newblock Data re-uploading for a universal quantum classifier.
+\newblock \emph{Quantum}, 4:\penalty0 226, 2020.
+\newblock \doi{10.22331/q-2020-02-06-226}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2020-02-06-226/}.
+
+\bibitem[Schuld et~al.(2019)Schuld, Bergholm, Gogolin, Izaac, and
+  Killoran]{schuld2019gradients}
+Maria Schuld, Ville Bergholm, Christian Gogolin, Josh Izaac, and Nathan
+  Killoran.
+\newblock Evaluating analytic gradients on quantum hardware.
+\newblock \emph{Physical Review A}, 99\penalty0 (3):\penalty0 032331, 2019.
+\newblock \doi{10.1103/PhysRevA.99.032331}.
+\newblock URL \url{https://doi.org/10.1103/PhysRevA.99.032331}.
+
+\bibitem[Spall(1992)]{spall1992spsa}
+James~C. Spall.
+\newblock Multivariate stochastic approximation using a simultaneous
+  perturbation gradient approximation.
+\newblock \emph{IEEE Transactions on Automatic Control}, 37\penalty0
+  (3):\penalty0 332--341, 1992.
+\newblock \doi{10.1109/9.119632}.
+\newblock URL \url{https://doi.org/10.1109/9.119632}.
+
+\bibitem[Stokes et~al.(2020)Stokes, Izaac, Killoran, and Carleo]{stokes2020qng}
+James Stokes, Josh Izaac, Nathan Killoran, and Giuseppe Carleo.
+\newblock Quantum natural gradient.
+\newblock \emph{Quantum}, 4:\penalty0 269, 2020.
+\newblock \doi{10.22331/q-2020-05-25-269}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2020-05-25-269/}.
+
+\bibitem[Fontana et~al.(2025)Fontana, Rudolph, Duncan, Rungger, and
+  C{\^i}rstoiu]{fontana2025lowesa}
+Enrico Fontana, Manuel~S. Rudolph, Ross Duncan, Ivan Rungger, and Cristina
+  C{\^i}rstoiu.
+\newblock Classical simulations of noisy variational quantum circuits.
+\newblock \emph{npj Quantum Information}, 11:\penalty0 84, 2025.
+\newblock \doi{10.1038/s41534-024-00955-1}.
+\newblock URL \url{https://doi.org/10.1038/s41534-024-00955-1}.
+
+\bibitem[Rudolph et~al.(2025)Rudolph, Jones, Teng, Angrisani, and
+  Holmes]{rudolph2025pauli}
+Manuel~S. Rudolph, Tyson Jones, Yanting Teng, Armando Angrisani, and Zo{\"e}
+  Holmes.
+\newblock Pauli propagation: A computational framework for simulating quantum
+  systems.
+\newblock \emph{arXiv preprint arXiv:2505.21606}, 2025.
+\newblock \doi{10.48550/arXiv.2505.21606}.
+\newblock URL \url{https://arxiv.org/abs/2505.21606}.
+
+\bibitem[Jerbi et~al.(2021)Jerbi, Gyurik, Marshall, Briegel, and
+  Dunjko]{jerbi2021policies}
+Sofiene Jerbi, Casper Gyurik, Simon~C. Marshall, Hans~J. Briegel, and Vedran
+  Dunjko.
+\newblock Parametrized quantum policies for reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~34, pages 28362--28375, 2021.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper/2021/hash/eec96a7f788e88184c0e713456026f3f-Abstract.html}.
+
+\bibitem[Meyer et~al.(2023)Meyer, Scherer, Plinge, Mutschler, and
+  Hartmann]{Meyer2023ActionDecoding}
+Nico Meyer, Daniel~D. Scherer, Axel Plinge, Christopher Mutschler, and
+  Michael~J. Hartmann.
+\newblock Quantum policy gradient algorithm with optimized action decoding.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine
+  Learning}, volume 202 of \emph{Proceedings of Machine Learning Research},
+  pages 24592--24613. PMLR, 2023.
+
+\bibitem[Williams(1992)]{williams1992reinforce}
+Ronald~J. Williams.
+\newblock Simple statistical gradient-following algorithms for connectionist
+  reinforcement learning.
+\newblock \emph{Machine Learning}, 8:\penalty0 229--256, 1992.
+\newblock \doi{10.1007/BF00992696}.
+\newblock URL \url{https://doi.org/10.1007/BF00992696}.
+
+\bibitem[Peng et~al.(2019)Peng, Kumar, Zhang, and Levine]{peng2019awr}
+Xue~Bin Peng, Aviral Kumar, Grace Zhang, and Sergey Levine.
+\newblock Advantage-weighted regression: Simple and scalable off-policy
+  reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:1910.00177}, 2019.
+\newblock \doi{10.48550/arXiv.1910.00177}.
+\newblock URL \url{https://arxiv.org/abs/1910.00177}.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017ppo}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+\newblock \doi{10.48550/arXiv.1707.06347}.
+\newblock URL \url{https://arxiv.org/abs/1707.06347}.
+
+\bibitem[Mnih et~al.(2015)Mnih, Kavukcuoglu, Silver, Rusu, Veness, Bellemare,
+  Graves, Riedmiller, Fidjeland, Ostrovski, et~al.]{mnih2015human}
+Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Andrei~A. Rusu, Joel Veness,
+  Marc~G. Bellemare, Alex Graves, Martin Riedmiller, Andreas~K. Fidjeland,
+  Georg Ostrovski, et~al.
+\newblock Human-level control through deep reinforcement learning.
+\newblock \emph{Nature}, 518:\penalty0 529--533, 2015.
+\newblock \doi{10.1038/nature14236}.
+
+\bibitem[van Hasselt et~al.(2016)van Hasselt, Guez, and
+  Silver]{hasselt2016deep}
+Hado van Hasselt, Arthur Guez, and David Silver.
+\newblock Deep reinforcement learning with double {Q}-learning.
+\newblock In \emph{Proceedings of the Thirtieth AAAI Conference on Artificial
+  Intelligence}, pages 2094--2100, 2016.
+
+\bibitem[Schuld and Killoran(2019)]{schuld2019feature}
+Maria Schuld and Nathan Killoran.
+\newblock Quantum machine learning in feature {Hilbert} spaces.
+\newblock \emph{Physical Review Letters}, 122\penalty0 (4):\penalty0 040504,
+  2019.
+\newblock \doi{10.1103/PhysRevLett.122.040504}.
+\newblock URL \url{https://doi.org/10.1103/PhysRevLett.122.040504}.
+
+\bibitem[Havl{\'i}{\v{c}}ek et~al.(2019)Havl{\'i}{\v{c}}ek, C{\'o}rcoles,
+  Temme, Harrow, Kandala, Chow, and Gambetta]{havlicek2019supervised}
+Vojt{\v{e}}ch Havl{\'i}{\v{c}}ek, Antonio~D. C{\'o}rcoles, Kristan Temme,
+  Aram~W. Harrow, Abhinav Kandala, Jerry~M. Chow, and Jay~M. Gambetta.
+\newblock Supervised learning with quantum-enhanced feature spaces.
+\newblock \emph{Nature}, 567:\penalty0 209--212, 2019.
+\newblock \doi{10.1038/s41586-019-0980-2}.
+\newblock URL \url{https://doi.org/10.1038/s41586-019-0980-2}.
+
+\bibitem[Huang et~al.(2021)Huang, Broughton, Mohseni, Babbush, Boixo, Neven,
+  and McClean]{huang2021power}
+Hsin-Yuan Huang, Michael Broughton, Masoud Mohseni, Ryan Babbush, Sergio Boixo,
+  Hartmut Neven, and Jarrod~R. McClean.
+\newblock Power of data in quantum machine learning.
+\newblock \emph{Nature Communications}, 12:\penalty0 2631, 2021.
+\newblock \doi{10.1038/s41467-021-22539-9}.
+\newblock URL \url{https://doi.org/10.1038/s41467-021-22539-9}.
+
+\bibitem[Cortes et~al.(2012)Cortes, Mohri, and
+  Rostamizadeh]{cortes2012alignment}
+Corinna Cortes, Mehryar Mohri, and Afshin Rostamizadeh.
+\newblock Algorithms for learning kernels based on centered alignment.
+\newblock \emph{Journal of Machine Learning Research}, 13\penalty0
+  (28):\penalty0 795--828, 2012.
+\newblock URL \url{https://www.jmlr.org/papers/v13/cortes12a.html}.
+
+\bibitem[Suzuki et~al.(2024)Suzuki, Kawaguchi, and Yamamoto]{suzuki2024qfk}
+Yudai Suzuki, Hideaki Kawaguchi, and Naoki Yamamoto.
+\newblock Quantum fisher kernel for mitigating the vanishing similarity issue.
+\newblock \emph{Quantum Science and Technology}, 9\penalty0 (3):\penalty0
+  035050, 2024.
+\newblock \doi{10.1088/2058-9565/ad4b97}.
+\newblock URL \url{https://doi.org/10.1088/2058-9565/ad4b97}.
+
+\bibitem[Recio-Armengol et~al.(2025)Recio-Armengol, Ahmed, and
+  Bowles]{recioarmengol2025train}
+Erik Recio-Armengol, Shahnawaz Ahmed, and Joseph Bowles.
+\newblock Train on classical, deploy on quantum: scaling generative quantum
+  machine learning to a thousand qubits, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.02934}.
+
+\bibitem[Farhi et~al.(2014)Farhi, Goldstone, and Gutmann]{farhi2014qaoa}
+Edward Farhi, Jeffrey Goldstone, and Sam Gutmann.
+\newblock A quantum approximate optimization algorithm.
+\newblock \emph{arXiv preprint arXiv:1411.4028}, 2014.
+\newblock \doi{10.48550/arXiv.1411.4028}.
+\newblock URL \url{https://arxiv.org/abs/1411.4028}.
+
+\bibitem[Egger et~al.(2021)Egger, Marecek, and Woerner]{egger2021warm}
+Daniel~J. Egger, Jakub Marecek, and Stefan Woerner.
+\newblock Warm-starting quantum optimization.
+\newblock \emph{Quantum}, 5:\penalty0 479, 2021.
+\newblock \doi{10.22331/q-2021-06-17-479}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2021-06-17-479/}.
+
+\bibitem[Bravyi et~al.(2020)Bravyi, Kliesch, Koenig, and Tang]{bravyi2020rqaoa}
+Sergey Bravyi, Alexander Kliesch, Robert Koenig, and Eugene Tang.
+\newblock Obstacles to state preparation and variational optimization from
+  symmetry protection.
+\newblock \emph{Physical Review Letters}, 125\penalty0 (26):\penalty0 260505,
+  2020.
+\newblock \doi{10.1103/PhysRevLett.125.260505}.
+\newblock URL \url{https://doi.org/10.1103/PhysRevLett.125.260505}.
+
+\bibitem[Herrman et~al.(2022)Herrman, Lotshaw, Ostrowski, Humble, and
+  Siopsis]{herrman2022multiangle}
+Rebekah Herrman, Phillip~C. Lotshaw, James Ostrowski, Travis~S. Humble, and
+  George Siopsis.
+\newblock Multi-angle quantum approximate optimization algorithm.
+\newblock \emph{Scientific Reports}, 12:\penalty0 6781, 2022.
+\newblock \doi{10.1038/s41598-022-10555-8}.
+\newblock URL \url{https://doi.org/10.1038/s41598-022-10555-8}.
+
+\bibitem[Sciorilli et~al.(2025)Sciorilli, Borges, Patti, Garc{\'i}a-Mart{\'i}n,
+  Camilo, Anandkumar, and Aolita]{sciorilli2025pce}
+Marco Sciorilli, Lucas Borges, Taylor~L. Patti, Diego Garc{\'i}a-Mart{\'i}n,
+  Giancarlo Camilo, Anima Anandkumar, and Leandro Aolita.
+\newblock Towards large-scale quantum optimization solvers with few qubits.
+\newblock \emph{Nature Communications}, 16:\penalty0 476, 2025.
+\newblock \doi{10.1038/s41467-024-55346-z}.
+\newblock URL \url{https://doi.org/10.1038/s41467-024-55346-z}.
+
+\bibitem[Monta{\~n}ez-Barrera and Michielsen(2025)]{montanez2025lrqaoa}
+J.~A. Monta{\~n}ez-Barrera and Kristel Michielsen.
+\newblock Toward a linear-ramp {QAOA} protocol: evidence of a scaling advantage
+  in solving some combinatorial optimization problems.
+\newblock \emph{npj Quantum Information}, 11:\penalty0 131, 2025.
+\newblock \doi{10.1038/s41534-025-01082-1}.
+\newblock URL \url{https://doi.org/10.1038/s41534-025-01082-1}.
+
+\end{thebibliography}

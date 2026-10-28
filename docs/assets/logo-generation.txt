@@ -1,0 +1,16 @@
+QASP logo
+
+Created with the built-in image generation tool.
+qasp-logo.png: light background, navy lettering.
+qasp-logo-dark.png: dark background, near-white lettering.
+The README selects the appropriate version using the viewer's color scheme.
+Both final PNGs use opaque backgrounds for clean edges.
+
+Initial design prompt:
+Use case: logo-brand. Asset type: finished logo for the GitHub README of QASP, Quantum Agent Software Package, a Python toolkit for quantum machine learning and reinforcement learning. Create one polished horizontal logo lockup: a distinctive minimal geometric Q symbol subtly integrating quantum circuit paths and two connected circuit nodes, alongside the exact uppercase word "QASP" in clean confident contemporary sans-serif lettering. Flat vector-like design, crisp precise edges, restrained professional color treatment with good contrast on both light and dark backgrounds, generous clean spacing. Transparent background. Only the text "QASP", spelled Q A S P, no subtitle or extra text. One logo only, centered and filling the canvas with modest margins, wide composition. No mockup, no shadows, no 3D, no atom-orbit cliché, no watermark.
+
+Final light version refinement prompt:
+Refine the provided QASP logo into a clean production-ready logo. Preserve its design: cyan-blue-purple geometric quantum circuit Q icon and the exact navy wordmark QASP. Render on a completely solid pure white background, with no transparency anywhere. Remove all ragged edge artifacts, stray pixels, grain or texture. Smooth crisp antialiased edges, smooth solid lettering. Same horizontal composition and generous margins. No extra text or elements. Use case: logo-brand.
+
+Final dark version prompt (using the finished light logo as reference):
+Use case: logo-brand. Create the dark theme version of the supplied finished QASP logo. Change only the white background to a uniform solid GitHub-dark charcoal #0d1117 and change the navy QASP wordmark to solid near-white #f0f6fc. The white holes inside the circuit nodes must also be dark charcoal as background. Precisely preserve all shapes, sizes, positions, margins, cyan-blue-violet icon colors and exact text QASP. Smooth crisp antialiased edges. No texture or stray marks. Completely opaque image, no transparency. Same wide canvas.

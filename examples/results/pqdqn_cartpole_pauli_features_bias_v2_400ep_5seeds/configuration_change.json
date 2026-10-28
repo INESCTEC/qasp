@@ -1,0 +1,11 @@
+{
+  "reason": "User selected four configurations with presets a=2",
+  "partial_snapshot": "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds_six_readout_partial_20261013T172209Z",
+  "retained_readouts": [
+    "shared",
+    "per_action",
+    "parity_a2",
+    "majority_a2"
+  ],
+  "incomplete_runs_restart": true
+}

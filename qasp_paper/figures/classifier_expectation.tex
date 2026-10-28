@@ -1,0 +1,15 @@
+\documentclass[tikz,border=4pt]{standalone}
+\usepackage{xcolor}
+\usepackage{quantikz}
+\definecolor{qaspSingleGate}{HTML}{DCECF8}
+\definecolor{qaspTwoQubitGate}{HTML}{E4D8F2}
+\definecolor{qaspMultiQubitGate}{HTML}{EEE2F7}
+\definecolor{qaspMeasurement}{HTML}{E8E5F5}
+\begin{document}
+\begin{quantikz}[execute at end picture={\draw[dashed,rounded corners] ([xshift=-3pt,yshift=3pt]\tikzcdmatrixname-1-4.north west) rectangle ([xshift=3pt,yshift=-3pt]\tikzcdmatrixname-4-9.south east);\node[anchor=north] at ($(\tikzcdmatrixname-4-4.south west)!0.5!(\tikzcdmatrixname-4-9.south east)+(0,-5pt)$) {$U(\theta_{1})$};}, row sep=0.38cm, column sep=0.27cm]
+\lstick{$q_{0}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_y(f_{1})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{1})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{5})} & \ctrl{1} & \qw & \qw & \control{} & \gate[wires=4, style={fill=qaspMultiQubitGate}]{U(\theta_{2})} & \meter[style={fill=qaspMeasurement}]{\langle Z\rangle} & \qw \\
+\lstick{$q_{1}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_y(f_{2})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{2})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{6})} & \control{} & \ctrl{1} & \qw & \qw & \qw & \meter[style={fill=qaspMeasurement}]{\langle X\rangle} & \qw \\
+\lstick{$q_{2}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_y(f_{3})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{3})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{7})} & \qw & \control{} & \ctrl{1} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{\langle Z\rangle} & \qw \\
+\lstick{$q_{3}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_y(f_{4})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{4})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{8})} & \qw & \qw & \control{} & \ctrl{-3} & \qw & \qw & \qw \\
+\end{quantikz}
+\end{document}

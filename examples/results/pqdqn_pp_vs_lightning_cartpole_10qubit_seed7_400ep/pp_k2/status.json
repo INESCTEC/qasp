@@ -1,0 +1,19 @@
+{
+  "status": "cancelled",
+  "reason": "Explicit user cancellation",
+  "updated_utc": "2026-10-14T11:00:15.186103+00:00",
+  "last_progress": {
+    "status": "training",
+    "pid": 50836,
+    "updated_utc": "2026-10-14T10:59:28.550686+00:00",
+    "episode": 144,
+    "frames": 2987,
+    "updates": 683,
+    "training_seconds": 2077.4177845830272,
+    "last_20_mean": 16.45
+  },
+  "saved_episodes": 144,
+  "frames": 2987,
+  "updates": 683,
+  "training_seconds": 2077.4177845830272
+}

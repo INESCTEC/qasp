@@ -1,0 +1,76 @@
+{
+  "status": "delivered",
+  "dataset": "pauli_features_affine_v2_four_readouts_a2",
+  "destination_thread_id": "01a0642f-248a-73b1-b0dc-44338f11b886",
+  "destination_host": "local",
+  "timestamp": "2026-10-13T19:22:15.338349+00:00",
+  "delivery_confirmed": true,
+  "results_directory": "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds",
+  "notebook": "/Users/andresequeira/Desktop/QASP/examples/cartpole_pqdqn_deep_q_learning.ipynb",
+  "verification": {
+    "completed_runs": 20,
+    "seeds_per_readout": 5,
+    "episodes_per_run": 400,
+    "total_training_episodes": 8000,
+    "held_out_episodes_per_run": 100,
+    "notebook_executed_code_cells": 6,
+    "notebook_error_outputs": 0,
+    "manifest_specs_and_fingerprints_match": true,
+    "bias_and_preset_metadata_match": true,
+    "raw_aggregate_and_moving_statistics_match": true,
+    "plots_visually_checked": true
+  },
+  "summary": [
+    {
+      "readout": "shared",
+      "runs": "5",
+      "backends": "default.qubit",
+      "initial_greedy_mean": "9.43",
+      "final_greedy_mean": "175.37",
+      "held_out_mean": "176.148",
+      "held_out_std_across_seeds": "21.240233520373543",
+      "last_20_training_mean": "205.28000000000003"
+    },
+    {
+      "readout": "per_action",
+      "runs": "5",
+      "backends": "default.qubit",
+      "initial_greedy_mean": "9.45",
+      "final_greedy_mean": "259.09000000000003",
+      "held_out_mean": "249.998",
+      "held_out_std_across_seeds": "122.70987132256312",
+      "last_20_training_mean": "179.64"
+    },
+    {
+      "readout": "parity_a2",
+      "runs": "5",
+      "backends": "default.qubit",
+      "initial_greedy_mean": "10.059999999999999",
+      "final_greedy_mean": "9.44",
+      "held_out_mean": "9.25",
+      "held_out_std_across_seeds": "0.13416407864998753",
+      "last_20_training_mean": "11.08"
+    },
+    {
+      "readout": "majority_a2",
+      "runs": "5",
+      "backends": "default.qubit",
+      "initial_greedy_mean": "19.8",
+      "final_greedy_mean": "215.51999999999998",
+      "held_out_mean": "198.712",
+      "held_out_std_across_seeds": "139.77046619368485",
+      "last_20_training_mean": "143.43"
+    }
+  ],
+  "artifacts": [
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/readout_summary.csv",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/run_summaries.csv",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/all_training.csv",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/moving_returns.csv",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/average_moving_returns.pdf",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/average_moving_returns.png",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/held_out_returns.pdf",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/held_out_returns.png",
+    "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/manifest.json"
+  ]
+}

@@ -1,0 +1,23 @@
+% QASP-generated publication circuit.
+% Figure: CartPole graph-IQP template: 5-qubit ring, L=1,2,3
+% Source notebook cells: tests/test_policy_training_efficiency.ipynb cells 8-16
+% QASP API: qasp.circuits.tape_to_tikz(QASP-traced tape, compress=True, explicit layer metadata)
+% Gate and wire geometry below is emitted by qasp.circuits.tikz.
+% Compile: latexmk -pdf -interaction=nonstopmode -halt-on-error FILE.tex
+% Depth reading: L=1 stops after U_1; L=2 after U_2; L=3 uses the complete displayed circuit.
+\documentclass[tikz,border=4pt]{standalone}
+\usepackage{xcolor}
+\usepackage{quantikz}
+\definecolor{qaspSingleGate}{HTML}{DCEAF7}
+\definecolor{qaspTwoQubitGate}{HTML}{F3D7B5}
+\definecolor{qaspMultiQubitGate}{HTML}{E6D6F2}
+\definecolor{qaspMeasurement}{HTML}{D9EAD3}
+\begin{document}
+\begin{quantikz}[execute at end picture={\draw[dashed,rounded corners] ([xshift=-3pt,yshift=3pt]\tikzcdmatrixname-1-3.north west) rectangle ([xshift=3pt,yshift=-3pt]\tikzcdmatrixname-5-10.south east);\node[anchor=north] at ($(\tikzcdmatrixname-5-3.south west)!0.5!(\tikzcdmatrixname-5-10.south east)+(0,-5pt)$) {$\mathcal{U}_{1}(\mathbf{s};\Theta_{1})$};}, row sep=0.30cm, column sep=0.17cm]
+\lstick{$q_{1}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\varphi_{1}(\mathbf{s}))} & \gate[style={fill=qaspSingleGate}]{R_Z(\alpha_{1})} & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{1,2})} & \qw & \qw & \qw & \gate[style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{5,1})}\vqw{4} & \gate[style={fill=qaspSingleGate}]{H} & \gate[wires=5, style={fill=qaspMultiQubitGate}]{\mathcal{U}_{2}(\mathbf{s};\Theta_{2})} & \gate[wires=5, style={fill=qaspMultiQubitGate}]{\mathcal{U}_{3}(\mathbf{s};\Theta_{3})} & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{2}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\varphi_{2}(\mathbf{s}))} & \gate[style={fill=qaspSingleGate}]{R_Z(\alpha_{2})} & \qw & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{2,3})} & \qw & \qw & \qw & \gate[style={fill=qaspSingleGate}]{H} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{3}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\varphi_{3}(\mathbf{s}))} & \gate[style={fill=qaspSingleGate}]{R_Z(\alpha_{3})} & \qw & \qw & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{3,4})} & \qw & \qw & \gate[style={fill=qaspSingleGate}]{H} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{4}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\varphi_{4}(\mathbf{s}))} & \gate[style={fill=qaspSingleGate}]{R_Z(\alpha_{4})} & \qw & \qw & \qw & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{4,5})} & \qw & \gate[style={fill=qaspSingleGate}]{H} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{5}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\varphi_{5}(\mathbf{s}))} & \gate[style={fill=qaspSingleGate}]{R_Z(\alpha_{5})} & \qw & \qw & \qw & \qw & \gate[style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{5,1})} & \gate[style={fill=qaspSingleGate}]{H} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\end{quantikz}
+\end{document}

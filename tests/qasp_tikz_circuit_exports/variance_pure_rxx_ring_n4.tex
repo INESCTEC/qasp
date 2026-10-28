@@ -1,0 +1,21 @@
+% QASP-generated publication circuit.
+% Figure: Pure-RXX periodic ring IQP, n=4
+% Source notebook cells: tests/iqp_variance_experiments.ipynb cells 5, 27, 28
+% QASP API: qasp.circuits.circuit_to_tikz(builder, circuit_kwargs=..., standalone=True)
+% Gate and wire geometry below is emitted by qasp.circuits.tikz.
+% Compile: latexmk -pdf -interaction=nonstopmode -halt-on-error FILE.tex
+\documentclass[tikz,border=4pt]{standalone}
+\usepackage{xcolor}
+\usepackage{quantikz}
+\definecolor{qaspSingleGate}{HTML}{DCEAF7}
+\definecolor{qaspTwoQubitGate}{HTML}{F3D7B5}
+\definecolor{qaspMultiQubitGate}{HTML}{E6D6F2}
+\definecolor{qaspMeasurement}{HTML}{D9EAD3}
+\begin{document}
+\begin{quantikz}[row sep=0.34cm, column sep=0.20cm]
+\lstick{$q_{1}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{1,2})} & \qw & \qw & \gate[style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{4,1})}\vqw{3} & \gate[style={fill=qaspSingleGate}]{H} & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{2}$} & \gate[style={fill=qaspSingleGate}]{H} & \qw & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{2,3})} & \qw & \qw & \gate[style={fill=qaspSingleGate}]{H} & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{3}$} & \gate[style={fill=qaspSingleGate}]{H} & \qw & \qw & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{3,4})} & \qw & \gate[style={fill=qaspSingleGate}]{H} & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\lstick{$q_{4}$} & \gate[style={fill=qaspSingleGate}]{H} & \qw & \qw & \qw & \gate[style={fill=qaspTwoQubitGate}]{R_{ZZ}(\beta_{4,1})} & \gate[style={fill=qaspSingleGate}]{H} & \meter[style={fill=qaspMeasurement}]{} & \qw \\
+\end{quantikz}
+\end{document}

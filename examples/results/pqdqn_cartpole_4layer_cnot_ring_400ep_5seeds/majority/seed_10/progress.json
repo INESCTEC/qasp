@@ -1,0 +1,8 @@
+{
+  "readout": "majority",
+  "seed": 10,
+  "episode": 400,
+  "frames": 6347,
+  "updates": 1523,
+  "last_20_mean": 11.9
+}

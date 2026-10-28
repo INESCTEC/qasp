@@ -1,0 +1,40 @@
+{
+  "config": {
+    "n_qubits": 3,
+    "ansatz": "AngleAnsatz",
+    "ansatz_config": {
+      "n_layers": 2,
+      "rotations": "YZ",
+      "include_imprimitive": true,
+      "imprimitive": "CNOT",
+      "imprimitive_pattern": "chain"
+    },
+    "loss": "mmd",
+    "mmd_config": {
+      "mode": "exact",
+      "bandwidths": [
+        0.5,
+        1.0,
+        2.0
+      ]
+    },
+    "device": "default.qubit",
+    "seed": 7,
+    "lr": 0.05
+  },
+  "steps": 120,
+  "training_rows": 256,
+  "initial_mmd2": 0.3320805126706118,
+  "final_mmd2": 1.6678372670778787e-05,
+  "final_pp_mmd2": 1.667837267077869e-05,
+  "initial_gradient_max_error": 1.3877787807814457e-16,
+  "final_probability_max_error": 2.220446049250313e-16,
+  "target_support_probability": 0.9925771886455247,
+  "total_variation_to_target": 0.007422811354475286,
+  "statevector_seconds": 1.1849730829999316,
+  "pp_seconds": 1.0827739160158671,
+  "python": "3.10.17",
+  "pennylane": "0.42.2",
+  "torch": "2.7.0",
+  "validation_scope": "Three qubits, one seed; unpruned PP; not a scaling benchmark or MPI run."
+}

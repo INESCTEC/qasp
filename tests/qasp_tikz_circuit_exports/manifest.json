@@ -1,0 +1,288 @@
+{
+  "generator": "/Users/andresequeira/Desktop/QASP/tests/build_qasp_tikz_circuit_exports.py",
+  "qasp_api_calls": [
+    "qasp.circuits.circuit_to_tikz",
+    "qasp.circuits.tape_to_tikz",
+    "qasp.rl.model.create_model",
+    "CircuitBuilder.set_measurement('probs')"
+  ],
+  "source_notebook_sha256": {
+    "iqp_variance_experiments.ipynb": "0dcb0a37820809dd2e627dd43d9fd12996ccb0e22c8aa2d23d618d5eac20f0e0",
+    "test_policy_training_efficiency.ipynb": "5e65fb0fe1d479ab28ef43902bdc561485e43c1d433b225293cd96a597ba9adb"
+  },
+  "artifacts": [
+    {
+      "filename": "variance_pure_rxx_ring_n4.tex",
+      "title": "Pure-RXX periodic ring IQP, n=4",
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "include_local": false,
+      "sources": [
+        "tests/iqp_variance_experiments.ipynb cells 5, 27, 28"
+      ],
+      "equivalence": "Native H-D_Z-H realization of edge-only R_XX ring",
+      "tex": "variance_pure_rxx_ring_n4.tex",
+      "n_qubits": 4,
+      "n_layers": 1,
+      "n_parameters": 4,
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tex_sha256": "6de499fa3c09130823a9a4d19e708458e8bb73e20025437456cfc9aa0ce4f19e",
+      "tex_bytes": 1736,
+      "pdf_sha256": "d2ce9a822ddef68b62aed56faa365f7174977846a17be8fc64fb50ca939d8116",
+      "pdf_bytes": 37223,
+      "png_sha256": "4f4eeb4ba39d66da2b4f7ba65a4aafbf8fd58c97453748e61a504337ba6bdce9",
+      "png_bytes": 48244
+    },
+    {
+      "filename": "variance_graph_iqp_path_n4.tex",
+      "title": "Local-plus-edge graph-IQP path, n=4",
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "include_local": true,
+      "sources": [
+        "tests/iqp_variance_experiments.ipynb cells 5, 6, 12, 13"
+      ],
+      "equivalence": "Native H-D_Z-H realization of local R_X plus path R_XX",
+      "tex": "variance_graph_iqp_path_n4.tex",
+      "n_qubits": 4,
+      "n_layers": 1,
+      "n_parameters": 7,
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tex_sha256": "28196ae35d3661981454d8d194098597487ed913228cfa6e827f8be0b14b4277",
+      "tex_bytes": 1820,
+      "pdf_sha256": "7697f4e3891c9e893f19c653b7e2219bfcf8466b66c2420b596c8c373a721f9e",
+      "pdf_bytes": 37945,
+      "png_sha256": "82c9bb8af7a35f4a6391a444383161fead043eb918b726caaecf7be8161a7147",
+      "png_bytes": 52204
+    },
+    {
+      "filename": "variance_repeated_iqp_n5_L2.tex",
+      "title": "Repeated IQP-like variance architecture, n=5, L=2",
+      "n_qubits": 5,
+      "n_layers": 2,
+      "input_scaling_entries": 10,
+      "active_initial_embedding_entries": 5,
+      "ansatz_parameters": 38,
+      "program": "initial RX embedding; per layer: RZ, periodic RZZ, RX, open-chain RXX",
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "sources": [
+        "tests/iqp_variance_experiments.ipynb cells 63, 64, 65"
+      ],
+      "tex_sha256": "6e7c532e188ad5af858790278c05e882dacdff2b347925c22dc00d1848e3e0c1",
+      "tex_bytes": 3272,
+      "pdf_sha256": "7fff773cfca61bcc9cd8f8b90666e320e3434e4fb7b63723300ddbb8472f4ce6",
+      "pdf_bytes": 50628,
+      "png_sha256": "7b5a147e44031e4f8c24dbe16058fcbc2f27a749369cfe2f411f329905cd5763",
+      "png_bytes": 132741
+    },
+    {
+      "filename": "cartpole_graph_iqp_ring5_depths_L1_L2_L3.tex",
+      "title": "CartPole graph-IQP template: 5-qubit ring, L=1,2,3",
+      "n_qubits": 5,
+      "represented_depths": [
+        1,
+        2,
+        3
+      ],
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "initializer": "normal_0_1",
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "operation_counts": {
+        "1": 25,
+        "2": 45,
+        "3": 65
+      },
+      "first_state_conditioned_program_operations": 20,
+      "sources": [
+        "tests/test_policy_training_efficiency.ipynb cells 8-16"
+      ],
+      "depth_convention": "L=1/2/3 are prefixes through U_1/U_2/U_3",
+      "tex_sha256": "01debaf788ffe50a439a87fe6ea939ed72a0058d3f2400906c305a9e9a73e193",
+      "tex_bytes": 3307,
+      "pdf_sha256": "b80806d7b0577696c4d3695aa7cf886c5b23e07905ee473dbb05d10c7eba3a50",
+      "pdf_bytes": 59816,
+      "png_sha256": "91e9e21cea1f66a8dc4f9ad8e001e56b442d20eacc383a603501ff8b0a0b3da5",
+      "png_bytes": 126533
+    },
+    {
+      "filename": "cartpole_graph_iqp_expander10_depths_L1_L2_L3.tex",
+      "title": "CartPole graph-IQP template: 10-qubit cubic expander, L=1,2,3",
+      "n_qubits": 10,
+      "represented_depths": [
+        1,
+        2,
+        3
+      ],
+      "edges": [
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          8,
+          9
+        ]
+      ],
+      "initializer": "uniform",
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "operation_counts": {
+        "1": 55,
+        "2": 100,
+        "3": 145
+      },
+      "first_state_conditioned_program_operations": 45,
+      "sources": [
+        "tests/test_policy_training_efficiency.ipynb cells 17-26"
+      ],
+      "depth_convention": "L=1/2/3 are prefixes through U_1/U_2/U_3",
+      "tex_sha256": "bd48eac2a7686454df5a47e1cc207c1dc39c8250cd7c1a30734bc146bde63a1b",
+      "tex_bytes": 6458,
+      "pdf_sha256": "ffd56dc72f3f8b7ed1a80d6d959d0ab6825793ea55b5a492410efc71614bfe3f",
+      "pdf_bytes": 61800,
+      "png_sha256": "30ab1654677c5389bdadaced65d9676aaa1d990538c591f07d001bf8eac29cb0",
+      "png_bytes": 176264
+    }
+  ],
+  "exporter_limitations": [
+    "The exporter emits LaTeX but does not compile it; this build uses latexmk.",
+    "Automatic builder compression rejects reuploading=True; CartPole circuits are traced from QASP builders and passed to tape_to_tikz with verified layer boundaries.",
+    "Compressed later programs are intentionally represented by full-register U_l blocks; the first program is gate-explicit.",
+    "NeuralEmbedding contractions need parameter_formatter for paper symbols.",
+    "Computational-basis probability meters are unlabeled by Quantikz; measured wires are explicit in the manifest.",
+    "For the 10-qubit CartPole circuit, q_10 participates in the unitary but is deliberately unmeasured, matching the notebook.",
+    "The 10-qubit diagram keeps every traced edge endpoint but shortens all edge-angle labels to beta for legibility at two-column width; the indexed edge list is stored in this manifest."
+  ]
+}

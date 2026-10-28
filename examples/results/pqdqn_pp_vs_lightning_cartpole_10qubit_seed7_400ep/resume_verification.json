@@ -1,0 +1,12 @@
+[
+  {
+    "backend": "pp_k2",
+    "restored_replay_optimizer_target_rng_counters": true,
+    "continued_episode_identical": true
+  },
+  {
+    "backend": "lightning_qubit",
+    "restored_replay_optimizer_target_rng_counters": true,
+    "continued_episode_identical": true
+  }
+]

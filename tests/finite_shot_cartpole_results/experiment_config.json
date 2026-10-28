@@ -1,0 +1,212 @@
+{
+  "created_utc": "2026-09-17T16:30:55.150808+00:00",
+  "source_notebook": "/Users/andresequeira/Desktop/QASP/tests/test_policy_training_efficiency.ipynb",
+  "notebook": "/Users/andresequeira/Desktop/QASP/tests/test_policy_training_efficiency_finite_shots.ipynb",
+  "results_directory": "/Users/andresequeira/Desktop/QASP/tests/finite_shot_cartpole_results",
+  "environment_label": "CartPole-v1/200",
+  "gymnasium_environment_id": "CartPole-v1",
+  "architectures": {
+    "ring_5_L3": {
+      "label": "5-qubit ring, L=3",
+      "n_qubits": 5,
+      "n_layers": 3,
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "initializer": "normal_0_1",
+      "seeds": [
+        3,
+        7,
+        11,
+        23,
+        37
+      ],
+      "source_depth_reason": "largest majority advantage among the 5q depth sweep"
+    },
+    "expander_10_L1": {
+      "label": "10-qubit cubic expander, L=1",
+      "n_qubits": 10,
+      "n_layers": 1,
+      "edges": [
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          8,
+          9
+        ]
+      ],
+      "measurement_wires": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "initializer": "uniform",
+      "seeds": [
+        3,
+        7,
+        11,
+        23,
+        37
+      ],
+      "source_depth_reason": "largest/cheapest 10q majority contrast in the source sweep"
+    }
+  },
+  "conditions": [
+    {
+      "mode": "exact_analytic",
+      "shots": null,
+      "gradient_estimator": "analytic"
+    },
+    {
+      "mode": "exact_spsa",
+      "shots": null,
+      "gradient_estimator": "spsa"
+    },
+    {
+      "mode": "shots_1024",
+      "shots": 1024,
+      "gradient_estimator": "spsa"
+    },
+    {
+      "mode": "shots_4096",
+      "shots": 4096,
+      "gradient_estimator": "spsa"
+    }
+  ],
+  "pilot_shots": [
+    256,
+    1024,
+    4096
+  ],
+  "policies": [
+    "parity",
+    "majority"
+  ],
+  "episodes": 500,
+  "max_steps": 200,
+  "terminal_metric": "mean return over final 50 episodes",
+  "solved_metric": "first full 100-episode rolling mean >= 195.0",
+  "optimizer_freeze_rule": "at 5-episode boundary, mean of most recent up-to-100 returns >=195; interaction continues to episode 500",
+  "finite_probability_rule": "Jeffreys alpha=0.5 per action: (count+0.5)/(shots+1)",
+  "finite_gradient_estimator": "two-sided SPSA, 2 Rademacher directions/update, independent finite-shot losses",
+  "training": {
+    "gamma": 0.99,
+    "lr": 0.03,
+    "lr_schedule": "constant (none)",
+    "optimizer": "Adam(amsgrad=True)",
+    "batch_episodes": 5,
+    "normalize_returns": true,
+    "baseline_type": "ema",
+    "baseline_momentum": 0.05,
+    "entropy_coef": 0.005,
+    "max_grad_norm": 1.0,
+    "spsa_directions": 2,
+    "spsa_c0": 0.1,
+    "spsa_gamma": 0.101,
+    "pseudocount_alpha": 0.5
+  },
+  "versions": {
+    "python": "3.10.17",
+    "qasp": "local checkout",
+    "pennylane": "0.42.2",
+    "torch": "2.7.0",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.14.1",
+    "gymnasium": "1.0.0"
+  },
+  "git_commit": "1b3706c448bb3f658c968fcad186ba5b04a7c910",
+  "git_dirty": true,
+  "runtime_compromises": [
+    "Only source-paper strongest depths: 5q L=3 and 10q L=1.",
+    "Five of the ten existing 10q seeds used after timing pilot.",
+    "256 shots retained in pilot only; confirmatory finite budgets are 1024 and 4096.",
+    "Native finite-shot parameter-shift validated but replaced by explicit SPSA for confirmatory runtime feasibility."
+  ]
+}

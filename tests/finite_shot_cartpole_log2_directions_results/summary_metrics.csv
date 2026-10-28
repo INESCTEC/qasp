@@ -1,0 +1,17 @@
+architecture,architecture_label,n_qubits,depth,policy,mode,shots_per_evaluation,n_seeds,parameter_count,spsa_directions,mean_final_50,sem_final_50,solved_seed_fraction,mean_runtime_seconds,total_circuit_evaluations,total_circuit_shots,condition_label
+ring_5_L3,"5-qubit ring, L=3",5,3,parity,exact_analytic,0,5,90,0,173.892,7.462062985528867,0.0,46.23431595839993,555068,0,exact + analytic gradient (K=N/A)
+ring_5_L3,"5-qubit ring, L=3",5,3,majority,exact_analytic,0,5,90,0,192.6,4.861032812067824,0.6,64.2368033748,687860,0,exact + analytic gradient (K=N/A)
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,parity,exact_analytic,0,5,65,0,37.648,4.769140803121669,0.0,11.180869566600085,143488,0,exact + analytic gradient (K=N/A)
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,majority,exact_analytic,0,5,65,0,187.17199999999997,10.36640265473033,0.6,43.173110499799805,472814,0,exact + analytic gradient (K=N/A)
+ring_5_L3,"5-qubit ring, L=3",5,3,parity,shots_4096_log2K,4096,5,90,7,83.788,8.182035443580038,0.0,43.39231331680021,1840065,7536906240,"4,096 shots + SPSA (K=7)"
+ring_5_L3,"5-qubit ring, L=3",5,3,majority,shots_4096_log2K,4096,5,90,7,138.83200000000002,9.647823796069245,0.0,65.2745649167995,2763120,11317739520,"4,096 shots + SPSA (K=7)"
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,parity,shots_4096_log2K,4096,5,65,7,22.884,0.9085240778317321,0.0,46.55125453340006,830070,3399966720,"4,096 shots + SPSA (K=7)"
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,majority,shots_4096_log2K,4096,5,65,7,98.79599999999999,28.40854758694995,0.0,104.43111362500022,1945590,7969136640,"4,096 shots + SPSA (K=7)"
+ring_5_L3,"5-qubit ring, L=3",5,3,parity,shots_1024,1024,5,90,2,50.036,7.619252981756151,0.0,21.33723249980012,426850,437094400,"1,024 shots + SPSA (K=2)"
+ring_5_L3,"5-qubit ring, L=3",5,3,majority,shots_1024,1024,5,90,2,78.56,12.259600319749417,0.0,25.49746119160027,587655,601758720,"1,024 shots + SPSA (K=2)"
+ring_5_L3,"5-qubit ring, L=3",5,3,parity,shots_4096,4096,5,90,2,53.35600000000001,5.865179963138386,0.0,17.508547858399833,441280,1807482880,"4,096 shots + SPSA (K=2)"
+ring_5_L3,"5-qubit ring, L=3",5,3,majority,shots_4096,4096,5,90,2,74.684,5.98997295486382,0.0,20.563102741400144,542870,2223595520,"4,096 shots + SPSA (K=2)"
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,parity,shots_1024,1024,5,65,2,21.964000000000002,0.7101661777358872,0.0,15.196348400200076,277500,284160000,"1,024 shots + SPSA (K=2)"
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,majority,shots_1024,1024,5,65,2,49.668000000000006,13.30325463937303,0.0,21.37849969980016,394095,403553280,"1,024 shots + SPSA (K=2)"
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,parity,shots_4096,4096,5,65,2,24.66,0.75240946299206,0.0,15.791393991400401,280860,1150402560,"4,096 shots + SPSA (K=2)"
+expander_10_L1,"10-qubit cubic expander, L=1",10,1,majority,shots_4096,4096,5,65,2,67.16799999999999,23.784423978730278,0.0,27.366804433200013,512605,2099630080,"4,096 shots + SPSA (K=2)"

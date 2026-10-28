@@ -1,0 +1,65 @@
+{
+  "readout": "shared",
+  "seed": 7,
+  "device": "default.qubit",
+  "diff_method": "backprop",
+  "episodes": 400,
+  "frames": 38820,
+  "updates": 9642,
+  "initial_greedy_mean": 9.45,
+  "final_greedy_mean": 172.65,
+  "held_out_mean": 174.12,
+  "last_20_training_mean": 181.55,
+  "elapsed_seconds": 1152.4264400410175,
+  "fingerprint": "aad539177710222684c604110ec15b5921c6a08f1b49b8c28f2636acd2aec6da",
+  "spec": {
+    "readout": "shared",
+    "seed": 7,
+    "episodes": 400,
+    "model_config": {
+      "ansatz": "AngleAnsatz",
+      "ansatz_config": {
+        "n_layers": 4,
+        "rotations": "YZ",
+        "reuploading": true,
+        "include_imprimitive": true,
+        "imprimitive": "CNOT",
+        "imprimitive_pattern": "ring",
+        "include_final_imprimitive": true
+      },
+      "feature_map": "AngleEmbedding",
+      "feature_map_config": {
+        "features": 4,
+        "rotations": "Y",
+        "input_scaling": true
+      },
+      "fc_layer": true,
+      "device": "default.qubit",
+      "diff_method": "backprop",
+      "batch_mode": "broadcast",
+      "observables": [
+        "Z 0",
+        "Z 1",
+        "Z 2",
+        "Z 3"
+      ],
+      "fc_bias": true
+    },
+    "training_config": {
+      "lr": 0.01,
+      "gamma": 0.99,
+      "batch_size": 64,
+      "learning_starts": 256,
+      "train_frequency": 4,
+      "target_update_interval": 100,
+      "epsilon_decay_steps": 8000
+    },
+    "eval_episodes": 20,
+    "eval_seed": 10000,
+    "held_out_episodes": 100,
+    "held_out_seed": 30000,
+    "torch": "2.14.1",
+    "pennylane": "0.45.1",
+    "readout_semantics": "pauli_features_affine_v2"
+  }
+}

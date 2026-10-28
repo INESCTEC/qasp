@@ -1,0 +1,49 @@
+{
+  "observable_strings": [
+    "I 0",
+    "Z 0",
+    "Z 1",
+    "Z 2",
+    "Z 3"
+  ],
+  "readout_coefficients": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "fc_layer": true,
+  "input_activation": "tanh",
+  "note": "Measurement meters show local bases; this file specifies the Pauli products and classical aggregation."
+}

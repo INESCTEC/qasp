@@ -1,0 +1,11 @@
+seed,policy,seconds
+3,recursive parity,58.0201743330108
+3,majority-modulo,25.589056040975265
+7,recursive parity,71.44890383305028
+7,majority-modulo,115.15745162498206
+11,recursive parity,28.61990525003057
+11,majority-modulo,138.54065808304586
+23,recursive parity,127.64957995794248
+23,majority-modulo,72.30728133302182
+37,recursive parity,165.2163513749838
+37,majority-modulo,115.52477441704832

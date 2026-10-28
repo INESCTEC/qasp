@@ -1,0 +1,8 @@
+{
+  "readout": "shared",
+  "seed": 11,
+  "episode": 400,
+  "frames": 34986,
+  "updates": 8683,
+  "last_20_mean": 173.15
+}

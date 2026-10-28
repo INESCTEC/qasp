@@ -1,0 +1,16 @@
+\documentclass[tikz,border=4pt]{standalone}
+\usepackage{xcolor}
+\usepackage{quantikz}
+\usetikzlibrary{fit}
+\definecolor{qaspSingleGate}{HTML}{DCECF8}
+\definecolor{qaspTwoQubitGate}{HTML}{E4D8F2}
+\definecolor{qaspMultiQubitGate}{HTML}{EEE2F7}
+\definecolor{qaspMeasurement}{HTML}{E8E5F5}
+\begin{document}
+\begin{quantikz}[execute at end picture={\node[fit=(\tikzcdmatrixname-1-2)(\tikzcdmatrixname-1-3)(\tikzcdmatrixname-1-4)(\tikzcdmatrixname-1-5)(\tikzcdmatrixname-1-6)(\tikzcdmatrixname-1-7)(\tikzcdmatrixname-1-8)(\tikzcdmatrixname-1-9)(\tikzcdmatrixname-1-10)(\tikzcdmatrixname-1-11)(\tikzcdmatrixname-2-2)(\tikzcdmatrixname-2-3)(\tikzcdmatrixname-2-4)(\tikzcdmatrixname-2-5)(\tikzcdmatrixname-2-6)(\tikzcdmatrixname-2-7)(\tikzcdmatrixname-2-8)(\tikzcdmatrixname-2-9)(\tikzcdmatrixname-2-10)(\tikzcdmatrixname-2-11)(\tikzcdmatrixname-3-2)(\tikzcdmatrixname-3-3)(\tikzcdmatrixname-3-4)(\tikzcdmatrixname-3-5)(\tikzcdmatrixname-3-6)(\tikzcdmatrixname-3-7)(\tikzcdmatrixname-3-8)(\tikzcdmatrixname-3-9)(\tikzcdmatrixname-3-10)(\tikzcdmatrixname-3-11)(\tikzcdmatrixname-4-2)(\tikzcdmatrixname-4-3)(\tikzcdmatrixname-4-4)(\tikzcdmatrixname-4-5)(\tikzcdmatrixname-4-6)(\tikzcdmatrixname-4-7)(\tikzcdmatrixname-4-8)(\tikzcdmatrixname-4-9)(\tikzcdmatrixname-4-10)(\tikzcdmatrixname-4-11),inner sep=3pt] (qaspFirstLayer) {};\draw[dashed,rounded corners] (qaspFirstLayer.north west) rectangle (qaspFirstLayer.south east);\node[anchor=north] at ([yshift=-2pt]qaspFirstLayer.south) {$U_{1}(\mathbf{f};\Theta_{1})$};}, row sep=0.35cm, column sep=0.25cm]
+\lstick{$q_{0}$} & \gate[style={fill=qaspSingleGate}]{R_y(f_{1}\lambda_{1,1})} & \gate[style={fill=qaspSingleGate}]{R_z(f_{1}\lambda_{2,1})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{1})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{5})} & \ctrl{1} & \ctrl{2} & \ctrl{3} & \qw & \qw & \qw & \gate[wires=4, style={fill=qaspMultiQubitGate}]{U_{2}(\mathbf{f};\Theta_{2})} & \gate[wires=4, style={fill=qaspMultiQubitGate}]{U_{3}(\mathbf{f};\Theta_{3})} & \meter[style={fill=qaspMeasurement}]{Z} & \qw \\
+\lstick{$q_{1}$} & \gate[style={fill=qaspSingleGate}]{R_y(f_{2}\lambda_{1,2})} & \gate[style={fill=qaspSingleGate}]{R_z(f_{2}\lambda_{2,2})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{2})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{6})} & \control{} & \qw & \qw & \ctrl{1} & \ctrl{2} & \qw & \qw & \qw & \meter[style={fill=qaspMeasurement}]{Z} & \qw \\
+\lstick{$q_{2}$} & \gate[style={fill=qaspSingleGate}]{R_y(f_{3}\lambda_{1,3})} & \gate[style={fill=qaspSingleGate}]{R_z(f_{3}\lambda_{2,3})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{3})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{7})} & \qw & \control{} & \qw & \control{} & \qw & \ctrl{1} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{Z} & \qw \\
+\lstick{$q_{3}$} & \gate[style={fill=qaspSingleGate}]{R_y(f_{4}\lambda_{1,4})} & \gate[style={fill=qaspSingleGate}]{R_z(f_{4}\lambda_{2,4})} & \gate[style={fill=qaspSingleGate}]{R_{Z}(\theta_{4})} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{8})} & \qw & \qw & \control{} & \qw & \control{} & \control{} & \qw & \qw & \meter[style={fill=qaspMeasurement}]{Z} & \qw \\
+\end{quantikz}
+\end{document}

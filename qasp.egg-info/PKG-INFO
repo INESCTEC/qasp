@@ -1,0 +1,414 @@
+Metadata-Version: 2.4
+Name: qasp
+Version: 0.1.0
+Summary: Quantum Agent Software Package for quantum circuits, kernels, RL policies, and simulation workflows.
+Author: QASP contributors
+License: MIT
+Project-URL: Homepage, https://github.com/<your-org-or-user>/qasp
+Project-URL: Repository, https://github.com/<your-org-or-user>/qasp
+Project-URL: Issues, https://github.com/<your-org-or-user>/qasp/issues
+Keywords: quantum computing,pennylane,reinforcement learning,quantum kernels,policy gradients
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: gymnasium
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pennylane
+Requires-Dist: ray[rllib]
+Requires-Dist: tensordict
+Requires-Dist: torch
+Requires-Dist: torchrl
+Provides-Extra: dev
+Requires-Dist: ipykernel; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+
+# QASP
+
+**QASP** (**Q**uantum **A**gent **S**oftware **P**ackage) is a Python toolkit for building, training, and analyzing parameterized quantum circuit (PQC) models with a strong focus on:
+
+- quantum reinforcement learning,
+- contextual bandits and policy-gradient training,
+- Born-rule and softmax quantum policies,
+- reusable feature maps and ansatz templates,
+- quantum-kernel experiments,
+- trainability, Fourier, variance, and expressivity analyses,
+- approximate simulation via truncated Pauli propagation.
+
+The package is organized so that the same circuit-building primitives can be reused across RL, generative learning, and kernel workflows.
+
+---
+
+## Highlights
+
+- Build PQCs from composable **feature maps** and **ansätze**
+- Train **Born** and **softmax** policies on Gym/Gymnasium-style environments
+- Run lightweight **REINFORCE** training loops directly from QASP
+- Evaluate trainability with utilities such as:
+  - policy variance,
+  - Fourier analysis,
+  - dynamical Lie algebra generators,
+  - gate decompositions and expressivity diagnostics
+- Prototype simulation backends including **lightning.qubit**, **lightning.kokkos**, and **lightning.pp**
+- Compare different observable/readout designs, including local `Z`, pairwise `ZZ`, and parity-based observables
+
+---
+
+## Installation
+
+### From source
+
+```bash
+git clone https://github.com/<your-user-or-org>/qasp.git
+cd qasp
+python -m pip install -e .
+```
+
+### Development install
+
+```bash
+python -m pip install -e .[dev]
+```
+
+---
+
+## Dependencies
+
+QASP relies primarily on:
+
+- `pennylane`
+- `torch`
+- `numpy`
+- `gymnasium`
+- `torchrl`
+- `tensordict`
+- `matplotlib`
+- `pandas`
+- `ray[rllib]`
+
+The exact dependency list should be kept in `pyproject.toml`.
+
+---
+
+## Package layout
+
+```text
+qasp/
+├── circuits/
+│   ├── constructor.py      # CircuitBuilder and compilation utilities
+│   ├── templates.py        # Ansatz templates such as IQPAnsatz and AngleAnsatz
+│   └── uqc.py              # Additional circuit definitions
+├── feature_maps/
+│   └── templates.py        # AngleEmbedding and NeuralEmbedding
+├── genlearn/
+│   ├── models.py           # Generative-learning models such as BornMachine
+│   └── losses.py           # Associated losses/utilities
+├── qkernels/
+│   ├── kernels.py          # Quantum feature kernel utilities
+│   └── use_cases/          # Kernel experiments and examples
+└── rl/
+    ├── model.py            # create_model, draw_model
+    ├── policies.py         # PQCBorn, PQCSoftmax, related policy classes
+    ├── metrics.py          # variance, Fourier, DLA, expressivity tools
+    ├── pp_sim.py           # truncated Pauli propagation simulator
+    ├── differentiable_pp_sim.py
+    ├── torchrl.py          # REINFORCE and TorchRL-oriented trainers/wrappers
+    └── trl.py              # alternative RL integration utilities
+
+tests/
+├── test_feature_maps.ipynb
+├── test_qml_models.ipynb
+├── test_policy_training.ipynb
+├── trainability_born_paper.ipynb
+└── tests_deucalion/        # cluster scripts and experiment drivers
+```
+
+---
+
+## Top-level API
+
+The package re-exports the most common entry points from `qasp.__init__`.
+
+### Circuits
+
+- `CircuitBuilder`
+- `IQPAnsatz`
+- `AngleAnsatz`
+- `UQC`
+
+### Feature maps
+
+- `AngleEmbedding`
+- `NeuralEmbedding`
+
+### Generative learning
+
+- `BornMachine`
+
+### Kernels
+
+- `QFKernel`
+
+### RL / training / analysis
+
+- `create_model`
+- `draw_model`
+- `PQCBorn`
+- `PQCSoftmax`
+- `PQCBornVariance`
+- `LearnablePQCBorn`
+- `FastTruncatedPauliProp`
+- `REINFORCE`
+- `TorchRLTrainer`
+- `ContextualBanditTrainer`
+- `policy_variance`
+- `compute_DLA_generators`
+- `fourier_analysis`
+- `hadamard_decomposition`
+- `cz_decomposition`
+- `cnot_decomposition`
+
+---
+
+## Manual circuit construction example
+
+QASP can also be used without the policy classes. You can directly combine a feature map, an ansatz template, and `CircuitBuilder` to create a differentiable torch-compatible quantum layer.
+
+The example below follows the same style used in `tests/test_qml_models.ipynb`.
+
+```python
+from qasp import AngleEmbedding, AngleAnsatz, CircuitBuilder
+import pennylane as qml
+from pennylane import numpy as np
+import torch
+
+# 1. Define a feature map
+fm = AngleEmbedding(
+    features=4,
+    n_qubits=4,
+    rotations="YZ",
+    input_scaling=True,
+)
+
+# 2. Define an ansatz that reuses the feature map
+ansatz = AngleAnsatz(
+    n_qubits=4,
+    n_layers=3,
+    rotations="ZY",
+    feature_map=fm,
+    include_imprimitive=True,
+    imprimitive="CZ",
+    imprimitive_pattern="all_to_all",
+    reuploading=True,
+)
+
+# 3. Inspect required parameter shapes
+shapes = ansatz.get_param_shapes()
+print("Parameter shapes:", shapes)
+
+# Example initialization
+input_scaling_params = np.random.uniform(-1.0, 1.0, size=shapes[0])
+params = np.random.uniform(-np.pi, np.pi, size=shapes[1])
+
+# 4. Build a circuit with an expectation-value readout
+builder = CircuitBuilder(n_qubits=4)
+builder.set_ansatz(ansatz)
+builder.set_measurement(
+    "expectation",
+    wires=[0, 1, 2, 3],
+    observables=["Z 0", "Z 1", "ZZ 0 1", "ZZ 2 3"],
+)
+
+circuit = builder.build()
+qnode = builder.compile(device="lightning.qubit", diff_method="adjoint")
+
+# 5. Create a torch layer
+qlayer = builder.create_torchlayer(
+    params=torch.tensor(params, requires_grad=True),
+    input_scaling_params=torch.tensor(input_scaling_params, requires_grad=True),
+)
+
+# 6. Evaluate the layer on sample input
+x = torch.tensor([0.1, -0.2, 0.3, 0.5], dtype=torch.float32)
+out = qlayer(x)
+print("Quantum layer output:", out)
+```
+
+This lower-level workflow is useful when:
+
+- designing a custom model architecture,
+- testing a new feature map or ansatz,
+- studying trainability or Fourier structure without committing to a specific RL algorithm,
+- integrating a QASP circuit into a larger PyTorch model.
+
+---
+
+## High level RL policies from dictionaries and `create_model`
+
+This is the main high-level workflow for reinforcement learning with QASP.
+
+```python
+from qasp import *
+import torch
+
+n_qubits = 6
+
+fm_config = {
+    "features": 4,
+    "rotations": "Z",
+}
+
+ansatz_config = {
+    "n_layers": 3,
+    "rotations": "ZY",
+    "reuploading": False,
+    "include_imprimitive": True,
+    "imprimitive": "CZ",
+    "imprimitive_pattern": "all_to_all",
+    "include_final_imprimitive": False,
+    "include_feature_map_first": False,
+    "include_hadamards_initial": True,
+}
+
+observables = [f"Z {i}" for i in range(n_qubits)]
+observables += [f"ZZ {i} {i+1}" for i in range(n_qubits - 1)]
+
+policy_model_config = {
+    "ansatz": "AngleAnsatz",
+    "ansatz_config": ansatz_config,
+    "feature_map": "NeuralEmbedding",
+    "feature_map_config": fm_config,
+    "n_actions": 2,
+    "init": "normal_0_1",
+    "device": "lightning.qubit",
+    "diff_method": "adjoint",
+    "fc_layer": True,
+    "observables": observables,
+}
+
+policy = create_model("PQCSoftmax", policy_model_config, n_qubits=n_qubits)
+```
+
+To visualize the resulting circuit:
+
+```python
+draw_model(
+    model=policy,
+    policy_class="PQCSoftmax",
+    n_qubits=n_qubits,
+    num_inputs=4,
+    inputs=torch.zeros(4),
+)
+```
+
+---
+
+## Reinforcement learning example with REINFORCE
+
+QASP includes a built-in `REINFORCE` trainer for policy-gradient experiments.
+
+### CartPole with a softmax PQC policy
+
+```python
+from qasp import *
+
+agent = REINFORCE(
+    policy=policy,
+    env_name="CartPole-v1",
+    gamma=0.99,
+    lr=1e-2,
+    batch_episodes=16,
+    logits=False,
+    normalize_mode="clip",
+    baseline_type="ema",
+    normalize_returns=True,
+    entropy_coef=0.01,
+    max_grad_norm=1.0,
+    fc_layer=True,
+)
+
+returns = agent.train(num_episodes=500)
+```
+
+### Typical REINFORCE controls
+
+The trainer supports several knobs that are useful in experiments:
+
+- `baseline_type="ema"` or `baseline_type="value"`
+- `normalize_mode` for state preprocessing
+- `entropy_coef` for exploration pressure
+- `batch_episodes` for lower-variance policy-gradient updates
+- `max_grad_norm` for gradient clipping
+- `fc_layer=True` for policies that use a classical readout head on top of quantum expectations
+
+This makes it straightforward to compare PQC policies across environments such as CartPole, Acrobot, and contextual bandits.
+
+---
+
+## Policy classes in `qasp.rl.policies`
+
+QASP currently exposes several policy-model families.
+
+### `PQCBorn`
+
+A Born-rule policy that turns measured quantum probabilities into an action distribution. Useful when the action policy is directly induced by measurement outcomes.
+
+### `PQCSoftmax`
+
+A softmax policy built from expectation values of chosen observables, followed by an optional classical fully connected layer. This is the main policy used in many RL experiments in the package.
+
+### `PQCBornVariance`
+
+A policy variant designed for variance and trainability studies.
+
+### `LearnablePQCBorn`
+
+A Born-style model with additional learnable structure.
+
+---
+
+## Trainability and analysis utilities
+
+The `qasp.rl.metrics` module provides tools that are useful for papers and ablation studies.
+
+Examples include:
+
+- `policy_variance` for variance-based trainability analysis
+- `fourier_analysis` for spectral structure of policy functions
+- `compute_DLA_generators` for dynamical Lie algebra experiments
+- `_policy_expressivity` for expressivity-oriented diagnostics
+- `hadamard_decomposition`, `cz_decomposition`, `cnot_decomposition` for circuit manipulations
+
+These utilities are used extensively in the notebooks under `tests/` and `tests/tests_deucalion/`.
+
+---
+
+## Notebooks and experiment scripts
+
+The repository includes examples and experiments in:
+
+- `tests/test_qml_models.ipynb`
+- `tests/test_feature_maps.ipynb`
+- `tests/test_policy_training.ipynb`
+- `tests/trainability_born_paper.ipynb`
+- `tests/tests_deucalion/`
+
+The notebooks are a good starting point for:
+
+- inspecting circuit templates,
+- checking parameter shapes,
+- drawing models,
+- reproducing RL experiments,
+- running trainability benchmarks.
+
+---

@@ -1,0 +1,13 @@
+\documentclass[tikz,border=4pt]{standalone}
+\usepackage{xcolor}
+\usepackage{quantikz}
+\definecolor{qaspSingleGate}{HTML}{DCECF8}
+\definecolor{qaspTwoQubitGate}{HTML}{E4D8F2}
+\definecolor{qaspMultiQubitGate}{HTML}{EEE2F7}
+\definecolor{qaspMeasurement}{HTML}{E8E5F5}
+\begin{document}
+\begin{quantikz}[row sep=0.40cm, column sep=0.29cm]
+\lstick{$q_{0}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{1})} & \gate[wires=2, style={fill=qaspTwoQubitGate}]{R_{ZZ}(\theta_{3})} & \meter[style={fill=qaspMeasurement}]{Z} & \qw \\
+\lstick{$q_{1}$} & \gate[style={fill=qaspSingleGate}]{H} & \gate[style={fill=qaspSingleGate}]{R_{Y}(\theta_{2})} & \qw & \meter[style={fill=qaspMeasurement}]{Z} & \qw \\
+\end{quantikz}
+\end{document}

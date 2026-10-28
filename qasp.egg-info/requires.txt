@@ -1,0 +1,14 @@
+gymnasium
+matplotlib
+numpy
+pandas
+pennylane
+ray[rllib]
+tensordict
+torch
+torchrl
+
+[dev]
+ipykernel
+pytest
+ruff

@@ -1,0 +1,8 @@
+{
+  "readout": "parity",
+  "seed": 9,
+  "episode": 400,
+  "frames": 6515,
+  "updates": 1565,
+  "last_20_mean": 11.25
+}

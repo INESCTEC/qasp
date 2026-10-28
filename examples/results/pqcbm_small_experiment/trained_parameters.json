@@ -1,0 +1,39 @@
+{
+  "config": {
+    "n_qubits": 3,
+    "ansatz": "AngleAnsatz",
+    "ansatz_config": {
+      "n_layers": 2,
+      "rotations": "YZ",
+      "include_imprimitive": true,
+      "imprimitive": "CNOT",
+      "imprimitive_pattern": "chain"
+    },
+    "loss": "mmd",
+    "mmd_config": {
+      "mode": "exact",
+      "bandwidths": [
+        0.5,
+        1.0,
+        2.0
+      ]
+    },
+    "device": "default.qubit",
+    "seed": 7,
+    "lr": 0.05
+  },
+  "params": [
+    4.866033597327873,
+    4.676738384134399,
+    4.777147329236524,
+    1.3627955206937203,
+    3.220516406377702,
+    3.273134289158549,
+    -0.6403110840775307,
+    4.679959623336946,
+    4.699434494007237,
+    2.9401220207533574,
+    1.9040088914052942,
+    1.7493997154560768
+  ]
+}
