@@ -144,6 +144,8 @@ QASP relies primarily on:
 - `pennylane`
 - `torch`
 - `numpy`
+- `scipy`
+- `autograd`
 - `opt_einsum` (exact IQP contraction)
 - `gymnasium`
 - `torchrl`
@@ -152,8 +154,14 @@ QASP relies primarily on:
 - `pandas`
 - `ray[rllib]`
 
-The dependency list is in `pyproject.toml`. PennyLane tensor-network comparison
-experiments additionally use `quimb`; QASP's IQP TN route uses `opt_einsum`.
+The tested dependency ranges are in [pyproject.toml](pyproject.toml). See the
+[compatibility matrix](docs/dependency_compatibility.md) for Python 3.10–3.12
+results on macOS arm64, reproducible version constraints and known limitations.
+Each of four clean profiles passes 746 tests, with three optional Kokkos tests
+skipped; the reference `torchlane` environment passes all 749 tests.
+
+PennyLane tensor-network comparison experiments additionally use `quimb`;
+QASP's IQP TN route uses `opt_einsum`.
 
 ---
 

@@ -121,7 +121,9 @@ def test_rl_dictionary_factory_backprop_and_adam(ansatz,decoder,device):
     model=create_model('PQCBorn',deepcopy(config),n_qubits=3).double()
     ref=create_model('PQCBorn',{**deepcopy(config),'device':'default.qubit'},n_qubits=3).double()
     ref.load_state_dict(model.state_dict())
-    optimizers=[torch.optim.Adam(m.parameters(),lr=.01) for m in (model,ref)]
+    # Avoid magnifying round-off in mathematically zero gradients into
+    # backend-dependent updates; retain the strict value/gradient tolerances.
+    optimizers=[torch.optim.Adam(m.parameters(),lr=.01,eps=1e-6) for m in (model,ref)]
     for _ in range(2):
         outputs=[]; grads=[]
         for m,opt in zip((model,ref),optimizers):

@@ -1,3 +1,5 @@
+from importlib.util import find_spec
+
 import pennylane as qml
 import pytest
 import torch
@@ -129,6 +131,8 @@ def _make_parity_policy(n_actions, training_method, device, diff_method):
 @pytest.mark.parametrize("lightning_device", ["lightning.qubit", "lightning.kokkos"])
 def test_sparse_projectors_match_probs_and_gradients(lightning_device):
     pytest.importorskip("pennylane_lightning")
+    if lightning_device == "lightning.kokkos" and find_spec("pennylane_lightning.lightning_kokkos") is None:
+        pytest.skip("Optional lightning.kokkos plugin is not installed")
     torch.manual_seed(4)
 
     probability_policy = _make_policy("probs", "default.qubit", "backprop")
