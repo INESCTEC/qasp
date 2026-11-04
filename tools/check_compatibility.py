@@ -32,6 +32,7 @@ def main():
                 'MKL_NUM_THREADS', 'NUMBA_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS')})
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     env['MPLCONFIGDIR'] = str(output / 'matplotlib')
+    env['MPLBACKEND'] = 'Agg'  # Drawing checks must not open macOS GUI windows.
     env['NUMBA_CACHE_DIR'] = str(output / 'numba')
     if args.source:
         env['PYTHONPATH'] = str(repo)

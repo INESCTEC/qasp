@@ -67,3 +67,6 @@ include-package-data = true
 where = ["."]
 include = ["qasp", "qasp.*"]
 exclude = ["tests", "tests.*", "__MACOSX", "__MACOSX.*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.ipynb", "__pycache__/*", "*.pyc"]
