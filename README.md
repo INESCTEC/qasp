@@ -2,18 +2,18 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/qasp-logo-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/qasp-logo.png">
-    <img src="docs/assets/qasp-logo.png" alt="QASP — Quantum Agent Software Package" width="600">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/qasp-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/qasp-logo.png">
+    <img src="https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/qasp-logo.png" alt="QASP — Quantum Agent Software Package" width="600">
   </picture>
 </p>
 
 <p align="center">
-  <a href="pyproject.toml"><img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Source package version: 0.1.0"></a>
+  <a href="https://pypi.org/project/qasp/"><img src="https://img.shields.io/pypi/v/qasp" alt="PyPI version"></a>
   <a href="#installation"><img src="https://img.shields.io/badge/python-%3E%3D3.10-3776AB?logo=python&amp;logoColor=white" alt="Python requirement: 3.10 or newer"></a>
-  <a href="pyproject.toml"><img src="https://img.shields.io/badge/status-alpha-orange" alt="Development status: alpha"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
-  <a href="docs/package_guide.md"><img src="https://img.shields.io/badge/docs-package%20guide-teal" alt="Documentation: package guide"></a>
+  <a href="https://github.com/INESCTEC/qasp/blob/main/pyproject.toml"><img src="https://img.shields.io/badge/status-alpha-orange" alt="Development status: alpha"></a>
+  <a href="https://github.com/INESCTEC/qasp/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
+  <a href="https://andre-sequeira10.github.io/QASP/"><img src="https://img.shields.io/badge/docs-interactive%20guide-teal" alt="Interactive documentation"></a>
 </p>
 
 **QASP** (**Q**uantum **A**gent **S**oftware **P**ackage) is a Python toolkit for
@@ -27,8 +27,8 @@ Run compatible models with PennyLane devices or QASP's differentiable
 and **PauliPropagationSimulator**. Reuse the same building blocks across modules,
 with execution and gradient methods chosen for each circuit and readout.
 
-**[Get started](#installation)** · **[Examples](examples/README.md)** ·
-**[Package guide](docs/package_guide.md)** · **[Architecture](#architecture)**
+**[Get started](#installation)** · **[Examples](https://github.com/INESCTEC/qasp/blob/main/examples/README.md)** ·
+**[Documentation website](https://andre-sequeira10.github.io/QASP/)** · **[Package guide](https://github.com/INESCTEC/qasp/blob/main/docs/package_guide.md)** · **[Architecture](#architecture)**
 
 **Table of contents**
 
@@ -85,11 +85,11 @@ trainable TorchLayer. Initializers configure circuit weights and input scales;
 the shared device layer selects a compatible simulator. These components support
 RL, classifiers, kernels, optimization and generative learning.
 
-[![QASP architecture: feature maps, ansatz templates and parameter initialization feed circuit construction, shared simulators and five application modules](docs/assets/architecture/qasp-architecture.png)](docs/assets/architecture/qasp-architecture.svg)
+[![QASP architecture: feature maps, ansatz templates and parameter initialization feed circuit construction, shared simulators and five application modules](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/architecture/qasp-architecture.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.svg)
 
-[Editable vector diagram](docs/assets/architecture/qasp-architecture.svg) ·
-[PNG](docs/assets/architecture/qasp-architecture.png) ·
-[Rendering source](docs/assets/architecture/render_architecture.py)
+[Editable vector diagram](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.svg) ·
+[PNG](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.png) ·
+[Rendering source](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/render_architecture.py)
 
 This is a conceptual dependency view. QAOA constructs cost/mixer QNodes directly
 and shares device selection; PCE can use `CircuitBuilder`. Backend compatibility
@@ -98,29 +98,51 @@ initializer options are listed under [parameter initialization](#parameter-initi
 
 ## Documentation
 
-This repository contains the library, regression tests and a [curated example set](examples/README.md). Notebook outputs, experiment datasets and paper sources/PDFs are kept in the [upstream research archive](https://github.com/andre-sequeira10/QASP/tree/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718). See the [repository layout policy](docs/repository_layout.md) for what is retained and how to keep the checkout small.
+Explore the **[interactive QASP documentation](https://andre-sequeira10.github.io/QASP/)**:
+Building Blocks → Simulators → Modules, with step-by-step configuration,
+training and visualization examples, searchable APIs and argument descriptions.
 
-Start with the [package guide](docs/package_guide.md) for the complete module
+
+This repository contains the library, regression tests and a [curated example set](https://github.com/INESCTEC/qasp/blob/main/examples/README.md). Notebook outputs, experiment datasets and paper sources/PDFs are kept in the [upstream research archive](https://github.com/andre-sequeira10/QASP/tree/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718). See the [repository layout policy](https://github.com/INESCTEC/qasp/blob/main/docs/repository_layout.md) for what is retained and how to keep the checkout small.
+
+Start with the [package guide](https://github.com/INESCTEC/qasp/blob/main/docs/package_guide.md) for the complete module
 map, executable examples, data shapes and implementation boundaries, alongside
 the package’s module and API docstrings.
 The [documentation audit](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/documentation_audit.md) records verification and
-environment limitations. Focused guides cover [Q-functions](docs/qfunctions.md)
-and [generative learning](docs/genlearn.md). The [unified IQP guide](docs/iqp_simulator.md)
+environment limitations. Focused guides cover [Q-functions](https://github.com/INESCTEC/qasp/blob/main/docs/qfunctions.md)
+and [generative learning](https://github.com/INESCTEC/qasp/blob/main/docs/genlearn.md). The [unified IQP guide](https://github.com/INESCTEC/qasp/blob/main/docs/iqp_simulator.md)
 explains `IQPSimulator`, exact TN versus sampled VN, gradients, automatic selection
-and resource limits. Start with the [IQP tutorial](examples/iqp_simulator.ipynb)
+and resource limits. Start with the [IQP tutorial](https://github.com/INESCTEC/qasp/blob/main/examples/iqp_simulator.ipynb)
 or [parallel-gradient neural-policy example](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/iqp_parallel_backward.ipynb).
 The [QASP software paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/qasp_paper/output/pdf/qasp_software_paper.pdf) includes
 selected IQP experiments and the shared Pauli simulator’s mathematics, limitations
-and validated application examples. The [Pauli-propagation guide](docs/pauli_propagation.md)
+and validated application examples. The [Pauli-propagation guide](https://github.com/INESCTEC/qasp/blob/main/docs/pauli_propagation.md)
 covers configuration and migration; the [dedicated IQP paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/iqp_tn_paper/iqp_tn_simulator_paper.pdf)
 contains the full mathematical and performance study.
 
 ## Installation
 
-QASP currently declares package version **0.1.0** and alpha development status.
-It requires **Python 3.10 or newer**, subject to the supported versions of its
-dependencies. This is the source package version; no GitHub release or PyPI
-distribution has been published yet. Install from this repository as shown below.
+QASP **0.1.0** is an alpha research release. It requires **Python 3.10 or
+newer**, subject to dependency support; Python 3.12 is a tested starting point.
+
+### From PyPI
+
+Create an isolated environment, then install the published package:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install qasp
+python -m pip check
+python -c "from importlib.metadata import version; import qasp; print(version('qasp'))"
+```
+
+For a reproducible package version, use `python -m pip install qasp==0.1.0`.
+The package includes its core Python dependencies. Optional PennyLane device
+plugins, GPU/MPI libraries and tensor-device dependencies require separate
+installation appropriate to your platform. See the
+[device and compilation guide](https://andre-sequeira10.github.io/QASP/#/guide/execution?step=compile).
 
 ### From source
 
@@ -155,8 +177,8 @@ QASP relies primarily on:
 - `pandas`
 - `ray[rllib]`
 
-The tested dependency ranges are in [pyproject.toml](pyproject.toml). See the
-[compatibility matrix](docs/dependency_compatibility.md) for Python 3.10–3.12
+The tested dependency ranges are in [pyproject.toml](https://github.com/INESCTEC/qasp/blob/main/pyproject.toml). See the
+[compatibility matrix](https://github.com/INESCTEC/qasp/blob/main/docs/dependency_compatibility.md) for Python 3.10–3.12
 results on macOS arm64, reproducible version constraints and known limitations.
 Each of four clean profiles passes 746 tests, with three optional Kokkos tests
 skipped; the reference `torchlane` environment passes all 749 tests.
@@ -240,7 +262,7 @@ coefficients and compatible neural embeddings. This supports IQP-based RL
 policies, expectation classifiers, projected kernels, generative moment-MMD
 and compatible optimization circuits. Probability-based majority policies use
 TN; generic QAOA circuits and arbitrary readouts are not VN workloads.
-See the [public-model tutorial](examples/iqp_simulator.ipynb) for
+See the [public-model tutorial](https://github.com/INESCTEC/qasp/blob/main/examples/iqp_simulator.ipynb) for
 complete configurations and the [parallel-gradient neural-policy example](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/iqp_parallel_backward.ipynb)
 for Adam training.
 
@@ -260,7 +282,7 @@ multi-node execution. Higher derivatives are supported on tested eager Torch
 paths, with additional memory for retained derivative graphs.
 `IQPTNSimulator` remains available as the exact-only compatibility interface.
 
-The [unified guide](docs/iqp_simulator.md) describes contracts, importance
+The [unified guide](https://github.com/INESCTEC/qasp/blob/main/docs/iqp_simulator.md) describes contracts, importance
 sampling and selection controls. The [CPU benchmark report](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/benchmarks/iqp_parallel_backward.md)
 compares previous/new gradient scheduling and 1–8 workers. The
 [IQP research paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/iqp_tn_paper/iqp_tn_simulator_paper.pdf) contains the
@@ -329,7 +351,7 @@ optimizer.step()
 | Generative learning | Expectation-based MMD and probability-based NLL; sampling uses an explicitly selected sampling device. |
 | Optimization | Torch QAOA and PCE, including multilayer noncommuting circuits. |
 
-The [complete direct-QASP example](examples/pauli_propagation_modules.py) trains
+The [complete direct-QASP example](https://github.com/INESCTEC/qasp/blob/main/examples/pauli_propagation_modules.py) trains
 a neural policy and exercises PQDQN, a classifier, a fidelity kernel, MMD, QAOA
 and PCE with this configuration. Use `backend="torch"` for optimization. Torch
 gradients include circuit parameters, inputs, neural embeddings and observable
@@ -353,7 +375,7 @@ and MPI are unsupported. Supported unitary templates are decomposed into native
 Clifford/Pauli rotations; unsupported operations raise an error. Scalar tapes
 are evaluated sequentially, with no dedicated worker pool.
 Existing `lightning.pp` adapters and old engine imports remain compatible;
-see the [algorithm, module coverage and migration guide](docs/pauli_propagation.md).
+see the [algorithm, module coverage and migration guide](https://github.com/INESCTEC/qasp/blob/main/docs/pauli_propagation.md).
 
 ---
 
@@ -556,7 +578,7 @@ A supplied `torch.Generator` controls this without changing either global RNG.
 The other built-in distributions use native Torch fills. This sampling happens
 only during initialization; the resulting model parameters remain trainable.
 
-See the [cross-module initialization notebook](examples/initialization_across_modules.ipynb)
+See the [cross-module initialization notebook](https://github.com/INESCTEC/qasp/blob/main/examples/initialization_across_modules.ipynb)
 for creation, gradients, training, reproducibility and compatibility checks.
 Use `Choice((0, np.pi / 2))` for explicit discrete values: the historical
 `"discrete_0_pi_over_2"` alias retains its old 0/pi meaning in the builder
@@ -579,8 +601,8 @@ and its 0/pi-over-2 meaning in diagnostics.
 - `PQCBM`, `create_qcbm`, `draw_qcbm`, `PauliMMD`
 - `BornMachine` (deprecated compatibility wrapper)
 
-See [the generative-learning guide](docs/genlearn.md) and
-[the runnable PQCBM notebook](examples/pqcbm_generative_learning.ipynb) for
+See [the generative-learning guide](https://github.com/INESCTEC/qasp/blob/main/docs/genlearn.md) and
+[the runnable PQCBM notebook](https://github.com/INESCTEC/qasp/blob/main/examples/pqcbm_generative_learning.ipynb) for
 expectation-based MMD, differentiable Pauli propagation, sampling, and MPI.
 
 A three-qubit Born machine generates bitstrings by measuring a two-layer
@@ -611,9 +633,9 @@ tex = draw_qcbm(model, output="tikz", tikz_options={
 Path("born_machine.tex").write_text(tex, encoding="utf-8")
 ```
 
-[![Three-qubit Born machine with Y/Z rotations, CNOT-chain entanglers, a compact second layer, and computational-basis measurements](docs/assets/circuits/born_machine.png)](docs/assets/circuits/born_machine.pdf)
+[![Three-qubit Born machine with Y/Z rotations, CNOT-chain entanglers, a compact second layer, and computational-basis measurements](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/born_machine.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/born_machine.pdf)
 
-[Editable TikZ](docs/assets/circuits/born_machine.tex) · [Vector PDF](docs/assets/circuits/born_machine.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/born_machine.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/born_machine.pdf)
 
 ### Kernels
 
@@ -686,9 +708,9 @@ tex = draw_optimization(
 Path("qaoa.tex").write_text(tex, encoding="utf-8")
 ```
 
-[![Two-layer multi-angle triangle MaxCut QAOA circuit with a custom X and XX mixer](docs/assets/circuits/qaoa.png)](docs/assets/circuits/qaoa.pdf)
+[![Two-layer multi-angle triangle MaxCut QAOA circuit with a custom X and XX mixer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/qaoa.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/qaoa.pdf)
 
-[Editable TikZ](docs/assets/circuits/qaoa.tex) · [Vector PDF](docs/assets/circuits/qaoa.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/qaoa.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/qaoa.pdf)
 
 Warm starts accept either a relaxed solution vector or `True` to compute a
 bounded continuous relaxation. PCE accepts the same `ansatz` / `ansatz_config`
@@ -882,9 +904,9 @@ tex = draw_classifier(
 Path("classifier_born.tex").write_text(tex, encoding="utf-8")
 ```
 
-[![Four-qubit Born classifier with input scaling, reuploading, and a compact second layer](docs/assets/circuits/classifier_born.png)](docs/assets/circuits/classifier_born.pdf)
+[![Four-qubit Born classifier with input scaling, reuploading, and a compact second layer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/classifier_born.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_born.pdf)
 
-[Editable TikZ](docs/assets/circuits/classifier_born.tex) · [Vector PDF](docs/assets/circuits/classifier_born.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_born.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_born.pdf)
 
 Binary expectation-value classification with an averaged custom observable and
 MSE is configured directly in the same notation:
@@ -911,9 +933,9 @@ tex = draw_classifier(
 Path("classifier_expectation.tex").write_text(tex, encoding="utf-8")
 ```
 
-[![The same four-qubit classifier with Z0, Z0Z1, and X1 expectation readouts](docs/assets/circuits/classifier_expectation.png)](docs/assets/circuits/classifier_expectation.pdf)
+[![The same four-qubit classifier with Z0, Z0Z1, and X1 expectation readouts](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/classifier_expectation.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_expectation.pdf)
 
-[Editable TikZ](docs/assets/circuits/classifier_expectation.tex) · [Vector PDF](docs/assets/circuits/classifier_expectation.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_expectation.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_expectation.pdf)
 
 
 For a three-class expectation classifier, nested groups define the observables
@@ -964,7 +986,7 @@ readout limit described above. Optional approximations belong in
 "tau": 1e-10, "prune_every": 5}`. Truncated values and gradients should be
 checked against a feasible exact reference; prefer exact defaults for probability
 losses. The legacy expectation-only `lightning.pp` adapters and their `pp_*`
-arguments remain supported; see the [migration guide](docs/pauli_propagation.md#migration-and-compatibility).
+arguments remain supported; see the [migration guide](https://github.com/INESCTEC/qasp/blob/main/docs/pauli_propagation.md#migration-and-compatibility).
 
 For majority decoding, every majority block produces one code bit (strict
 majority; even-block ties map to zero), blocks are interpreted most-significant
@@ -1051,9 +1073,9 @@ tex = draw_kernel(
 Path("fidelity_kernel.tex").write_text(tex, encoding="utf-8")
 ```
 
-[![Four-qubit two-layer IQP fidelity overlap circuit with data reuploading and the adjoint encoding](docs/assets/circuits/fidelity_kernel.png)](docs/assets/circuits/fidelity_kernel.pdf)
+[![Four-qubit two-layer IQP fidelity overlap circuit with data reuploading and the adjoint encoding](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/fidelity_kernel.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/fidelity_kernel.pdf)
 
-[Editable TikZ](docs/assets/circuits/fidelity_kernel.tex) · [Vector PDF](docs/assets/circuits/fidelity_kernel.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/fidelity_kernel.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/fidelity_kernel.pdf)
 
 With no `projectors` key, `FidelityKernel` measures the global all-zero
 projector. Each explicit projector label `"P i j ..."` measures the probability that the listed
@@ -1259,9 +1281,9 @@ builder.save_tikz(
 )
 ```
 
-[![Four-qubit custom circuit with YZ input encoding, ZY variational rotations, all-to-all CZ entanglers, and three reuploading layers](docs/assets/circuits/manual_circuit.png)](docs/assets/circuits/manual_circuit.pdf)
+[![Four-qubit custom circuit with YZ input encoding, ZY variational rotations, all-to-all CZ entanglers, and three reuploading layers](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/manual_circuit.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/manual_circuit.pdf)
 
-[Editable TikZ](docs/assets/circuits/manual_circuit.tex) · [Vector PDF](docs/assets/circuits/manual_circuit.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/manual_circuit.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/manual_circuit.pdf)
 
 This lower-level workflow is useful when:
 
@@ -1350,9 +1372,9 @@ tikz = draw_model(
 Path("neural_policy.tex").write_text(tikz, encoding="utf-8")
 ```
 
-[![Six-qubit softmax policy with neural Z encoding, three ZY layers, all-to-all CZ entanglers, and Z and ZZ readouts](docs/assets/circuits/neural_policy.png)](docs/assets/circuits/neural_policy.pdf)
+[![Six-qubit softmax policy with neural Z encoding, three ZY layers, all-to-all CZ entanglers, and Z and ZZ readouts](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/neural_policy.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/neural_policy.pdf)
 
-[Editable TikZ](docs/assets/circuits/neural_policy.tex) · [Vector PDF](docs/assets/circuits/neural_policy.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/neural_policy.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/neural_policy.pdf)
 
 ### Exporting publication-ready TikZ circuits
 
@@ -1470,7 +1492,7 @@ matching adjoint blocks in reverse order, from
 
 For runnable drawing-only examples covering IQP and AngleAnsatz policies,
 fidelity, local-fidelity, and projected kernels, and a directly assembled
-CircuitBuilder, see the [circuit-drawing notebook](examples/drawing_quantum_circuits.ipynb).
+CircuitBuilder, see the [circuit-drawing notebook](https://github.com/INESCTEC/qasp/blob/main/examples/drawing_quantum_circuits.ipynb).
 Each module example above and the CartPole examples below include their
 own drawing, editable LaTeX, and vector PDF. Export calls can run immediately
 after model construction; training is not required. Symbols describe the
@@ -1501,7 +1523,7 @@ python examples/render_readme_circuits.py
 
 This uses QASP's installed dependencies, `pdflatex`, and Poppler's `pdftoppm`.
 The editable sources, vector PDFs, and PNG previews are written to
-[`docs/assets/circuits/`](docs/assets/circuits/). Use `--source-only` to export
+[`docs/assets/circuits/`](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/). Use `--source-only` to export
 LaTeX without a TeX installation. The generator executes only the blocks
 marked `readme-circuit` in this README; blocks sharing a name share variables.
 
@@ -1689,20 +1711,20 @@ The legacy `qasp.rl.metrics` module provides probability-variance sampling and
 heuristic Lie-closure utilities. `compute_DLA_generators` returns closure sizes;
 the named gate-decomposition helpers supply heuristic generator lists rather
 than executable unitary decompositions. `fourier_analysis` performs no Fourier
-transform and has legacy import limitations. Use the [package guide](docs/package_guide.md)
+transform and has legacy import limitations. Use the [package guide](https://github.com/INESCTEC/qasp/blob/main/docs/package_guide.md)
 to distinguish these prototypes from the current concentration diagnostics.
 
 ---
 
 ## Notebooks and example scripts
 
-See the [curated example index](examples/README.md) for tutorials covering
+See the [curated example index](https://github.com/INESCTEC/qasp/blob/main/examples/README.md) for tutorials covering
 circuits, initialization, RL, classifiers, kernels, generative learning,
 optimization and both QASP simulators. Notebooks are stored without outputs.
-The [cluster scripts](tests/tests_deucalion/) cover distributed execution.
+The [cluster scripts](https://github.com/INESCTEC/qasp/blob/main/tests/tests_deucalion/) cover distributed execution.
 
 Historical experiment notebooks, stored datasets and papers are linked from the
-[repository layout guide](docs/repository_layout.md) rather than included in
+[repository layout guide](https://github.com/INESCTEC/qasp/blob/main/docs/repository_layout.md) rather than included in
 this checkout.
 
 ---
@@ -1728,8 +1750,8 @@ use the same Quantikz exporter as policies and kernels, including full/compact
 views, symbolic parameters, pastel colors, and standalone or paper snippets.
 The example notebooks compile vector PDFs and display PDF-rendered previews.
 
-See [the Q-function guide](docs/qfunctions.md),
-[observable validation notebook](examples/pqdqn_observables_validation.ipynb),
+See [the Q-function guide](https://github.com/INESCTEC/qasp/blob/main/docs/qfunctions.md),
+[observable validation notebook](https://github.com/INESCTEC/qasp/blob/main/examples/pqdqn_observables_validation.ipynb),
 the [CartPole training notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/cartpole_pqdqn_deep_q_learning.ipynb),
 and the [10-qubit PP/Lightning benchmark](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/pqdqn_pauli_propagation_benchmark.ipynb).
 The benchmark records inference and gradient timings alongside truncation errors.
@@ -1838,9 +1860,9 @@ policy_tex = draw_model(
 Path("cartpole_policy.tex").write_text(policy_tex, encoding="utf-8")
 ```
 
-[![CartPole softmax policy with scaled Y inputs, YZ rotations, CNOT-ring entanglers, and a compact second reuploading layer](docs/assets/circuits/cartpole_policy.png)](docs/assets/circuits/cartpole_policy.pdf)
+[![CartPole softmax policy with scaled Y inputs, YZ rotations, CNOT-ring entanglers, and a compact second reuploading layer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/cartpole_policy.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_policy.pdf)
 
-[Editable TikZ](docs/assets/circuits/cartpole_policy.tex) · [Vector PDF](docs/assets/circuits/cartpole_policy.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_policy.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_policy.pdf)
 
 For comparison, build the Born-policy variant from the same ansatz and feature
 map. Its computational-basis measurements feed the classical parity decoder.
@@ -1862,9 +1884,9 @@ born_tex = draw_model(
 Path("cartpole_born.tex").write_text(born_tex, encoding="utf-8")
 ```
 
-[![The same CartPole circuit with computational-basis measurements for Born parity decoding](docs/assets/circuits/cartpole_born.png)](docs/assets/circuits/cartpole_born.pdf)
+[![The same CartPole circuit with computational-basis measurements for Born parity decoding](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/cartpole_born.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_born.pdf)
 
-[Editable TikZ](docs/assets/circuits/cartpole_born.tex) · [Vector PDF](docs/assets/circuits/cartpole_born.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_born.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_born.pdf)
 
 
 `REINFORCE.train()` returns unshaped training-episode returns. Its
@@ -1956,9 +1978,9 @@ qfunction_tex = draw_qfunction(
 Path("pqdqn.tex").write_text(qfunction_tex, encoding="utf-8")
 ```
 
-[![Four-qubit PQDQN with scaled Y encoding, two reuploading YZ layers, CNOT-ring entanglers, and Pauli-Z feature readouts](docs/assets/circuits/pqdqn.png)](docs/assets/circuits/pqdqn.pdf)
+[![Four-qubit PQDQN with scaled Y encoding, two reuploading YZ layers, CNOT-ring entanglers, and Pauli-Z feature readouts](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/pqdqn.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/pqdqn.pdf)
 
-[Editable TikZ](docs/assets/circuits/pqdqn.tex) · [Vector PDF](docs/assets/circuits/pqdqn.pdf)
+[Editable TikZ](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/pqdqn.tex) · [Vector PDF](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/pqdqn.pdf)
 
 
 The affine head produces unconstrained action values, so greedy action
@@ -1968,11 +1990,11 @@ model dictionary. These presets supply Pauli features to the same learned head.
 
 For longer experiments, saved results, and additional readout choices, see the
 [CartPole PQDQN notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/cartpole_pqdqn_deep_q_learning.ipynb),
-[Q-function guide](docs/qfunctions.md), and
+[Q-function guide](https://github.com/INESCTEC/qasp/blob/main/docs/qfunctions.md), and
 [policy training notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/tests/test_policy_training.ipynb).
 
 ## Citing QASP
 
 If you use QASP in a paper or other research output, please cite the software.
-Citation metadata is provided in [CITATION.cff](CITATION.cff), crediting INESC TEC.
+Citation metadata is provided in [CITATION.cff](https://github.com/INESCTEC/qasp/blob/main/CITATION.cff), crediting INESC TEC.
 

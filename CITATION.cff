@@ -10,8 +10,8 @@ authors:
     email: "andre.m.sequeira@inesctec.pt"
     affiliation: "Quantum Software Engineering, HASLab, INESC TEC, Braga, Portugal"
 version: "0.1.0"
-# This is the current source version, not a published release.
-# Add date-released and a DOI only when a release has been published/archived.
+date-released: 2026-11-04
+# Add a DOI only when one has been assigned.
 repository-code: "https://github.com/INESCTEC/qasp"
 url: "https://github.com/INESCTEC/qasp"
 license: MIT

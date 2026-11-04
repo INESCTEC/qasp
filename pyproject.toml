@@ -57,7 +57,7 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/INESCTEC/qasp"
 Repository = "https://github.com/INESCTEC/qasp"
-Documentation = "https://github.com/INESCTEC/qasp/blob/main/docs/package_guide.md"
+Documentation = "https://andre-sequeira10.github.io/QASP/"
 Issues = "https://github.com/INESCTEC/qasp/issues"
 
 [tool.setuptools]
@@ -67,3 +67,6 @@ include-package-data = true
 where = ["."]
 include = ["qasp", "qasp.*"]
 exclude = ["tests", "tests.*", "__MACOSX", "__MACOSX.*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.ipynb", "__pycache__/*", "*.pyc"]
