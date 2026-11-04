@@ -8,22 +8,27 @@
   </picture>
 </p>
 
-**QASP** (**Q**uantum **A**gent **S**oftware **P**ackage) is a Python toolkit for building, training, and analyzing parameterized quantum circuit (PQC) models with a strong focus on:
+<p align="center">
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Source package version: 0.1.0"></a>
+  <a href="#installation"><img src="https://img.shields.io/badge/python-%3E%3D3.10-3776AB?logo=python&amp;logoColor=white" alt="Python requirement: 3.10 or newer"></a>
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/status-alpha-orange" alt="Development status: alpha"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
+  <a href="docs/package_guide.md"><img src="https://img.shields.io/badge/docs-package%20guide-teal" alt="Documentation: package guide"></a>
+</p>
 
-- quantum reinforcement learning,
-- expectation-value and Born-probability quantum classification,
-- contextual bandits and policy-gradient training,
-- Born-rule and softmax quantum policies,
-- reusable feature maps and ansatz templates,
-- quantum-kernel experiments,
-- QUBO optimization with QAOA, warm starts, RQAOA, LR-QAOA, and PCE,
-- initialization-concentration diagnostics and exploratory Lie-closure analyses,
-- exact tensor-network and sampled-correlation IQP simulation,
-- exact differentiable Pauli propagation with optional truncation and pruning.
+**QASP** (**Q**uantum **A**gent **S**oftware **P**ackage) is a Python toolkit for
+building, training and analyzing quantum models with PennyLane and PyTorch.
+Shared circuit builders, feature maps, ansatz templates and initializers support
+**reinforcement learning, classification, quantum kernels, generative learning
+and combinatorial optimization**.
 
-The package is organized so that the same circuit-building primitives can be
-reused across classification, optimization, RL, generative-learning, and
-kernel workflows.
+Run compatible models with PennyLane devices or QASP's differentiable
+**IQPSimulator** (tensor networks, Van den Nest estimation or automatic selection)
+and **PauliPropagationSimulator**. Reuse the same building blocks across modules,
+with execution and gradient methods chosen for each circuit and readout.
+
+**[Get started](#installation)** · **[Examples](examples/README.md)** ·
+**[Package guide](docs/package_guide.md)** · **[Architecture](#architecture)**
 
 **Table of contents**
 
@@ -110,6 +115,11 @@ covers configuration and migration; the [dedicated IQP paper](https://github.com
 contains the full mathematical and performance study.
 
 ## Installation
+
+QASP currently declares package version **0.1.0** and alpha development status.
+It requires **Python 3.10 or newer**, subject to the supported versions of its
+dependencies. This is the source package version; no GitHub release or PyPI
+distribution has been published yet. Install from this repository as shown below.
 
 ### From source
 
