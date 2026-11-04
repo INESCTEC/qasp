@@ -15,21 +15,11 @@ import numpy as np
 import torch
 
 
-_INITIALIZATIONS = {
-    "random_0_2pi",
-    "random_-1_1",
-    "random_0_1",
-    "random_half_1",
-    "random_-pi_pi",
-    "random_0_pi",
-    "zeros",
-    "ones",
-    "constant",
-    "normal_0_1",
-    "normal_half_0_15",
-    "small_normal",
-    "discrete_0_pi_over_2",
-}
+def _initialization_label(spec):
+    """Keep result metadata readable for names, specifications and callables."""
+    if spec is None or isinstance(spec, str):
+        return spec
+    return getattr(spec, "__name__", repr(spec))
 
 
 def _generator(device: torch.device, seed: int | None) -> torch.Generator:
@@ -47,54 +37,10 @@ def _sample_tensor(
     initialization: str,
     generator: torch.Generator,
 ) -> torch.Tensor:
-    """Return a tensor sampled from a QASP initialization distribution."""
-    name = initialization.lower()
-    if name not in _INITIALIZATIONS:
-        choices = ", ".join(sorted(_INITIALIZATIONS))
-        raise ValueError(
-            f"Unknown initialization '{initialization}'. Choose from: {choices}."
-        )
+    """Return a new tensor using the shared initializer and a local RNG."""
+    from qasp.initialization import initialize_tensor
 
-    kwargs = {"device": tensor.device, "dtype": tensor.dtype}
-    if name in {"random_0_2pi"}:
-        return torch.rand(tensor.shape, generator=generator, **kwargs) * (2 * math.pi)
-    if name == "random_-1_1":
-        return torch.rand(tensor.shape, generator=generator, **kwargs) * 2 - 1
-    if name == "random_0_1":
-        return torch.rand(tensor.shape, generator=generator, **kwargs)
-    if name == "random_half_1":
-        return 0.5 + 0.5 * torch.rand(
-            tensor.shape, generator=generator, **kwargs
-        )
-    if name == "random_-pi_pi":
-        return (
-            torch.rand(tensor.shape, generator=generator, **kwargs) * (2 * math.pi)
-            - math.pi
-        )
-    if name == "random_0_pi":
-        return torch.rand(tensor.shape, generator=generator, **kwargs) * math.pi
-    if name == "zeros":
-        return torch.zeros(tensor.shape, **kwargs)
-    if name == "ones":
-        return torch.ones(tensor.shape, **kwargs)
-    if name == "constant":
-        return torch.full(tensor.shape, math.pi, **kwargs)
-    if name == "normal_0_1":
-        return torch.randn(tensor.shape, generator=generator, **kwargs)
-    if name == "normal_half_0_15":
-        return 0.5 + 0.15 * torch.randn(
-            tensor.shape, generator=generator, **kwargs
-        )
-    if name == "small_normal":
-        return 0.1 * torch.randn(tensor.shape, generator=generator, **kwargs)
-    bits = torch.randint(
-        0,
-        2,
-        tensor.shape,
-        generator=generator,
-        device=tensor.device,
-    )
-    return bits.to(tensor.dtype) * (math.pi / 2)
+    return initialize_tensor(torch.empty_like(tensor), initialization, generator=generator)
 
 
 def _model_type(model: Any, requested: str) -> str:
@@ -392,7 +338,8 @@ def _diagnose_single_model(
     initialization: str | Callable[[torch.Tensor], Any] = "random_-pi_pi",
     *,
     state: Any = None,
-    state_initialization: str = "normal_0_1",
+    input_scaling_init=None,
+    state_initialization="normal_0_1",
     state_sampler: Callable[[int, torch.Generator], Any] | None = None,
     state_shape: int | tuple[int, ...] | None = None,
     cost_function: Callable[[Any, Any], Any] | None = None,
@@ -432,6 +379,10 @@ def _diagnose_single_model(
     local Pauli-Z expectations are reconstructed exactly from the basis
     distribution. ``expectation_function(model, sampled_state)`` can override
     this extraction and may return a scalar or vector.
+
+    initialization accepts shared initializer objects, legacy strings or tensor
+    callables. input_scaling_init optionally overrides the input-scale group;
+    built-in distributions use the diagnostic's local seeded RNG.
 
     ``parameter_scope="quantum"`` resamples only the model's ``qlayer``;
     ``"all"`` also includes trainable classical post-processing parameters.
@@ -506,19 +457,13 @@ def _diagnose_single_model(
     try:
         with torch.no_grad():
             for sample_index in range(n_samples):
-                for parameter in parameters:
-                    if callable(initialization):
-                        value = initialization(parameter)
-                        if value is not None and value is not parameter:
-                            parameter.copy_(torch.as_tensor(value).to(parameter))
-                    else:
-                        parameter.copy_(
-                            _sample_tensor(
-                                parameter,
-                                initialization,
-                                generator_for(parameter.device),
-                            )
-                        )
+                for name, parameter in named_parameters:
+                    spec = (input_scaling_init
+                            if name.rsplit(".", 1)[-1] == "input_scaling_params"
+                            and input_scaling_init is not None else initialization)
+                    from qasp.initialization import initialize_tensor
+
+                    initialize_tensor(parameter, spec, generator=generator_for(parameter.device))
 
                 if state_sampler is not None:
                     sampled_state = state_sampler(sample_index, state_generator)
@@ -637,11 +582,8 @@ def _diagnose_single_model(
         "model_type": kind,
         "cost": cost_name,
         "n_samples": n_samples,
-        "initialization": (
-            initialization
-            if isinstance(initialization, str)
-            else getattr(initialization, "__name__", "custom")
-        ),
+        "initialization": _initialization_label(initialization),
+        "input_scaling_init": _initialization_label(input_scaling_init),
         "parameter_scope": (
             parameter_scope if isinstance(parameter_scope, str) else "custom"
         ),
@@ -649,7 +591,7 @@ def _diagnose_single_model(
         "n_parameters": sum(parameter.numel() for parameter in parameters),
         "state_mode": state_mode,
         "state_initialization": (
-            state_initialization if state_mode == "random" else None
+            _initialization_label(state_initialization) if state_mode == "random" else None
         ),
         "seed": seed,
         "ddof": ddof,
@@ -697,7 +639,8 @@ def barren_plateau_diagnoser(
     model_factory: Callable[[int], Any] | None = None,
     state_factory: Callable[[int], Any] | None = None,
     state: Any = None,
-    state_initialization: str = "normal_0_1",
+    input_scaling_init=None,
+    state_initialization="normal_0_1",
     state_sampler: Callable[[int, torch.Generator], Any] | None = None,
     state_shape: int | tuple[int, ...] | None = None,
     cost_function: Callable[[Any, Any], Any] | None = None,
@@ -755,6 +698,7 @@ def barren_plateau_diagnoser(
             model,
             n_samples=n_samples,
             initialization=initialization,
+            input_scaling_init=input_scaling_init,
             state=state,
             state_initialization=state_initialization,
             state_sampler=state_sampler,
@@ -810,6 +754,7 @@ def barren_plateau_diagnoser(
             width_model,
             n_samples=n_samples,
             initialization=initialization,
+            input_scaling_init=input_scaling_init,
             state=width_state,
             state_initialization=state_initialization,
             state_sampler=state_sampler,
@@ -840,6 +785,7 @@ def barren_plateau_diagnoser(
         "n_samples": n_samples,
         "n_samples_per_qubit": n_samples,
         "initialization": results_by_qubit[widths[0]]["initialization"],
+        "input_scaling_init": results_by_qubit[widths[0]]["input_scaling_init"],
         "parameter_scope": results_by_qubit[widths[0]]["parameter_scope"],
         "state_mode": results_by_qubit[widths[0]]["state_mode"],
         "state_initialization": results_by_qubit[widths[0]][

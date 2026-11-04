@@ -1,9 +1,0 @@
-{
-  "pid": 50693,
-  "command": [
-    "/private/tmp/qasp-slurm-venv/bin/python",
-    "-u",
-    "/Users/andresequeira/Desktop/QASP/examples/pqdqn_pp_cartpole_comparison.py"
-  ],
-  "output": "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_pp_vs_lightning_cartpole_10qubit_seed7_400ep"
-}

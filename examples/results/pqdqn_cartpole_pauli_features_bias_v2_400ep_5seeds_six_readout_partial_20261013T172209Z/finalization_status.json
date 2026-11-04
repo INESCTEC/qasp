@@ -1,5 +1,0 @@
-{
-  "state": "executing_notebook",
-  "notebook": "/Users/andresequeira/Desktop/QASP/examples/cartpole_pqdqn_deep_q_learning.ipynb",
-  "results": "/Users/andresequeira/Desktop/QASP/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds"
-}

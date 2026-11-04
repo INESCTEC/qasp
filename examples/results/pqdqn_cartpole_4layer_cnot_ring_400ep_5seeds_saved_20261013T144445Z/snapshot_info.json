@@ -1,6 +1,0 @@
-{
-  "saved_at_utc": "20261013T144445Z",
-  "source": "examples/results/pqdqn_cartpole_4layer_cnot_ring_400ep_5seeds",
-  "completed_runs": 3,
-  "note": "Completed runs include model checkpoints. Incomplete runs contain saved episode histories only; their live training state remains in the running processes."
-}

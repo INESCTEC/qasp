@@ -51,6 +51,7 @@ from pennylane import numpy as np
 import torch
 
 from qasp.circuits.constructor import CircuitBuilder
+from qasp.feature_maps import NeuralEmbedding
 
 
 # ---------------------------------------------------------------------------
@@ -258,7 +259,7 @@ class _BaseQuantumKernel:
         reps: int = 1,
         ansatz=None,
         ansatz_config: Optional[dict] = None,
-        init: str = "random_-pi_pi",
+        init="random_-pi_pi",
         input_scaling_params=None,
         device: str = "default.qubit",
         diff_method: str = "best",
@@ -266,13 +267,17 @@ class _BaseQuantumKernel:
         mpi: bool = False,
         n_ancillas: int = 0,
         device_kwargs: Optional[dict] = None,
+        input_scaling_init=None,
     ):
         """Resolve common kernel components without yet assembling measurement QNodes.
 
         feature_map/feature_map_config define input encoding; n_qubits sets register
         size and reps repeats an encoding-only circuit. Supplying ansatz plus its
-        config creates trainable parameters initialized by init. Encoding-only
-        input-scaled maps require fixed input_scaling_params. Device, shots,
+        config creates trainable parameters initialized by init. input_scaling_init
+        independently initializes scales; trainable models default to init.
+        Encoding-only scaled maps accept fixed input_scaling_params or sample
+        fixed scales once with input_scaling_init. Explicit scale arrays win.
+        Device, shots,
         diff_method, mpi, device_kwargs and n_ancillas pass to CircuitBuilder.
         The input feature count is taken from the map, falling back to n_qubits."""
         if feature_map is None:
@@ -293,6 +298,7 @@ class _BaseQuantumKernel:
             self.ansatz = EncodingAnsatz(n_qubits, feature_map=self.fm, reps=reps)
 
         self.init = init
+        self.input_scaling_init = input_scaling_init
         self.device = device
         self.diff_method = diff_method
         self.shots = shots
@@ -303,6 +309,23 @@ class _BaseQuantumKernel:
             None if input_scaling_params is None
             else _np.asarray(input_scaling_params, dtype=float)
         )
+        if not self.fm_input_scaling and input_scaling_init is not None:
+            raise ValueError("input_scaling_init requires an input-scaling feature map.")
+        if self.fm_input_scaling and not self.trainable:
+            # EncodingAnsatz shares the same scale block across all repetitions.
+            count = (self.fm.features if getattr(self.fm, "features", None) is not None
+                     else n_qubits)
+            if isinstance(self.fm, NeuralEmbedding):
+                count *= (n_qubits if isinstance(self.fm.rotations, str)
+                          else len(self.fm.rotations))
+            if self._fixed_isp is None and input_scaling_init is not None:
+                from qasp.initialization import sample_parameters
+
+                self._fixed_isp = sample_parameters((count,), input_scaling_init)
+            if self._fixed_isp is not None and (
+                self._fixed_isp.shape != (count,) or not _np.isfinite(self._fixed_isp).all()
+            ):
+                raise ValueError(f"input_scaling_params must have shape {(count,)} and finite values.")
         if self.fm_input_scaling and not self.trainable and self._fixed_isp is None:
             raise ValueError(
                 "input_scaling_params are required for a non-trainable "
@@ -354,7 +377,10 @@ class _BaseQuantumKernel:
             device_kwargs=self.device_kwargs,
         )
         if self.trainable:
-            self.qlayer = self.builder.create_torchlayer(initialization=self.init)
+            self.qlayer = self.builder.create_torchlayer(
+                initialization=self.init, input_scaling_init=self.input_scaling_init,
+                input_scaling_params=self._fixed_isp,
+            )
 
     # -- trainable parameters ----------------------------------------------
     def parameters(self):

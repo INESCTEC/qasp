@@ -122,6 +122,7 @@ class PauliCorrelationEncoding:
         diff_method: str | None = "auto",
         backend: str = "numpy",
         seed: int | None = None,
+        init=None,
     ):
         """Build a Pauli-correlation surrogate for a binary quadratic problem.
 
@@ -139,9 +140,11 @@ class PauliCorrelationEncoding:
             alpha: Positive tanh slope; defaults to the encoding qubit count.
             regularization: Nonnegative multiplier of the surrogate regularizer.
             shots: Analytic execution when None; otherwise finite-shot training.
-            diff_method: Auto chooses adjoint analytically, parameter-shift with shots.
+            diff_method: Auto chooses backprop for QASP Torch simulators, otherwise adjoint analytically; parameter-shift with shots.
             backend: NumPy/Autograd or Torch optimization interface.
-            seed: Seed for parameter initialization, not a device-shot RNG guarantee.
+            seed: Seed for built-in parameter initialization, not a device-shot RNG guarantee.
+            init: Shared initializer, legacy mode or explicit angle array. Overrides
+                circuit['init']; absent settings retain uniform [-pi, pi).
 
         The optimized surrogate differs from the decoded QUBO energy. Finite shots
         are incompatible with adjoint/backprop. Invalid encodings, parameter layouts
@@ -164,6 +167,9 @@ class PauliCorrelationEncoding:
         self.backend = normalize_backend(backend)
         self.interface = "torch" if self.backend == "torch" else "autograd"
         self.circuit_config = deepcopy(circuit or self._default_circuit())
+        self.init = self.circuit_config.get("init", "random") if init is None else init
+        if self.init is None:
+            self.init = "random"
         self.builder, self.parameter_shape = self._build_qasp_circuit(
             self.circuit_config
         )
@@ -184,8 +190,10 @@ class PauliCorrelationEncoding:
         self.training_shots = shots if shots is not None else device_shots
         self.shots = self.training_shots
         if diff_method == "auto":
+            from qasp.simulators import IQPTNSimulator, PauliPropagationSimulator
             diff_method = (
-                "adjoint" if self.training_shots is None else "parameter-shift"
+                ("backprop" if isinstance(self.device, (IQPTNSimulator, PauliPropagationSimulator)) else "adjoint")
+                if self.training_shots is None else "parameter-shift"
             )
         if self.training_shots is not None and diff_method in {"adjoint", "backprop"}:
             raise ValueError(
@@ -266,27 +274,23 @@ class PauliCorrelationEncoding:
             f"{term.pauli} {' '.join(map(str, term.wires))}" for term in self.encoding
         ]
 
-    def initial_parameters(self, initialization="random") -> np.ndarray:
-        """Return a flat NumPy parameter vector from random, zeros, ones or an array.
+    def initial_parameters(self, initialization=None) -> np.ndarray:
+        """Sample init or an override using the instance RNG; explicit arrays win.
 
-        Random values are uniform on [-pi, pi) using the instance RNG. Supplied
-        arrays are checked by total size and flattened; their size must match
-        n_parameters. Initialization does not run the quantum circuit."""
-        if not isinstance(initialization, str):
+        The default 'random' remains uniform [-pi, pi). The constructor accepts
+        init directly or in its circuit dictionary (a direct value takes priority).
+        """
+        from qasp.initialization import sample_parameters, Uniform
+
+        initialization = self.init if initialization is None else initialization
+        if not isinstance(initialization, str) and not callable(initialization):
             values = np.asarray(initialization, dtype=float)
-            if values.size != self.n_parameters:
-                raise ValueError(
-                    f"Expected {self.n_parameters} parameters, got {values.size}."
-                )
-            return values.reshape(-1)
-        name = initialization.lower()
-        if name == "zeros":
-            return np.zeros(self.n_parameters)
-        if name == "ones":
-            return np.ones(self.n_parameters)
-        if name != "random":
-            raise ValueError("initialization must be 'random', 'zeros', or 'ones'.")
-        return self.rng.uniform(-np.pi, np.pi, size=self.n_parameters)
+            if values.size != self.n_parameters or not np.isfinite(values).all():
+                raise ValueError(f"Expected {self.n_parameters} finite parameters, got {values.size}.")
+            return values.reshape(-1).copy()
+        if isinstance(initialization, str) and initialization.lower() == "random":
+            initialization = Uniform(-np.pi, np.pi)
+        return sample_parameters((self.n_parameters,), initialization, rng=self.rng)
 
     def expectations_tensor(self, parameters):
         """Return differentiable encoded Pauli expectations."""
@@ -375,7 +379,7 @@ class PauliCorrelationEncoding:
 
     def solve(
         self,
-        initial_parameters="random",
+        initial_parameters=None,
         *,
         optimizer=None,
         optimizer_options: dict | None = None,

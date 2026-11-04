@@ -8,6 +8,11 @@ Born learning, optimization, reinforcement learning and diagnostics.
 Optional application exports are loaded lazily; importing an export can still
 require its optional dependency. See docs/package_guide.md for the API map and
 implementation boundaries."""
+from .initialization import (
+    Initializer, Normal, Uniform, Beta, TruncatedNormal, LogNormal,
+    Gamma, Exponential, Laplace, Rademacher, Constant, Zeros, Ones, Choice,
+)
+
 from .circuits import (
     AngleAnsatz,
     CircuitBuilder,
@@ -118,7 +123,6 @@ _RL_EXPORTS = {
     "PQCBornVariance",
     "LearnablePQCBorn",
     "FastTruncatedPauliProp",
-    "DifferentiablePauliProp",
     "PQCBornWrapper",
     "TorchRLTrainer",
     "REINFORCE",
@@ -154,6 +158,8 @@ def __getattr__(name):
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
+    "Initializer", "Normal", "Uniform", "Beta", "TruncatedNormal", "LogNormal",
+    "Gamma", "Exponential", "Laplace", "Rademacher", "Constant", "Zeros", "Ones", "Choice",
     "CircuitBuilder", "IQPAnsatz", "AngleAnsatz", "UQC",
     "circuit_to_tikz", "save_tikz", "tape_to_tikz",
     "AngleEmbedding", "NeuralEmbedding",
@@ -188,3 +194,9 @@ __all__ = [
     "TorchRLTrainer", "REINFORCE", "BanditAWRConfig", 
     "ContextualBanditTrainer", "PQCWrapper", "WindyTargetNavigationEnv"
 ]
+
+from .simulators import IQPSimulator, IQPOptions, IQPReport, IQPTNSimulator, IQPTNOptions, DecoderSpec, action_probs
+__all__ += ["IQPSimulator", "IQPOptions", "IQPReport", "IQPTNSimulator", "IQPTNOptions", "DecoderSpec", "action_probs"]
+
+from .simulators import PauliPropagationSimulator, PauliPropagationOptions, DifferentiablePauliProp
+__all__ += ["PauliPropagationSimulator", "PauliPropagationOptions"]

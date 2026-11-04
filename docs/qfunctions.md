@@ -110,7 +110,7 @@ pp_config.update(
 )
 ```
 
-The executed [10-qubit benchmark](../examples/pqdqn_pauli_propagation_benchmark.ipynb)
+The executed [10-qubit benchmark](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/pqdqn_pauli_propagation_benchmark.ipynb)
 compares `lightning.pp` at `pp_truncation=2,3` against `lightning.qubit` with
 adjoint differentiation, using identical four-layer CNOT-ring models and inputs.
 The benchmark includes inference and
@@ -217,7 +217,7 @@ That is a different model. Explicit `preset_mode="projectors", fc_bias=False`
 reproduces its named-readout convention and checkpoint shapes. To restore an
 old shared or per-action checkpoint, keep its original strings and set
 `fc_bias=False`. Old results remain under
-`examples/results/pqdqn_cartpole_4layer_cnot_ring_400ep_5seeds/`, with original
+[upstream examples/results/pqdqn_cartpole_4layer_cnot_ring_400ep_5seeds/](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/results/pqdqn_cartpole_4layer_cnot_ring_400ep_5seeds/), with original
 source/notebook snapshots in `reproduction_before_feature_presets/`.
 Never mix those results with the corrected feature-based experiment.
 
@@ -314,7 +314,7 @@ exact trainer-resume checkpoint (optimizer, replay and RNG state are separate).
 ## Executed examples
 
 - [Observable validation and CartPole smoke runs](../examples/pqdqn_observables_validation.ipynb)
-- [CartPole learning experiment](../examples/cartpole_pqdqn_deep_q_learning.ipynb)
+- [CartPole learning experiment](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/cartpole_pqdqn_deep_q_learning.ipynb)
 
 The notebooks record dependency versions, seeds, actual evaluation returns,
 and learning curves. Short smoke runs validate execution and parameter updates;
@@ -328,7 +328,7 @@ updates. Greedy evaluation on 20 fixed seeds increased from 9.4 to 50.15;
 the final model averaged 55.1 on 100 held-out episodes (standard deviation
 31.75). This configuration **did not solve CartPole**. Its final held-out mean
 is below the notebook's 475 reference. The checkpoint, raw returns, and plot
-are saved under `examples/results/pqdqn_cartpole/`.
+are saved under [upstream examples/results/pqdqn_cartpole/](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/results/pqdqn_cartpole/).
 
 The earlier validation and pilot results apply to the original readout convention;
 the corrected feature/bias implementation has separate validation and results.
@@ -345,8 +345,8 @@ Preset sizes do not change CartPole's two output Q-values.
 Seeds 7–11 and 400 episodes yield 20 independent runs. The backend remains
 `default.qubit` with `backprop`. All other training settings are unchanged.
 The corrected dataset is saved separately in
-`examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/`.
-The validation drawings are in `examples/results/pqdqn_validation_pauli_features_bias_v2/`.
+[upstream examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/results/pqdqn_cartpole_pauli_features_bias_v2_400ep_5seeds/).
+The validation drawings are in [upstream examples/results/pqdqn_validation_pauli_features_bias_v2/](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/results/pqdqn_validation_pauli_features_bias_v2/).
 Every explicitly created model has compact and expanded TikZ/PDF drawings;
 readout metadata records the preset size, individual terms and presence of bias.
 

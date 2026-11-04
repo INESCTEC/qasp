@@ -47,6 +47,7 @@ class PQDQN(nn.Module):
         fc_layer=True,
         fc_bias=None,
         init="normal_0_1",
+        input_scaling_init=None,
         device="default.qubit",
         diff_method="best",
         shots=None,
@@ -84,7 +85,8 @@ class PQDQN(nn.Module):
         Execution:
             input_activation is tanh or None. batch_mode is sequential or broadcast;
             NeuralEmbedding and explicit-word AngleEmbedding require sequential
-            execution on statevector backends. init names a builder initializer.
+            execution on statevector backends. init and input_scaling_init select
+            independent ansatz and feature-map initializers.
             device/diff_method/shots/mpi/device_kwargs configure PennyLane.
             lightning.pp uses analytic Torch autograd, no MPI or shots. Its
             pp_truncation limits Pauli weight; pp_topM/pp_tau/pp_prune_every and
@@ -225,7 +227,7 @@ class PQDQN(nn.Module):
             device_kwargs=device_kwargs,
         )
         if device == "lightning.pp":
-            from qasp.rl.differentiable_pp_sim import DifferentiablePauliProp
+            from qasp.simulators import DifferentiablePauliProp
 
             self.circuit, self.pp_tape = compiled
             self.pp_engine = DifferentiablePauliProp(
@@ -235,7 +237,7 @@ class PQDQN(nn.Module):
             )
         else:
             self.circuit = compiled
-        self.qlayer = self.circuit_builder.create_torchlayer(initialization=init)
+        self.qlayer = self.circuit_builder.create_torchlayer(initialization=init, input_scaling_init=input_scaling_init)
         self.fc_layer = (
             nn.Linear(len(coefficients), n_actions, bias=fc_bias) if fc_layer else None
         )

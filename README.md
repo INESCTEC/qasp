@@ -18,11 +18,32 @@
 - quantum-kernel experiments,
 - QUBO optimization with QAOA, warm starts, RQAOA, LR-QAOA, and PCE,
 - initialization-concentration diagnostics and exploratory Lie-closure analyses,
-- approximate simulation via truncated Pauli propagation.
+- exact tensor-network and sampled-correlation IQP simulation,
+- exact differentiable Pauli propagation with optional truncation and pruning.
 
 The package is organized so that the same circuit-building primitives can be
 reused across classification, optimization, RL, generative-learning, and
 kernel workflows.
+
+**Table of contents**
+
+- [Highlights](#highlights)
+- [Architecture](#architecture)
+- [Documentation](#documentation)
+- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Differentiable IQP simulation](#differentiable-iqp-simulation)
+- [General differentiable Pauli propagation](#general-differentiable-pauli-propagation)
+- [Package layout](#package-layout)
+- [Top-level API](#top-level-api)
+- [Distributed statevector simulation (MPI)](#distributed-statevector-simulation-mpi)
+- [Manual circuit construction example](#manual-circuit-construction-example)
+- [High level RL policies from dictionaries and `create_model`](#high-level-rl-policies-from-dictionaries-and-create_model)
+- [Reinforcement learning example with REINFORCE](#reinforcement-learning-example-with-reinforce)
+- [Policy classes in `qasp.rl.policies`](#policy-classes-in-qasprlpolicies)
+- [Trainability and analysis utilities](#trainability-and-analysis-utilities)
+- [Notebooks and example scripts](#notebooks-and-example-scripts)
+- [End-to-end CartPole examples](#end-to-end-cartpole-examples)
 
 ---
 
@@ -35,7 +56,8 @@ kernel workflows.
   - model-agnostic cost-concentration diagnosis,
   - policy variance,
   - exploratory Lie-closure dimensions (with documented heuristic limitations)
-- Use PennyLane **lightning.qubit** / **lightning.kokkos** and QASP's internal differentiable **lightning.pp** route
+- Use PennyLane **lightning.qubit** / **lightning.kokkos** and the shared differentiable **PauliPropagationSimulator** (legacy `lightning.pp` remains available)
+- Run differentiable commuting models with **IQPSimulator**: exact TN, sampled Van den Nest, or automatic selection, with multicore forward/backward execution
 - Compare different observable/readout designs, including local `Z`, pairwise `ZZ`, and parity-based observables
 - Build global-fidelity, local-fidelity, and projected quantum kernels, including trainable IQP encodings
 - Optimize trainable kernels with centered kernel-target alignment
@@ -48,22 +70,52 @@ kernel workflows.
 
 ---
 
+## Architecture
+
+Feature maps (`AngleEmbedding`, `NeuralEmbedding`) supply input encoding to
+ansatz templates (`AngleAnsatz`, `IQPAnsatz`). `CircuitBuilder` combines the
+ansatz with a measurement and compiles it into a QNode, optionally wrapped in a
+trainable TorchLayer. Initializers configure circuit weights and input scales;
+the shared device layer selects a compatible simulator. These components support
+RL, classifiers, kernels, optimization and generative learning.
+
+[![QASP architecture: feature maps, ansatz templates and parameter initialization feed circuit construction, shared simulators and five application modules](docs/assets/architecture/qasp-architecture.png)](docs/assets/architecture/qasp-architecture.svg)
+
+[Editable vector diagram](docs/assets/architecture/qasp-architecture.svg) ·
+[PNG](docs/assets/architecture/qasp-architecture.png) ·
+[Rendering source](docs/assets/architecture/render_architecture.py)
+
+This is a conceptual dependency view. QAOA constructs cost/mixer QNodes directly
+and shares device selection; PCE can use `CircuitBuilder`. Backend compatibility
+still depends on the circuit, measurement and differentiation method. Full
+initializer options are listed under [parameter initialization](#parameter-initialization).
+
 ## Documentation
 
+This repository contains the library, regression tests and a [curated example set](examples/README.md). Notebook outputs, experiment datasets and paper sources/PDFs are kept in the [upstream research archive](https://github.com/andre-sequeira10/QASP/tree/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718). See the [repository layout policy](docs/repository_layout.md) for what is retained and how to keep the checkout small.
+
 Start with the [package guide](docs/package_guide.md) for the complete module
-map, executable examples, data shapes and implementation boundaries. Every
-Python module, class and function under `qasp` has an in-source docstring.
-The [documentation audit](docs/documentation_audit.md) records verification and
+map, executable examples, data shapes and implementation boundaries, alongside
+the package’s module and API docstrings.
+The [documentation audit](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/documentation_audit.md) records verification and
 environment limitations. Focused guides cover [Q-functions](docs/qfunctions.md)
-and [generative learning](docs/genlearn.md).
+and [generative learning](docs/genlearn.md). The [unified IQP guide](docs/iqp_simulator.md)
+explains `IQPSimulator`, exact TN versus sampled VN, gradients, automatic selection
+and resource limits. Start with the [IQP tutorial](examples/iqp_simulator.ipynb)
+or [parallel-gradient neural-policy example](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/iqp_parallel_backward.ipynb).
+The [QASP software paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/qasp_paper/output/pdf/qasp_software_paper.pdf) includes
+selected IQP experiments and the shared Pauli simulator’s mathematics, limitations
+and validated application examples. The [Pauli-propagation guide](docs/pauli_propagation.md)
+covers configuration and migration; the [dedicated IQP paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/iqp_tn_paper/iqp_tn_simulator_paper.pdf)
+contains the full mathematical and performance study.
 
 ## Installation
 
 ### From source
 
 ```bash
-git clone https://github.com/andre-sequeira10/QASP
-cd QASP
+git clone https://github.com/INESCTEC/qasp.git
+cd qasp
 python -m pip install -e .
 ```
 
@@ -82,6 +134,7 @@ QASP relies primarily on:
 - `pennylane`
 - `torch`
 - `numpy`
+- `opt_einsum` (exact IQP contraction)
 - `gymnasium`
 - `torchrl`
 - `tensordict`
@@ -89,7 +142,199 @@ QASP relies primarily on:
 - `pandas`
 - `ray[rllib]`
 
-The exact dependency list should be kept in `pyproject.toml`.
+The dependency list is in `pyproject.toml`. PennyLane tensor-network comparison
+experiments additionally use `quimb`; QASP's IQP TN route uses `opt_einsum`.
+
+---
+
+## Differentiable IQP simulation
+
+`IQPSimulator` executes compatible commuting quantum models through one device:
+
+| `backend` | Computation | Suitable readouts |
+|---|---|---|
+| `"tn"` | Exact tensor-network contraction with Torch gradients | Supported moments and structured Born/action probabilities |
+| `"van_den_nest"` | Differentiable Monte Carlo correlation estimates | Real I/Z expectations; optional compact projector importance sampling |
+| `"auto"` (default) | Chooses an eligible route using resource estimates | Depends on the circuit, readout and approximation budget |
+
+The shared construction is a circuit of commuting X-string rotations on
+`|0...0>`, or its equivalent closed Hadamard-frame Z circuit. RX, RXX and RXXX
+`AngleAnsatz` layers and matching-axis feature encodings are examples.
+`IQPAnsatz` configurations must also satisfy the circuit/readout contract;
+arbitrary noncommuting gates are not made eligible by the device name.
+TN accepts a broader recognized product-basis circuit family.
+
+This complete example constructs a QASP policy directly: the configuration
+selects the commuting ansatz, neural embedding, observables and IQP backend.
+`PQCSoftmax` returns logits, so the training loss applies `log_softmax` to form
+action log-probabilities.
+
+```python
+import numpy as np
+import torch
+from qasp import AngleAnsatz, NeuralEmbedding
+from qasp.rl.policies import PQCSoftmax
+
+n = 8
+config = {
+    "ansatz": AngleAnsatz,
+    "ansatz_config": {
+        "n_qubits": n, "n_layers": 2,
+        "rotations": ([f"X {w}" for w in range(n)]
+                      + [f"XX {w} {w+1}" for w in range(n-1)]
+                      + [f"XXX {w} {w+1} {w+2}" for w in range(n-2)]),
+        "include_imprimitive": False,
+        "include_hadamards_initial": False, "reuploading": True,
+    },
+    "feature_map": NeuralEmbedding,
+    "feature_map_config": {"n_qubits": n, "features": 4,
+                           "rotations": "X"},
+    "n_actions": 2, "observables": ["Z 0", f"Z {n-1}"],
+    "fc_layer": None,
+    "device": "IQPSimulator",
+    "device_kwargs": {"backend": "auto", "mode": "explicit",
+                      "vn_samples": 4096, "vn_workers": 4,
+                      "vn_parallel_backward": True, "seed": 2026},
+    "diff_method": "backprop", "shots": None,
+}
+policy = PQCSoftmax(n_qubits=n, **config).double()
+x = torch.tensor(np.array([.2, -.4, .3, .1]), dtype=torch.float64,
+                 requires_grad=True)
+optimizer = torch.optim.Adam(policy.parameters(), lr=.01)
+optimizer.zero_grad()
+loss = -torch.log_softmax(policy(x), dim=-1)[1]
+loss.backward()
+assert torch.isfinite(x.grad).all()
+assert all(p.grad is not None and torch.isfinite(p.grad).all()
+           for p in policy.parameters())
+optimizer.step()  # Updates circuit and neural-embedding parameters.
+print(policy.circuit.device.last_report.selected)
+```
+
+Change `config["device_kwargs"]["backend"]` **before constructing the policy**
+to `"tn"`, `"van_den_nest"`, or `"auto"`. The same device fields can be used
+in compatible QASP model-factory dictionaries. No hand-written circuit or
+QNode is required.
+
+Gradients propagate through shared circuit parameters, inputs, observable
+coefficients and compatible neural embeddings. This supports IQP-based RL
+policies, expectation classifiers, projected kernels, generative moment-MMD
+and compatible optimization circuits. Probability-based majority policies use
+TN; generic QAOA circuits and arbitrary readouts are not VN workloads.
+See the [public-model tutorial](examples/iqp_simulator.ipynb) for
+complete configurations and the [parallel-gradient neural-policy example](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/iqp_parallel_backward.ipynb)
+for Adam training.
+
+VN estimates have sampling error even with `shots=None`; its classical samples
+are not quantum-output samples. `vn_samples`, `vn_error` and `vn_confidence`
+control additive expectation accuracy, not nonlinear-loss or gradient error.
+Use `allow_approximate=False` or `backend="tn"` for exact execution.
+`mode="explicit"` disables the separate small-statevector fallback while
+retaining automatic TN/VN selection. `last_report` exposes choices, estimates
+and uncertainty. `auto` is a heuristic, not a guarantee of the fastest backend.
+
+CPU chunk workers parallelize **both forward and backward**. Effective
+concurrency is bounded by the number of sample chunks; numerical thread pools
+should be configured at application level to avoid oversubscription.
+The worker default is one, and this backend does not implement MPI or
+multi-node execution. Higher derivatives are supported on tested eager Torch
+paths, with additional memory for retained derivative graphs.
+`IQPTNSimulator` remains available as the exact-only compatibility interface.
+
+The [unified guide](docs/iqp_simulator.md) describes contracts, importance
+sampling and selection controls. The [CPU benchmark report](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/benchmarks/iqp_parallel_backward.md)
+compares previous/new gradient scheduling and 1–8 workers. The
+[IQP research paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/iqp_tn_paper/iqp_tn_simulator_paper.pdf) contains the
+TN/VN/PennyLane comparison through 100 qubits, including startup, gradients,
+resource stops and accuracy qualifications. Selected results are also included
+in the [QASP software paper](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/qasp_paper/output/pdf/qasp_software_paper.pdf).
+These are measured CPU workloads, not universal speedup or equal-accuracy claims.
+
+---
+
+## General differentiable Pauli propagation
+
+`PauliPropagationSimulator` lives in `qasp.simulators` alongside `IQPSimulator`
+and is also exported from `qasp`. It handles noncommuting circuits through
+Clifford and arbitrary Pauli-rotation propagation, with exact execution by default.
+Use the same device fields in RL, classifiers, kernels, generative learning and
+optimization:
+
+```python
+execution = {
+    "device": "PauliPropagationSimulator",
+    "device_kwargs": {"k": None, "prune": False},
+    "diff_method": "backprop",
+    "shots": None,
+}
+```
+
+For example, construct and train a noncommuting neural policy directly through
+`qasp.rl.policies` using that execution dictionary:
+
+```python
+import numpy as np
+import torch
+from qasp import AngleAnsatz, NeuralEmbedding
+from qasp.rl.policies import PQCSoftmax
+
+policy = PQCSoftmax(
+    n_qubits=3, n_actions=2,
+    ansatz=AngleAnsatz,
+    ansatz_config={
+        "n_qubits": 3, "n_layers": 2,
+        "rotations": ["Y 0", "Z 1", "X 2", "XYZ 0 1 2"],
+        "include_imprimitive": True, "imprimitive": "CNOT",
+        "imprimitive_pattern": "chain", "reuploading": True,
+    },
+    feature_map=NeuralEmbedding,
+    feature_map_config={"n_qubits": 3, "features": 2, "rotations": "Y"},
+    observables=["Z 0", "XZ 1 2"], fc_layer=None, **execution,
+).double()
+x = torch.tensor(np.array([.2, -.4]), dtype=torch.float64, requires_grad=True)
+optimizer = torch.optim.Adam(policy.parameters(), lr=.01)
+optimizer.zero_grad()
+loss = -torch.log_softmax(policy(x), dim=-1)[1]
+loss.backward()  # Circuit parameters, neural embedding and inputs share the graph.
+assert torch.isfinite(x.grad).all()
+assert all(p.grad is not None and torch.isfinite(p.grad).all()
+           for p in policy.parameters())
+optimizer.step()
+```
+
+| Application | Supported analytic paths |
+| --- | --- |
+| RL | Observable policies, Born policies and PQDQN; neural PQDQN inputs use sequential batching. |
+| Classifiers | Expectation scores and Born probabilities with Torch training. |
+| Kernels | Global/local fidelity projectors and projected Pauli kernels, including trainable Gram matrices. |
+| Generative learning | Expectation-based MMD and probability-based NLL; sampling uses an explicitly selected sampling device. |
+| Optimization | Torch QAOA and PCE, including multilayer noncommuting circuits. |
+
+The [complete direct-QASP example](examples/pauli_propagation_modules.py) trains
+a neural policy and exercises PQDQN, a classifier, a fidelity kernel, MMD, QAOA
+and PCE with this configuration. Use `backend="torch"` for optimization. Torch
+gradients include circuit parameters, inputs, neural embeddings and observable
+coefficients; analytic expectations, variances and probabilities are supported.
+Run the application example with:
+
+```sh
+conda run -n torchlane python examples/pauli_propagation_modules.py
+```
+
+The public imports are `from qasp import PauliPropagationSimulator` and
+`from qasp.simulators import PauliPropagationSimulator`. QASP accepts the class,
+a configured instance, or the device name shown above. These names are resolved
+by QASP, rather than registered as external PennyLane plugins.
+
+Exact Pauli expansions can grow exponentially. Dense probabilities require
+`2**m` moments for `m` measured wires and default to a 16-wire readout limit.
+Optional weight truncation/coefficient pruning changes both outputs and
+gradients. Finite shots, noise, amplitude-vector `StatePrep`, statevector outputs
+and MPI are unsupported. Supported unitary templates are decomposed into native
+Clifford/Pauli rotations; unsupported operations raise an error. Scalar tapes
+are evaluated sequentially, with no dedicated worker pool.
+Existing `lightning.pp` adapters and old engine imports remain compatible;
+see the [algorithm, module coverage and migration guide](docs/pauli_propagation.md).
 
 ---
 
@@ -128,10 +373,11 @@ qasp/
 │   ├── recursive.py        # recursive QAOA elimination and reconstruction
 │   ├── pce.py              # Pauli Correlation Encoding with QASP ansätze
 │   └── optimizers.py       # reusable SciPy optimizer adapters
+├── simulators/             # IQPSimulator, PauliPropagationSimulator and shared engines
 ├── diagnostics/
 │   └── barren_plateau.py   # classifier/kernel/policy cost concentration
-├── hpc/                    # Workload/memory planning, Slurm generation and execution
 ├── devices.py              # Shared device/MPI option handling
+├── initialization.py       # Reusable NumPy/Torch parameter distributions
 └── rl/
     ├── model.py            # create_model, draw_model
     ├── policies.py         # PQCBorn, PQCSoftmax, related policy classes
@@ -143,13 +389,11 @@ qasp/
     ├── envs.py             # Windy target-navigation environment
     └── trl.py              # Historical TorchRL prototype (see limitations)
 
+examples/                   # Curated tutorials and supporting scripts
+
 tests/
-├── test_feature_maps.ipynb
-├── test_qml_models.ipynb
-├── test_policy_training.ipynb
-├── optimization_algorithms.ipynb
-├── trainability_born_paper.ipynb
-└── tests_deucalion/        # cluster scripts and experiment drivers
+├── test_*.py               # Runtime/API regression tests
+└── tests_deucalion/        # Cluster scripts and MPI smoke checks
 ```
 
 ---
@@ -157,6 +401,147 @@ tests/
 ## Top-level API
 
 The package re-exports the most common entry points from `qasp.__init__`.
+
+### Parameter initialization
+
+Use reusable distributions from `qasp.initialization` to initialize ansatz
+weights and feature-map input scales independently:
+
+```python
+from qasp import create_classifier
+from qasp.initialization import Normal, Uniform
+
+config = {
+    "feature_map": "AngleEmbedding",
+    "feature_map_config": {"rotations": "Y", "input_scaling": True},
+    "ansatz": "AngleAnsatz",
+    "ansatz_config": {"n_layers": 2, "rotations": "YZ", "reuploading": True},
+    "init": Normal(mu=0.0, std=0.2),
+    "input_scaling_init": Uniform(low=0.8, high=1.2),
+    "device": "default.qubit",
+}
+classifier = create_classifier(config, n_qubits=4, n_classes=2)
+```
+
+The same `init` and `input_scaling_init` settings work with `create_model`,
+`create_qfunction`, trainable `create_kernel` models, and `create_qcbm`.
+They apply to every reuploading layer and to `NeuralEmbedding` projection
+weights. Classical output heads keep their existing initialization.
+
+Available specifications are `Normal(mu, std)`, `Uniform(low, high)`,
+`Beta(alpha, beta, low=0, high=1)`, `TruncatedNormal(mu, std, low, high)`,
+`LogNormal(mu, std)`, `Gamma(concentration, rate)`, `Exponential(rate)`,
+`Laplace(mu, scale)`, `Rademacher(scale=1)`, `Constant(value)`, `Zeros()`,
+`Ones()`, and `Choice(values)`. `Normal.std` means
+standard deviation. Specifications are immutable and can be reused across
+models; each construction draws fresh weights. Legacy strings such as
+`"normal_0_1"` and `"random_-pi_pi"` still work. Unknown names raise an error.
+
+Suggested starting points (compare them on your circuit and data):
+
+| Goal | Initializer | Why try it |
+| --- | --- | --- |
+| Small ansatz rotations | `Normal(0, 0.1)` | Simple centered baseline |
+| Small rotations with strict bounds | `TruncatedNormal(0, 0.1, -0.2, 0.2)` | Samples a conditioned normal without clipping values at the endpoints |
+| Bounded, center-concentrated angles | `Beta(2, 2, low=-0.3, high=0.3)` | Controls concentration as well as range |
+| `AngleEmbedding` input scales near one | `Beta(5, 5, low=0.8, high=1.2)` | Mean one with a fixed allowed interval |
+| Positive scales with mean one | `LogNormal(-0.005, 0.1)` or `Gamma(100, 100)` | Positive alternatives without a hard upper bound |
+| Signed `NeuralEmbedding` projections | `Normal(0, 1 / np.sqrt(n_features))` | A variance-based starting point for standardized, roughly independent features |
+| Equal-magnitude random signs | `Rademacher(0.1)` | Discrete symmetric weights |
+| Sharper center with occasional larger values | `Laplace(0, 0.1)` | Heavier tails than a normal distribution |
+| Positive values concentrated near zero | `Exponential(rate=10)` | Mean 0.1; useful when that asymmetric start is intentional |
+
+There is no universally best distribution, and small rotations alone do not
+guarantee good gradients. For a first comparison, use small Normal versus
+TruncatedNormal angles, with Beta or `Ones()` for AngleEmbedding scales.
+NeuralEmbedding scales are projection weights, so a centered distribution is
+usually a more useful starting point there. Xavier/Kaiming initializers depend
+on a neural layer's fan-in/fan-out and activation; QASP's flat angle vectors
+do not contain that structure ([PyTorch initialization reference](https://docs.pytorch.org/docs/stable/nn.init.html)).
+
+Beta's `alpha` and `beta` must be positive: equal values above one concentrate
+near the midpoint, values below one favor the ends, and unequal values skew
+the distribution ([NumPy Beta reference](https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.beta.html)).
+TruncatedNormal's bounds are actual parameter values; `mu` and `std` describe
+the underlying normal before truncation ([SciPy reference](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.truncnorm.html)).
+LogNormal's `mu` and `std` are in log space, Gamma uses **rate** rather than
+scale, and Laplace's standard deviation is `sqrt(2) * scale`.
+
+```python
+from qasp.initialization import Beta, TruncatedNormal
+
+config["init"] = TruncatedNormal(mu=0, std=0.1, low=-0.2, high=0.2)
+config["input_scaling_init"] = Beta(alpha=5, beta=5, low=0.8, high=1.2)
+classifier = create_classifier(config, n_qubits=4, n_classes=2)
+```
+
+The initialized quantum weights remain trainable PyTorch parameters. For
+example, continue with the classifier above and update both parameter groups
+with Adam:
+
+```python
+import torch
+
+torch.manual_seed(7)  # Set before constructing the model for reproducible weights.
+classifier = create_classifier(config, n_qubits=4, n_classes=2)
+optimizer = torch.optim.Adam(classifier.parameters(), lr=0.01)
+inputs = torch.tensor([[0.2, -0.3, 0.1, 0.4], [-0.1, 0.5, 0.2, -0.4]])
+targets = torch.tensor([0, 1])
+
+optimizer.zero_grad()
+loss = classifier.compute_loss(inputs, targets, objective="cross_entropy")
+loss.backward()
+optimizer.step()
+```
+
+Initialization runs only at construction, not on every optimizer step.
+PQCBM uses `interface="torch"` by default; QAOA and PCE use
+`backend="torch"` for Torch optimization.
+
+`CircuitBuilder.create_torchlayer` uses `initialization=Normal(...)` and
+`input_scaling_init=Uniform(...)`. Explicit `params` and
+`input_scaling_params` arrays override only their own group. If no scale
+initializer is supplied, Torch layers use the ansatz initializer for both
+groups; PQCBM preserves its default input scales of one. Supplying a scale
+initializer requires an input-scaling feature map. Encoding-only kernels
+can use it to sample fixed scales once.
+
+Optimization models accept the same objects at construction or at solve time:
+
+```python
+from qasp import QAOA, QUBO
+from qasp.initialization import Normal, Uniform
+
+problem = QUBO.maxcut(3, [(0, 1), (1, 2), (0, 2)])
+solver = QAOA(problem, n_layers=2, init=Normal(0.0, 0.15), seed=7)
+angles = solver.initial_parameters()  # Uses the constructor's initializer.
+result = solver.solve(initial_parameters=Uniform(-0.2, 0.2))  # Optional override.
+```
+
+This also applies to multi-angle QAOA, warm-start QAOA, PCE, and RQAOA's
+subproblem solvers. They have no input-scaling parameter group. LR-QAOA keeps
+its deterministic schedule, configured by `delta_gamma` and `delta_beta`.
+The concentration diagnoser accepts `initialization=Normal(...)` plus
+`input_scaling_init=...` for independent resampling.
+
+Seed Torch before constructing Torch-layer models with `torch.manual_seed`.
+PQCBM, QAOA and PCE use their local `seed` for built-in distributions;
+diagnostics use their local seeded generator. Explicit-parameter APIs such
+as `QFKernel` can use `Normal(...).sample(shape, rng=np.random.default_rng(7))`.
+Torch-style custom callables are also accepted and control their own randomness.
+NumPy and Torch use different RNG algorithms, so equal seeds do not imply
+identical samples across backends.
+Beta, Gamma, Laplace and TruncatedNormal use a local CPU sampler seeded from
+Torch's RNG when filling tensors, then copy values to the target dtype/device.
+A supplied `torch.Generator` controls this without changing either global RNG.
+The other built-in distributions use native Torch fills. This sampling happens
+only during initialization; the resulting model parameters remain trainable.
+
+See the [cross-module initialization notebook](examples/initialization_across_modules.ipynb)
+for creation, gradients, training, reproducibility and compatibility checks.
+Use `Choice((0, np.pi / 2))` for explicit discrete values: the historical
+`"discrete_0_pi_over_2"` alias retains its old 0/pi meaning in the builder
+and its 0/pi-over-2 meaning in diagnostics.
 
 ### Circuits
 
@@ -289,7 +674,7 @@ Path("qaoa.tex").write_text(tex, encoding="utf-8")
 Warm starts accept either a relaxed solution vector or `True` to compute a
 bounded continuous relaxation. PCE accepts the same `ansatz` / `ansatz_config`
 dictionary convention used by the classifier and RL factories. See
-`tests/optimization_algorithms.ipynb` for executable examples of every
+`examples/optimization_algorithms.ipynb` for executable examples of every
 algorithm.
 
 QAOA minimizes the expectation value of the QUBO Hamiltonian directly. With
@@ -532,19 +917,17 @@ scores = classifier(X_train[:8])
 probabilities = classifier.predict_proba(X_train[:8])
 ```
 
-Expectation classifiers can use QASP's differentiable Pauli-propagation
-backend with the same configuration used by observable-based RL policies:
+Expectation and Born-probability classifiers can use the shared differentiable
+Pauli simulator. This example trains the expectation classifier with exact
+propagation:
 
 ```python
 pp_config = {
     **multiclass_config,
-    "device": "lightning.pp",
+    "device": "PauliPropagationSimulator",
+    "device_kwargs": {"k": None, "prune": False},
     "diff_method": "backprop",
-    "pp_truncation": 3,   # maximum retained Pauli weight; None disables it
-    "pp_topM": 20_000,    # maximum retained terms; None disables it
-    "pp_tau": 1e-10,      # coefficient pruning threshold
-    "pp_prune_every": 5,
-    "pp_prune": True,
+    "shots": None,
 }
 classifier = create_classifier(pp_config, n_qubits=4, n_classes=3)
 trainer = ClassifierTrainer(
@@ -555,14 +938,14 @@ trainer = ClassifierTrainer(
 trainer.fit(X_train, y_train, epochs=20, batch_size=16)
 ```
 
-`lightning.pp` is a QASP logical backend, not a PennyLane device. It supports
-analytic expectation readout with Pauli observables and differentiates through
-the retained propagation paths. Classifier batches are propagated sample by
-sample and stacked without breaking autograd. Born-probability readout, finite
-shots, and MPI are rejected. Exact propagation on the supported gate set is
-obtained with `pp_truncation=None`, `pp_topM=None`, `pp_tau=0.0`, and
-`pp_prune=False`; truncated runs should always be checked against a feasible
-exact state-vector reference.
+For Born readout, use `readout="probabilities"` with the same device fields
+and the desired probability decoder. Dense probability reconstruction has the
+readout limit described above. Optional approximations belong in
+`device_kwargs`, for example `{"k": 3, "prune": True, "topM": 20_000,
+"tau": 1e-10, "prune_every": 5}`. Truncated values and gradients should be
+checked against a feasible exact reference; prefer exact defaults for probability
+losses. The legacy expectation-only `lightning.pp` adapters and their `pp_*`
+arguments remain supported; see the [migration guide](docs/pauli_propagation.md#migration-and-compatibility).
 
 For majority decoding, every majority block produces one code bit (strict
 majority; even-block ties map to zero), blocks are interpreted most-significant
@@ -579,7 +962,7 @@ Iris, Wine, and Digits, see
 
 For cross-module validation of cost and circuit-expectation concentration on
 classifiers, trainable kernels, and RL policies, see
-`examples/barren_plateau_diagnoser_validation.ipynb`.
+[upstream examples/barren_plateau_diagnoser_validation.ipynb](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/barren_plateau_diagnoser_validation.ipynb).
 
 ### IQP quantum-kernel example
 
@@ -761,8 +1144,8 @@ Additional device constructor options are accepted via `device_kwargs` in
 optimization, classifiers, kernels, PQCBM, and the circuit builder.
 For an already constructed PennyLane device/QNode, enable MPI at creation;
 QASP reuses it and cannot turn a serial object into an MPI object.
-The existing `lightning.pp` Pauli-propagation backend is not an MPI statevector
-device and rejects `mpi=True`.
+`PauliPropagationSimulator` and the legacy `lightning.pp` adapters do not
+support MPI and reject `mpi=True`.
 
 Cluster validation (small deterministic circuits, serial-reference comparisons,
 gradients, a QAOA optimizer step, and sampled results):
@@ -779,7 +1162,7 @@ The plugin must be compiled with MPI support; see the official
 
 QASP can also be used without the policy classes. You can directly combine a feature map, an ansatz template, and `CircuitBuilder` to create a differentiable torch-compatible quantum layer.
 
-The example below follows the same style used in `tests/test_qml_models.ipynb`.
+The example below follows the same style used in [upstream tests/test_qml_models.ipynb](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/tests/test_qml_models.ipynb).
 
 <!-- readme-circuit: manual -->
 
@@ -1292,25 +1675,16 @@ to distinguish these prototypes from the current concentration diagnostics.
 
 ---
 
-## Notebooks and experiment scripts
+## Notebooks and example scripts
 
-The repository includes examples and experiments in:
+See the [curated example index](examples/README.md) for tutorials covering
+circuits, initialization, RL, classifiers, kernels, generative learning,
+optimization and both QASP simulators. Notebooks are stored without outputs.
+The [cluster scripts](tests/tests_deucalion/) cover distributed execution.
 
-- `tests/test_qml_models.ipynb`
-- `tests/test_feature_maps.ipynb`
-- `tests/test_policy_training.ipynb`
-- `tests/trainability_born_paper.ipynb`
-- `tests/optimization_algorithms.ipynb`
-- `tests/tests_deucalion/`
-
-The notebooks are a good starting point for:
-
-- inspecting circuit templates,
-- checking parameter shapes,
-- drawing models,
-- reproducing RL experiments,
-- running trainability benchmarks.
-- testing QUBO optimization algorithms and custom circuit dictionaries.
+Historical experiment notebooks, stored datasets and papers are linked from the
+[repository layout guide](docs/repository_layout.md) rather than included in
+this checkout.
 
 ---
 
@@ -1321,8 +1695,12 @@ quantum action-value networks, with shared or per-action Pauli strings and exact
 parity/majority-modulo Pauli features with configurable `preset_actions`.
 The fully connected layer includes a bias for presets and shared observables;
 `n_actions` independently controls the final number of Q-values.
-PQDQN also supports `device="lightning.pp"` for differentiable Pauli propagation,
-including configurable truncation/pruning and the same DeepQLearning trainer.
+PQDQN supports `device="PauliPropagationSimulator"`,
+`device_kwargs={"k": None, "prune": False}`, and `diff_method="backprop"`
+for exact differentiable Pauli propagation with the same DeepQLearning trainer.
+Use `batch_mode="sequential"` with neural embeddings. Optional truncation and
+pruning belong in `device_kwargs`; the legacy `device="lightning.pp"` route
+and its `pp_*` arguments remain available for existing experiments.
 `qasp.rl.torchrl.DeepQLearning` adds replay-based DQN/Double DQN with a frozen
 target network and epsilon-greedy exploration.
 
@@ -1333,8 +1711,8 @@ The example notebooks compile vector PDFs and display PDF-rendered previews.
 
 See [the Q-function guide](docs/qfunctions.md),
 [observable validation notebook](examples/pqdqn_observables_validation.ipynb),
-the [CartPole training notebook](examples/cartpole_pqdqn_deep_q_learning.ipynb),
-and the [10-qubit PP/Lightning benchmark](examples/pqdqn_pauli_propagation_benchmark.ipynb).
+the [CartPole training notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/cartpole_pqdqn_deep_q_learning.ipynb),
+and the [10-qubit PP/Lightning benchmark](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/pqdqn_pauli_propagation_benchmark.ipynb).
 The benchmark records inference and gradient timings alongside truncation errors.
 Runtime improvements should be assessed separately from approximation quality
 and reinforcement-learning performance.
@@ -1570,6 +1948,6 @@ with `"parity-like"` or `"majority-modulo"` and set `preset_actions=2` in the
 model dictionary. These presets supply Pauli features to the same learned head.
 
 For longer experiments, saved results, and additional readout choices, see the
-[CartPole PQDQN notebook](examples/cartpole_pqdqn_deep_q_learning.ipynb),
+[CartPole PQDQN notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/cartpole_pqdqn_deep_q_learning.ipynb),
 [Q-function guide](docs/qfunctions.md), and
-[policy training notebook](tests/test_policy_training.ipynb).
+[policy training notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/tests/test_policy_training.ipynb).

@@ -1,6 +1,0 @@
-{
-  "cpu": "Apple M1",
-  "memory_bytes": 17179869184,
-  "hardware_cores": 8,
-  "source": "Read with sysctl before collection"
-}
