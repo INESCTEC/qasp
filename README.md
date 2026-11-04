@@ -13,7 +13,7 @@
   <a href="#installation"><img src="https://img.shields.io/badge/python-%3E%3D3.10-3776AB?logo=python&amp;logoColor=white" alt="Python requirement: 3.10 or newer"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/status-alpha-orange" alt="Development status: alpha"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
-  <a href="docs/package_guide.md"><img src="https://img.shields.io/badge/docs-package%20guide-teal" alt="Documentation: package guide"></a>
+  <a href="https://andre-sequeira10.github.io/QASP/"><img src="https://img.shields.io/badge/docs-interactive%20guide-teal" alt="Interactive documentation"></a>
 </p>
 
 **QASP** (**Q**uantum **A**gent **S**oftware **P**ackage) is a Python toolkit for
@@ -28,7 +28,7 @@ and **PauliPropagationSimulator**. Reuse the same building blocks across modules
 with execution and gradient methods chosen for each circuit and readout.
 
 **[Get started](#installation)** · **[Examples](examples/README.md)** ·
-**[Package guide](docs/package_guide.md)** · **[Architecture](#architecture)**
+**[Documentation website](https://andre-sequeira10.github.io/QASP/)** · **[Package guide](docs/package_guide.md)** · **[Architecture](#architecture)**
 
 **Table of contents**
 
@@ -97,6 +97,11 @@ still depends on the circuit, measurement and differentiation method. Full
 initializer options are listed under [parameter initialization](#parameter-initialization).
 
 ## Documentation
+
+Explore the **[interactive QASP documentation](https://andre-sequeira10.github.io/QASP/)**:
+Building Blocks → Simulators → Modules, with step-by-step configuration,
+training and visualization examples, searchable APIs and argument descriptions.
+
 
 This repository contains the library, regression tests and a [curated example set](examples/README.md). Notebook outputs, experiment datasets and paper sources/PDFs are kept in the [upstream research archive](https://github.com/andre-sequeira10/QASP/tree/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718). See the [repository layout policy](docs/repository_layout.md) for what is retained and how to keep the checkout small.
 
