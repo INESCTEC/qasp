@@ -108,6 +108,13 @@ def test_exact_compact_projector_products(conflict):
     out=[]
     for device in (IQPSimulator(3,backend='tn'),qml.device('default.qubit',wires=3)):
         value=qml.QNode(f,device,interface='torch')(theta)
+        # PennyLane 0.45 returns complex dtype for this overlapping product,
+        # although the commuting diagonal observable is Hermitian. Check that
+        # its imaginary part vanishes before comparing the real expectation.
+        if value.is_complex():
+            assert not isinstance(device, IQPSimulator)
+            torch.testing.assert_close(value.imag, torch.zeros_like(value.imag), atol=1e-12, rtol=0)
+            value = value.real
         out.append((value,torch.autograd.grad(value,theta)[0]))
     torch.testing.assert_close(*out,atol=1e-12,rtol=1e-12)
 

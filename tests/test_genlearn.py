@@ -1,6 +1,7 @@
 """Numerical contracts for PQCBM, moment MMD, drawings, and MPI routing."""
 
 from copy import deepcopy
+from importlib.util import find_spec
 
 import numpy as np
 import pennylane as qml
@@ -57,6 +58,8 @@ def test_factory_and_exact_mmd_value_and_gradient():
 )
 @pytest.mark.parametrize("ansatz", ["AngleAnsatz", "IQPAnsatz"])
 def test_backend_values_gradients_and_update(device, ansatz):
+    if device == "lightning.kokkos" and find_spec("pennylane_lightning.lightning_kokkos") is None:
+        pytest.skip("Optional lightning.kokkos plugin is not installed")
     ac = (
         CONFIG["ansatz_config"]
         if ansatz == "AngleAnsatz"

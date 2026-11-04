@@ -6,6 +6,9 @@ private helpers. The descriptions below distinguish working application paths
 from retained prototypes. Documentation coverage is not a claim that every
 backend or historical branch is validated.
 
+For tested dependency combinations, reproducible installs and platform limits,
+see the [dependency compatibility matrix](dependency_compatibility.md).
+
 ## Architecture and conventions
 
 The main construction path is:
