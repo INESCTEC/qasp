@@ -1974,30 +1974,5 @@ For longer experiments, saved results, and additional readout choices, see the
 ## Citing QASP
 
 If you use QASP in a paper or other research output, please cite the software.
-Citation metadata is provided in [CITATION.cff](CITATION.cff), crediting
-**André Sequeira**, Quantum Software Engineering, HASLab, INESC TEC, Braga,
-Portugal.
+Citation metadata is provided in [CITATION.cff](CITATION.cff), crediting INESC TEC.
 
-Use **Cite this repository** in the GitHub sidebar to copy a BibTeX or APA
-citation. The `.cff` file stores the metadata; the exported citation is what you
-add to your paper's bibliography. For a conventional BibTeX bibliography, you
-can use this entry in your `.bib` file and cite it with `\cite{sequeira_qasp}`:
-
-```bibtex
-@misc{sequeira_qasp,
-  author       = {Sequeira, Andr{\'e}},
-  title        = {{QASP}: Quantum Agent Software Package},
-  howpublished = {Computer software},
-  url          = {https://github.com/INESCTEC/qasp},
-  note         = {Source version 0.1.0}
-}
-```
-
-The current `0.1.0` is the declared source version; it has not yet been published
-as a tagged release. For reproducibility, record the **commit hash** used in
-your experiments (available with `git rev-parse HEAD`) and your access date in
-the citation or experimental setup. When using a tagged release, cite that
-release's version and archived DOI if one is available.
-
-This citation refers to the QASP software. A software DOI or a preferred paper
-citation can be added to `CITATION.cff` when those records become available.
