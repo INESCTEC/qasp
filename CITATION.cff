@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: >-
+  If you use QASP in your research, please cite this software and identify
+  the version or commit used in your experiments.
+type: software
+title: "QASP: Quantum Agent Software Package"
+authors:
+  - family-names: "Sequeira"
+    given-names: "André"
+    email: "andre.m.sequeira@inesctec.pt"
+    affiliation: "Quantum Software Engineering, HASLab, INESC TEC, Braga, Portugal"
+version: "0.1.0"
+# This is the current source version, not a published release.
+# Add date-released and a DOI only when a release has been published/archived.
+repository-code: "https://github.com/INESCTEC/qasp"
+url: "https://github.com/INESCTEC/qasp"
+license: MIT
+abstract: >-
+  A Python toolkit for building, training and analyzing quantum circuit models
+  for reinforcement learning, classification, quantum kernels, generative
+  learning and combinatorial optimization, with differentiable IQP and
+  Pauli propagation simulators.
+keywords:
+  - quantum computing
+  - quantum machine learning
+  - reinforcement learning
+  - quantum simulation

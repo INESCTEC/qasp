@@ -49,6 +49,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - [Trainability and analysis utilities](#trainability-and-analysis-utilities)
 - [Notebooks and example scripts](#notebooks-and-example-scripts)
 - [End-to-end CartPole examples](#end-to-end-cartpole-examples)
+- [Citing QASP](#citing-qasp)
 
 ---
 
@@ -1969,3 +1970,34 @@ For longer experiments, saved results, and additional readout choices, see the
 [CartPole PQDQN notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/cartpole_pqdqn_deep_q_learning.ipynb),
 [Q-function guide](docs/qfunctions.md), and
 [policy training notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/tests/test_policy_training.ipynb).
+
+## Citing QASP
+
+If you use QASP in a paper or other research output, please cite the software.
+Citation metadata is provided in [CITATION.cff](CITATION.cff), crediting
+**André Sequeira**, Quantum Software Engineering, HASLab, INESC TEC, Braga,
+Portugal.
+
+Use **Cite this repository** in the GitHub sidebar to copy a BibTeX or APA
+citation. The `.cff` file stores the metadata; the exported citation is what you
+add to your paper's bibliography. For a conventional BibTeX bibliography, you
+can use this entry in your `.bib` file and cite it with `\cite{sequeira_qasp}`:
+
+```bibtex
+@misc{sequeira_qasp,
+  author       = {Sequeira, Andr{\'e}},
+  title        = {{QASP}: Quantum Agent Software Package},
+  howpublished = {Computer software},
+  url          = {https://github.com/INESCTEC/qasp},
+  note         = {Source version 0.1.0}
+}
+```
+
+The current `0.1.0` is the declared source version; it has not yet been published
+as a tagged release. For reproducibility, record the **commit hash** used in
+your experiments (available with `git rev-parse HEAD`) and your access date in
+the citation or experimental setup. When using a tagged release, cite that
+release's version and archived DOI if one is available.
+
+This citation refers to the QASP software. A software DOI or a preferred paper
+citation can be added to `CITATION.cff` when those records become available.
