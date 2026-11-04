@@ -1,5 +1,0 @@
-readout,runs,backends,initial_greedy_mean,final_greedy_mean,held_out_mean,held_out_std_across_seeds,last_20_training_mean
-shared,5,default.qubit,35.05,169.52,172.66799999999998,136.56228201813266,166.44
-per_action,5,default.qubit,9.45,259.09000000000003,249.998,122.70987132256312,179.64
-parity,5,default.qubit,13.319999999999999,9.43,9.309999999999999,0.16431676725155037,11.57
-majority,5,default.qubit,9.44,9.43,9.309999999999999,0.16431676725155037,11.18

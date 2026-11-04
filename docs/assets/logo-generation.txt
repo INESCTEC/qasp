@@ -1,10 +1,23 @@
 QASP logo
 
 Created with the built-in image generation tool.
-qasp-logo.png: light background, navy lettering.
-qasp-logo-dark.png: dark background, near-white lettering.
+qasp-logo.png: transparent background, navy lettering for light themes.
+qasp-logo-dark.png: transparent background, near-white lettering for dark themes.
 The README selects the appropriate version using the viewer's color scheme.
-Both final PNGs use opaque backgrounds for clean edges.
+Both PNGs now use true alpha transparency at their original 2172 x 724 size.
+
+Background removal, 3 November 2026:
+The user requested the same logo without a background and explicitly approved
+direct pixel-based removal. Generative extraction attempts were rejected because
+they introduced edge artifacts; none of those attempts is used in these assets.
+The original artwork was masked against its background colour. Logo interiors
+were preserved byte-for-byte; a narrow antialiased edge band was unmatted against
+the old background to avoid white/dark halos. Canvas, typography, geometry,
+spacing and colours were not redesigned. Transparent node/letter holes and
+appearance on white, dark and grey backgrounds were verified. Original opaque
+assets remain available in Git history at cd2caed.
+
+Historical design prompts (before background removal):
 
 Initial design prompt:
 Use case: logo-brand. Asset type: finished logo for the GitHub README of QASP, Quantum Agent Software Package, a Python toolkit for quantum machine learning and reinforcement learning. Create one polished horizontal logo lockup: a distinctive minimal geometric Q symbol subtly integrating quantum circuit paths and two connected circuit nodes, alongside the exact uppercase word "QASP" in clean confident contemporary sans-serif lettering. Flat vector-like design, crisp precise edges, restrained professional color treatment with good contrast on both light and dark backgrounds, generous clean spacing. Transparent background. Only the text "QASP", spelled Q A S P, no subtitle or extra text. One logo only, centered and filling the canvas with modest margins, wide composition. No mockup, no shadows, no 3D, no atom-orbit cliché, no watermark.

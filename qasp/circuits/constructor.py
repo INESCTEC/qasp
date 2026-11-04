@@ -185,6 +185,9 @@ class CircuitBuilder:
                     )
 
                     if meas_type == "probs":
+                        if getattr(self, "action_decoder", None) is not None:
+                            from qasp.simulators import action_probs
+                            return action_probs(wires=wires, decoder=self.action_decoder)
                         return qml.probs(wires=wires)
                     if meas_type == "state":
                         return qml.state()
@@ -207,6 +210,9 @@ class CircuitBuilder:
                     self.ansatz(inputs=inputs, input_scaling_params=None, params=params)
 
                     if meas_type == "probs":
+                        if getattr(self, "action_decoder", None) is not None:
+                            from qasp.simulators import action_probs
+                            return action_probs(wires=wires, decoder=self.action_decoder)
                         return qml.probs(wires=wires)
                     if meas_type == "state":
                         return qml.state()
@@ -228,6 +234,9 @@ class CircuitBuilder:
                 self.ansatz(params=params)
 
                 if meas_type == "probs":
+                    if getattr(self, "action_decoder", None) is not None:
+                        from qasp.simulators import action_probs
+                        return action_probs(wires=wires, decoder=self.action_decoder)
                     return qml.probs(wires=wires)
                 if meas_type == "state":
                     return qml.state()
@@ -446,9 +455,9 @@ class CircuitBuilder:
 
         Args:
             device: PennyLane device name/instance, or ``auto``. Automatic choices
-                are default.qubit for probabilities, lightning.qubit for samples,
-                and lightning.kokkos for expectations. Use an explicit device for
-                state/variance measurements. MPI auto-selects lightning.kokkos.
+                inspect the actual circuit/readout with IQPTNSimulator and fall back
+                to default.qubit when unsupported or over budget. MPI retains
+                lightning.kokkos; explicit devices retain their own behavior.
             diff_method: PennyLane differentiation method, e.g. backprop or adjoint.
             method: Tensor-network method for default.tensor (default ``mps``).
             shots: Shot count; None requests analytic execution, except auto sample
@@ -483,25 +492,11 @@ class CircuitBuilder:
                 shots=shots, mpi=mpi, device_kwargs=options,
             )
         elif device == "auto":
-            if self.measurement[0] == "probs":
-                self.device = create_device(
-                    "default.qubit", wires=self.n_qubits + self.n_ancillas + 1,
-                    shots=shots, device_kwargs=options,
-                )
-            elif self.measurement[0] == "sample":
-                self.device = create_device(
-                    "lightning.qubit",
-                    wires=self.n_qubits + self.n_ancillas + 1,
-                    shots=1 if shots is None else shots, device_kwargs=options,
-                )
-            elif self.measurement[0] == "expectation":
-                print("Using Kokkos device for expectation measurements.", flush=True)
-                options.setdefault("batch_obs", batch_obs)
-                self.device = create_device(
-                    "lightning.kokkos",
-                    wires=self.n_qubits + self.n_ancillas + 1,
-                    shots=shots, device_kwargs=options,
-                )
+            self.device = create_device(
+                "auto", wires=self.n_qubits + self.n_ancillas,
+                shots=1 if self.measurement[0] == "sample" and shots is None else shots,
+                device_kwargs=options,
+            )
 
         elif device == "default.tensor":
             options.setdefault("method", method)
@@ -647,107 +642,74 @@ class CircuitBuilder:
 
         return save_tikz(path, self, *args, **kwargs)
 
-    def set_weights(self, params=None, input_scaling_params=None) -> qml.qnn.TorchLayer:
-        """Load existing TorchLayer weights strictly and return None.
+    def set_weights(self, params=None, input_scaling_params=None) -> None:
+        """Copy supplied weights into the layer, leaving unspecified groups unchanged.
 
-        ``params`` is the flat ansatz tensor. For a scaled feature map, supply
-        ``input_scaling_params`` too. Shapes/keys must match ``weight_shapes``;
-        Torch raises on missing or incompatible entries. Create the layer first.
-        The historical return annotation does not describe the actual None return."""
-        if params is not None and input_scaling_params is not None:
-            if self.ansatz.feature_map.input_scaling:
-                self.qlayer.load_state_dict(
-                    {"params": params, "input_scaling_params": input_scaling_params}
-                )
+        Values must have the exact shape of their parameter group and be finite.
+        Copies preserve each parameter's dtype, device and optimizer registration.
+        """
+        import torch
 
-            else:
-                self.qlayer.load_state_dict({"params": params})
-
-        else:
-            self.qlayer.load_state_dict({"params": params})
+        replacements = {}
+        for name, value in (("params", params), ("input_scaling_params", input_scaling_params)):
+            if value is None:
+                continue
+            if name not in self.weight_shapes:
+                raise ValueError(f"This circuit has no {name} parameter group.")
+            target = getattr(self.qlayer, name)
+            value = torch.as_tensor(value, dtype=target.dtype, device=target.device)
+            if value.shape != target.shape or not torch.isfinite(value).all():
+                raise ValueError(f"{name} must have shape {tuple(target.shape)} and finite values.")
+            replacements[name] = value
+        with torch.no_grad():
+            for name, value in replacements.items():
+                getattr(self.qlayer, name).copy_(value)
 
     def create_torchlayer(
-        self, params=None, input_scaling_params=None, initialization=None
+        self, params=None, input_scaling_params=None, initialization=None,
+        *, input_scaling_init=None,
     ) -> qml.qnn.TorchLayer:
-        """Create and store a trainable PennyLane TorchLayer after compilation.
+        """Create a trainable layer with independent ansatz and input-scale initializers.
 
-        Shapes come from the ansatz. Optional ``params`` and
-        ``input_scaling_params`` load initial weights through ``set_weights``.
-        ``initialization`` selects a named initializer; None/unrecognized names
-        use PennyLane's default. ``normal_0_1`` uses standard deviation 1 and
-        ``small_normal`` uses 0.1. Despite its legacy name,
-        ``discrete_0_pi_over_2`` currently samples 0 or pi, not pi/2.
-
-        Returns the layer; parameters are registered as ``params`` and, when
-        applicable, ``input_scaling_params``. Repeated calls replace the layer."""
-
-        import torch
+        ``initialization`` accepts qasp.initialization objects, legacy strings,
+        or Torch-style tensor callables. ``input_scaling_init=None`` uses the
+        same specification for the input scales. Explicit arrays independently
+        override the initializer for their group. Without a specification, the
+        historical uniform [0, 2*pi) default is retained. Unknown names raise.
+        The legacy ``discrete_0_pi_over_2`` alias still draws 0/pi here; use
+        ``Choice((0, pi/2))`` for an unambiguous half-pi distribution.
+        """
         import functools
-        from pennylane import numpy as np
+        import torch
+        from qasp.initialization import initialize_tensor, resolve_initializer
 
-        def init_binary_0_pi_over_2(tensor: torch.Tensor) -> torch.Tensor:
-            """Fill a tensor in place with equiprobable 0 or pi (legacy name); return it."""
-            with torch.no_grad():
-                # Sample 0 or 1 with equal probability for each entry
-                bits = torch.randint(
-                    low=0,
-                    high=2,
-                    size=tensor.shape,
-                    device=tensor.device,
-                )
-                tensor.copy_(bits * (np.pi))
-            return tensor
-        
-        self.initialization = initialization
-
-        if self.initialization == "random_0_2pi":
-            self.init_method = functools.partial(
-                torch.nn.init.uniform_, a=0, b=2 * np.pi
-            )
-        elif self.initialization == "random_-1_1":
-            self.init_method = functools.partial(torch.nn.init.uniform_, a=-1, b=1)
-        elif self.initialization == "random_0_1":
-            self.init_method = functools.partial(torch.nn.init.uniform_, a=0, b=1)
-        elif self.initialization == "random_half_1":
-            self.init_method = functools.partial(torch.nn.init.uniform_, a=0.5, b=1)
-        elif self.initialization == "random_-pi_pi":
-            self.init_method = functools.partial(
-                torch.nn.init.uniform_, a=-np.pi, b=np.pi
-            )
-        elif self.initialization == "zeros":
-            self.init_method = functools.partial(torch.nn.init.zeros_)
-        elif self.initialization == "ones":
-            self.init_method = functools.partial(torch.nn.init.ones_)
-        elif self.initialization == "constant":
-            self.init_method = functools.partial(torch.nn.init.constant_, val=np.pi)
-        elif self.initialization == "normal_0_1":
-            self.init_method = functools.partial(torch.nn.init.normal_, mean=0.0, std=1)
-        elif self.initialization == "normal_half_0_15":
-            self.init_method = functools.partial(torch.nn.init.normal_, mean=0.5, std=0.15)
-        elif self.initialization == "small_normal":
-            self.init_method = functools.partial(torch.nn.init.normal_, mean=0.0, std=0.1)
-        elif self.initialization == "discrete_0_pi_over_2":
-            self.init_method = init_binary_0_pi_over_2
-        else:
-            self.init_method = None
-
-        self.weight_shapes = {}
         shapes = self.ansatz.get_param_shapes()
-        if (
-            self.ansatz.feature_map is not None
-            and self.ansatz.feature_map.input_scaling
-        ):
-            self.weight_shapes["input_scaling_params"] = shapes[0]
-
-            self.weight_shapes["params"] = shapes[1]
-        else:
-            self.weight_shapes["params"] = shapes[0]
+        scaled = (self.ansatz.feature_map is not None
+                  and self.ansatz.feature_map.input_scaling)
+        if not scaled and (input_scaling_init is not None or input_scaling_params is not None):
+            raise ValueError("input_scaling_init/params requires an input-scaling feature map.")
+        self.weight_shapes = ({"input_scaling_params": shapes[0], "params": shapes[1]}
+                              if scaled else {"params": shapes[0]})
+        self.initialization = initialization
+        self.input_scaling_init = input_scaling_init
+        specs = {"params": initialization,
+                 "input_scaling_params": (initialization if input_scaling_init is None
+                                          else input_scaling_init)}
+        explicit = {"params": params, "input_scaling_params": input_scaling_params}
+        self.init_method = {}
+        for name, shape in self.weight_shapes.items():
+            value = explicit[name]
+            if value is not None:
+                expected = (shape,) if isinstance(shape, int) else tuple(shape)
+                value = torch.as_tensor(value).detach().clone()
+                if tuple(value.shape) != expected or not torch.isfinite(value).all():
+                    raise ValueError(f"{name} must have shape {expected} and finite values.")
+                self.init_method[name] = lambda tensor, value=value: tensor.copy_(value.to(tensor))
+            else:
+                spec = resolve_initializer(specs[name], legacy_discrete_pi=True)
+                self.init_method[name] = functools.partial(initialize_tensor, spec=spec)
 
         self.qlayer = qml.qnn.TorchLayer(
             self.qnode, self.weight_shapes, init_method=self.init_method
         )
-
-        if params is not None or input_scaling_params is not None:
-            self.set_weights(params=params, input_scaling_params=input_scaling_params)
-
         return self.qlayer

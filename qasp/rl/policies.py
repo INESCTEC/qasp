@@ -23,7 +23,7 @@ from scipy.sparse import csr_matrix
 
 #import FastTruncatedPauliProp from path root circuits/pp_sim.py \
 from qasp.rl.pp_sim import FastTruncatedPauliProp
-from qasp.rl.differentiable_pp_sim import DifferentiablePauliProp
+from qasp.simulators import DifferentiablePauliProp
 
 
 class PQCBorn(nn.Module):
@@ -35,12 +35,13 @@ class PQCBorn(nn.Module):
     setter paths; see their method documentation before using them."""
 
 
-    def __init__(self, circuit_builder=None, ansatz=None, ansatz_config=None, feature_map=None, feature_map_config=None, n_qubits=1, n_actions=2, init="normal_0_1", policy="contiguous-like", device="default.qubit", diff_method="best" , softmax_activation=None, output_scaling=None, training_method="probs", torchrl=False , measurement_qubits=None,z_gates=None, mpi=False):
+    def __init__(self, circuit_builder=None, ansatz=None, ansatz_config=None, feature_map=None, feature_map_config=None, n_qubits=1, n_actions=2, init="normal_0_1", policy="contiguous-like", device="default.qubit", diff_method="best" , softmax_activation=None, output_scaling=None, training_method="probs", torchrl=False , measurement_qubits=None,z_gates=None, mpi=False, input_scaling_init=None):
         """Build the legacy Born policy and optional local-expectation sampler.
 
         Supply a builder or ansatz/feature_map classes with configs. policy selects
         contiguous-like or parity-like decoding, and measurement_qubits selects
-        wires. init/device/diff_method/mpi configure the quantum layer.
+        wires. init and input_scaling_init select ansatz and feature-map
+        initializers; device/diff_method/mpi configure the quantum layer.
         training_method is probs or local_pauli_decomposition; torchrl enables
         batched postprocessing only for compatible paths. Optional softmax_activation
         and output_scaling modify the decoded weights. Prefer PQCBornVariance for
@@ -65,6 +66,7 @@ class PQCBorn(nn.Module):
         else:
             self.n_layers=self.ansatz_config["n_layers"]
         self.init = init
+        self.input_scaling_init = input_scaling_init
         self.diff_method = diff_method
         self.policy = policy
         self.policy_type = policy
@@ -126,9 +128,9 @@ class PQCBorn(nn.Module):
 
         self.circuit_copy = self.circuit_builder_copy.compile(device = self.device , diff_method=self.diff_method, mpi=self.mpi)
 
-        self.qlayer = self.circuit_builder.create_torchlayer(initialization = self.init)
+        self.qlayer = self.circuit_builder.create_torchlayer(initialization=self.init, input_scaling_init=self.input_scaling_init)
         if self.training_method == "local_pauli_decomposition":
-            self.qlayer_copy = self.circuit_builder_copy.create_torchlayer(initialization = self.init)
+            self.qlayer_copy = self.circuit_builder_copy.create_torchlayer(initialization=self.init, input_scaling_init=self.input_scaling_init)
             self.qlayer_copy.load_state_dict(self.qlayer.state_dict())
 
     def update_sampler_weights(self):
@@ -389,6 +391,9 @@ class PQCSoftmax(nn.Module):
 
         mpi=False,
 
+        input_scaling_init=None,
+        device_kwargs=None,
+
     ):
 
         """Construct an expectation-score policy with an optional affine action head.
@@ -399,6 +404,8 @@ class PQCSoftmax(nn.Module):
         Weights initialize to +/-1/n_qubits and biases to zero. output_scaling=True
         adds a trainable scalar; a numeric value fixes scaling in forward.
 
+        init accepts an initializer object, legacy name or tensor callable;
+        input_scaling_init separately initializes feature-map scales (default init).
         init/device/diff_method/shots/mpi and spsa_num_directions configure the
         circuit. lightning.pp selects differentiable Pauli propagation; pp_truncation
         sets Pauli-weight cutoff and pp_topM/tau/prune_every/prune control pruning.
@@ -438,6 +445,7 @@ class PQCSoftmax(nn.Module):
             self.n_layers = self.ansatz_config["n_layers"]
 
         self.init = init
+        self.input_scaling_init = input_scaling_init
 
         self.diff_method = diff_method
 
@@ -449,6 +457,7 @@ class PQCSoftmax(nn.Module):
 
             self.output_scaling_weight = nn.Parameter(torch.ones(1, requires_grad=True))
 
+        self.device_kwargs = device_kwargs
         self.device = device
 
         self.mpi = mpi
@@ -573,7 +582,7 @@ class PQCSoftmax(nn.Module):
 
             self.circuit, self.ansatz_tape_compiled = self.circuit_builder.compile(
 
-                device=self.device,
+                device=self.device, device_kwargs=self.device_kwargs,
 
                 diff_method=self.diff_method,
 
@@ -589,7 +598,7 @@ class PQCSoftmax(nn.Module):
 
             self.circuit = self.circuit_builder.compile(
 
-                device=self.device,
+                device=self.device, device_kwargs=self.device_kwargs,
 
                 diff_method=self.diff_method,
 
@@ -601,7 +610,7 @@ class PQCSoftmax(nn.Module):
 
             )
 
-        self.qlayer = self.circuit_builder.create_torchlayer(initialization=self.init)
+        self.qlayer = self.circuit_builder.create_torchlayer(initialization=self.init, input_scaling_init=self.input_scaling_init)
 
     def set_weights(self, weights):
 
@@ -765,6 +774,7 @@ class _PolicyDecoder(nn.Module):
         n_actions,
         n_measured_qubits,
         majority_block_positions=None,
+        compact=False,
     ):
         """Validate the action partition and register basis-to-action indices and bit-order buffers."""
         super().__init__()
@@ -791,12 +801,24 @@ class _PolicyDecoder(nn.Module):
             if majority_block_positions is None
             else tuple(tuple(int(p) for p in block) for block in majority_block_positions)
         )
-        action_index = self._build_action_index()
+        from qasp.simulators import DecoderSpec
+        self.spec = DecoderSpec(self.policy, self.n_actions, self.majority_block_positions).validate(self.n_measured_qubits)
+        action_index = torch.empty(0, dtype=torch.long) if compact else self._build_action_index()
         basis_weights = 1 << torch.arange(
             self.n_measured_qubits - 1, -1, -1, dtype=torch.long
         )
         self.register_buffer("action_index", action_index, persistent=True)
         self.register_buffer("basis_weights", basis_weights, persistent=False)
+
+    def _load_from_state_dict(self, state_dict, prefix, local_metadata, strict,
+                              missing_keys, unexpected_keys, error_msgs):
+        # This buffer is derived from the decoder configuration, not learned.
+        # Compact and dense backend checkpoints can exchange trainable weights.
+        key = prefix + "action_index"
+        if key in state_dict and (self.action_index.numel() == 0 or state_dict[key].numel() == 0):
+            state_dict[key] = self.action_index
+        super()._load_from_state_dict(state_dict, prefix, local_metadata, strict,
+                                     missing_keys, unexpected_keys, error_msgs)
 
     def _basis_bits(self):
         """Enumerate basis indices and bits with the first measured wire as the most significant bit."""
@@ -865,6 +887,8 @@ class _PolicyDecoder(nn.Module):
         """Aggregate probabilities while preserving all leading batch dimensions."""
         if probabilities.ndim < 1:
             raise ValueError("probabilities must have at least one dimension.")
+        if self.action_index.numel() == 0:
+            return self.spec.aggregate(probabilities)
         expected_states = self.action_index.numel()
         if probabilities.shape[-1] != expected_states:
             raise ValueError(
@@ -887,10 +911,7 @@ class _PolicyDecoder(nn.Module):
                 f"Expected samples with final dimension {self.n_measured_qubits}; "
                 f"received shape {tuple(samples.shape)}."
             )
-        if not torch.all((samples == 0) | (samples == 1)):
-            raise ValueError("Samples must contain only binary values 0 and 1.")
-        basis_index = (samples.to(torch.long) * self.basis_weights).sum(dim=-1)
-        return self.action_index[basis_index]
+        return self.spec.decode(samples)
 
 
 class PQCBornVariance(nn.Module):
@@ -957,6 +978,8 @@ class PQCBornVariance(nn.Module):
         majority_blocks=None,
         strict_majority_blocks=False,
         mpi=None,
+        input_scaling_init=None,
+        device_kwargs=None,
     ):
         """Build a Born policy with explicit basis-to-action decoding.
 
@@ -976,6 +999,8 @@ class PQCBornVariance(nn.Module):
         expectation routes. parity_cnot_decomposition, CNOT_gates and n_ancillas
         configure optional ancilla readout.
 
+        init accepts an initializer object, legacy name or tensor callable;
+        input_scaling_init separately initializes feature-map scales (default init).
         init/device/diff_method/shots/mpi (legacy alias enable_mpi), cut_circuit
         and spsa_num_directions control execution. softmax_activation enables a
         post-decoder softmax with optional trainable output scaling; temperature
@@ -1006,12 +1031,14 @@ class PQCBornVariance(nn.Module):
             else self.ansatz_config["n_layers"]
         )
         self.init = init
+        self.input_scaling_init = input_scaling_init
         self.diff_method = diff_method
         self.policy = self._POLICY_ALIASES[policy]
         self.policy_type = self.policy
         self.softmax_activation = softmax_activation
         self.output_scaling = output_scaling
         self.training_method = training_method
+        self.device_kwargs = device_kwargs
         self.device = device
         self.measurement_qubits = (
             None if measurement_qubits is None else list(measurement_qubits)
@@ -1259,12 +1286,21 @@ class PQCBornVariance(nn.Module):
             self.majority_blocks = tuple()
             self.unused_majority_qubits = tuple()
 
+        from qasp.simulators import IQPTNSimulator, IQPSimulator
+        self._tn_action_readout = (
+            self.training_method == "probs" and not self.enable_mpi and not self.cut_circuit
+            and (isinstance(self.device, IQPTNSimulator) or self.device in (IQPTNSimulator, IQPSimulator)
+                 or self.device in {"auto", "IQPTNSimulator", "iqp.tn", "IQPSimulator", "iqp"})
+        )
         self.policy_decoder = _PolicyDecoder(
             policy=self.policy,
             n_actions=self.n_actions,
             n_measured_qubits=len(self.measurement_qubits),
             majority_block_positions=majority_positions,
+            compact=self._tn_action_readout,
         )
+
+        self.circuit_builder.action_decoder = self.policy_decoder.spec if self._tn_action_readout else None
 
         if self.policy == "parity-like" and self.parity_cnot_decomposition:
             self.circuit_builder.set_CNOT_gates(self.CNOT_gates)
@@ -1321,7 +1357,7 @@ class PQCBornVariance(nn.Module):
         self.c = self.circuit_builder.build()
         if self.device == "lightning.pp":
             self.circuit, self.ansatz_tape_compiled = self.circuit_builder.compile(
-                device=self.device, diff_method=self.diff_method, shots=self.shots,
+                device=self.device, device_kwargs=self.device_kwargs, diff_method=self.diff_method, shots=self.shots,
                 mpi=self.enable_mpi,
             )
             self.pp_engine = DifferentiablePauliProp(
@@ -1329,7 +1365,7 @@ class PQCBornVariance(nn.Module):
             )
         else:
             self.circuit = self.circuit_builder.compile(
-                device=self.device,
+                device=self.device, device_kwargs=self.device_kwargs,
                 diff_method=self.diff_method,
                 shots=self.shots,
                 mpi=self.enable_mpi,
@@ -1344,7 +1380,7 @@ class PQCBornVariance(nn.Module):
                 device_vjp=False,
                 batch_obs=self.training_method != "sparse_projectors",
             )
-        self.qlayer = self.circuit_builder.create_torchlayer(initialization=self.init)
+        self.qlayer = self.circuit_builder.create_torchlayer(initialization=self.init, input_scaling_init=self.input_scaling_init)
 
         if self.training_method == "local_pauli_decomposition":
             self.circuit_builder_copy = deepcopy(self.circuit_builder)
@@ -1353,7 +1389,7 @@ class PQCBornVariance(nn.Module):
             )
             self.c_copy = self.circuit_builder_copy.build()
             self.circuit_copy = self.circuit_builder_copy.compile(
-                device=self.device,
+                device=self.device, device_kwargs=self.device_kwargs,
                 diff_method=self.diff_method,
                 shots=self.shots,
                 mpi=self.enable_mpi,
@@ -1361,7 +1397,7 @@ class PQCBornVariance(nn.Module):
                 spsa_num_directions=self.spsa_num_directions,
             )
             self.qlayer_copy = self.circuit_builder_copy.create_torchlayer(
-                initialization=self.init
+                initialization=self.init, input_scaling_init=self.input_scaling_init
             )
             self.qlayer_copy.load_state_dict(self.qlayer.state_dict())
 
@@ -1544,7 +1580,7 @@ class PQCBornVariance(nn.Module):
             )
 
         if self.training_method == "probs":
-            return self.policy_decoder(probs)
+            return probs if self._tn_action_readout else self.policy_decoder(probs)
         if self.training_method == "sparse_projectors":
             return self._probabilities_from_sparse_projectors(probs)
         if self.training_method == "expectation":
@@ -1733,7 +1769,7 @@ class LearnablePQCBorn(nn.Module):
     this prototype is not a drop-in replacement for PQCBornVariance."""
 
 
-    def __init__(self, circuit_builder=None, ansatz=None, ansatz_config=None, feature_map=None, feature_map_config=None, n_qubits=1, n_actions=2, init="normal_0_1", device="default.qubit", diff_method="best" , softmax_activation=None, output_scaling=None, training_method="probs", torchrl=False, n_qubits_measure=None, mpi=False):
+    def __init__(self, circuit_builder=None, ansatz=None, ansatz_config=None, feature_map=None, feature_map_config=None, n_qubits=1, n_actions=2, init="normal_0_1", device="default.qubit", diff_method="best" , softmax_activation=None, output_scaling=None, training_method="probs", torchrl=False, n_qubits_measure=None, mpi=False, input_scaling_init=None):
         """Configure an experimental sampled measurement-subset policy.
 
         n_qubits_measure chooses subset size; all combinations are enumerated.
@@ -1763,6 +1799,7 @@ class LearnablePQCBorn(nn.Module):
         else:
             self.n_layers=self.ansatz_config["n_layers"]
         self.init = init
+        self.input_scaling_init = input_scaling_init
         self.diff_method = diff_method
         self.softmax_activation = softmax_activation
         self.output_scaling = output_scaling
@@ -1816,7 +1853,7 @@ class LearnablePQCBorn(nn.Module):
 
         self.circuit = self.circuit_builder.compile(device = self.device , diff_method=self.diff_method, mpi=self.mpi)
         
-        self.qlayer = self.circuit_builder.create_torchlayer(initialization = self.init)
+        self.qlayer = self.circuit_builder.create_torchlayer(initialization=self.init, input_scaling_init=self.input_scaling_init)
 
     def update_sampler_weights(self):
         """Legacy sampler synchronization; build_policy does not create the required qlayer_copy."""

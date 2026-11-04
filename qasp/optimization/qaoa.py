@@ -136,6 +136,7 @@ class QAOA:
         backend: str = "numpy",
         seed: int | None = None,
         mixer_evolution_sign: float = 1.0,
+        init="random",
     ):
         """Construct QAOA state-preparation, expectation, probability and sample QNodes.
 
@@ -153,10 +154,12 @@ class QAOA:
             mpi: Request collective distributed simulation where supported.
             device_kwargs: Plugin-specific options for device creation.
             shots: Training shots; None requests analytic execution.
-            diff_method: Auto selects adjoint analytically and parameter-shift with
+            diff_method: Auto selects backprop for QASP Torch simulators, otherwise adjoint analytically and parameter-shift with
                 finite shots. Adjoint/backprop cannot be combined with finite shots.
             backend: NumPy/Autograd or Torch optimization interface.
-            seed: Seed for parameter initialization, not a shot-noise seed.
+            seed: Seed for built-in parameter initialization, not a shot-noise seed.
+            init: Shared initializer object, legacy mode or explicit angle array.
+                The default random draws uniformly in [-0.1, 0.1). solve can override it.
             mixer_evolution_sign: Sign multiplying mixer angles (default +1).
 
         Constructing with a relaxation warm start performs classical optimization;
@@ -175,6 +178,7 @@ class QAOA:
             ) from exc
         self.seed = seed
         self.rng = np.random.default_rng(seed)
+        self.init = "random" if init is None else init
         self.backend = normalize_backend(backend)
         self.interface = "torch" if self.backend == "torch" else "autograd"
         self.cost_terms = self.problem.pauli_terms(include_constant=False)
@@ -194,8 +198,10 @@ class QAOA:
         # Preserve the original public attribute while making its role clear.
         self.shots = self.training_shots
         if diff_method == "auto":
+            from qasp.simulators import IQPTNSimulator, PauliPropagationSimulator
             diff_method = (
-                "adjoint" if self.training_shots is None else "parameter-shift"
+                ("backprop" if isinstance(self.device, (IQPTNSimulator, PauliPropagationSimulator)) else "adjoint")
+                if self.training_shots is None else "parameter-shift"
             )
         if self.training_shots is not None and diff_method in {"adjoint", "backprop"}:
             raise ValueError(
@@ -277,18 +283,22 @@ class QAOA:
             raise ValueError("warm_start entries must lie in [0, 1].")
         return np.clip(values, epsilon, 1.0 - epsilon)
 
-    def initial_parameters(self, initialization: str | Sequence[float] = "random") -> np.ndarray:
-        """Create a flat parameter vector for the configured parametrization."""
-        if not isinstance(initialization, str):
+    def initial_parameters(self, initialization=None) -> np.ndarray:
+        """Sample a flat vector using init, an override, a legacy mode or explicit values.
+
+        Built-in initializers use this solver's seeded RNG. None selects the
+        constructor's init; the default 'random' retains uniform [-0.1, 0.1).
+        'ramp' retains the layer-dependent schedule. Explicit arrays take precedence.
+        """
+        from qasp.initialization import sample_parameters, Uniform
+
+        initialization = self.init if initialization is None else initialization
+        if not isinstance(initialization, str) and not callable(initialization):
             values = np.asarray(initialization, dtype=float)
-            if values.size != self.n_parameters:
-                raise ValueError(
-                    f"Expected {self.n_parameters} initial parameters, got {values.size}."
-                )
-            return values.reshape(-1)
-        name = initialization.lower()
-        if name == "zeros":
-            return np.zeros(self.n_parameters)
+            if values.size != self.n_parameters or not np.isfinite(values).all():
+                raise ValueError(f"Expected {self.n_parameters} finite initial parameters, got {values.size}.")
+            return values.reshape(-1).copy()
+        name = initialization.lower() if isinstance(initialization, str) else None
         if name == "ramp":
             gamma = np.linspace(0.05, 0.5, self.n_layers)
             beta = np.linspace(0.5, 0.05, self.n_layers)
@@ -305,9 +315,9 @@ class QAOA:
                     )
                 )
             return np.asarray(layers).reshape(-1)
-        if name != "random":
-            raise ValueError("initialization must be 'random', 'zeros', or 'ramp'.")
-        return self.rng.uniform(-0.1, 0.1, size=self.n_parameters)
+        if name == "random":
+            initialization = Uniform(-0.1, 0.1)
+        return sample_parameters((self.n_parameters,), initialization, rng=self.rng)
 
     def _parameter_matrix(self, parameters):
         """Validate total parameter count and reshape into the layer/angle matrix without detaching its differentiation interface."""
@@ -624,7 +634,7 @@ class QAOA:
 
     def solve(
         self,
-        initial_parameters: str | Sequence[float] = "random",
+        initial_parameters=None,
         *,
         optimizer: str | Callable | type | None = None,
         optimizer_options: dict | None = None,
@@ -725,6 +735,8 @@ class LRQAOA(QAOA):
         and decreasing mixer schedules. Multi-angle parametrization is rejected.
         The default mixer sign is -1, corresponding to exp(+i beta H_B).
         Remaining keyword options are forwarded to QAOA."""
+        if "init" in kwargs:
+            raise ValueError("LRQAOA uses a fixed ramp; configure delta_gamma/delta_beta instead of init.")
         if kwargs.get("parametrization", "standard") != "standard":
             raise ValueError("LRQAOA uses the standard two-angle parametrization.")
         kwargs["parametrization"] = "standard"

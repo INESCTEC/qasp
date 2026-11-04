@@ -81,6 +81,7 @@ class PQCBM:
         seed=0,
         interface="torch",
         init="random_0_2pi",
+        input_scaling_init=None,
         device="default.qubit",
         diff_method="best",
         shots=None,
@@ -100,8 +101,10 @@ class PQCBM:
     ):
         """Configure a model; device allocation occurs but circuits do not execute.
 
-        ``init`` is random_0_2pi, small_normal, normal_0_1, or zeros. Explicit
-        init_params override it. seed controls initialization, data batches and
+        ``init`` accepts qasp.initialization objects, legacy strings or Torch-style
+        callables. ``input_scaling_init`` separately initializes input scales
+        (ones by default). Explicit init_params/input_scaling_params override
+        their respective distribution. seed controls built-in initialization, data batches and
         default MMD masks independently of global RNG state. Set identical seeds,
         data and configs on every MPI rank. Plugin shot RNG uses device_kwargs.
         ``mmd_config`` accepts PauliMMD arguments except n_qubits. Natural gradient
@@ -160,7 +163,7 @@ class PQCBM:
                 raise ValueError(
                     "pp_tau must be finite and nonnegative; pp_prune must be boolean."
                 )
-            from qasp.rl.differentiable_pp_sim import DifferentiablePauliProp
+            from qasp.simulators import DifferentiablePauliProp
 
             self.pp_engine = DifferentiablePauliProp(
                 topM=pp_topM, tau=pp_tau, prune_every=pp_prune_every
@@ -295,11 +298,12 @@ class PQCBM:
         self.input_scaling_params = None
         if self.fm is not None and self.fm.input_scaling:
             self.input_scaling_params = self._parameter(
-                input_scaling_params, scale_shape, "ones"
+                input_scaling_params, scale_shape,
+                "ones" if input_scaling_init is None else input_scaling_init
             )
-        elif input_scaling_params is not None:
+        elif input_scaling_params is not None or input_scaling_init is not None:
             raise ValueError(
-                "input_scaling_params requires an input-scaling feature map."
+                "input_scaling_init/params requires an input-scaling feature map."
             )
         if self._source_node is not None:
             tape = qml.tape.make_qscript(self._source_node.func)(**self._kwargs())
@@ -383,18 +387,9 @@ class PQCBM:
         """Create one trainable parameter array with a reproducible initializer."""
         shape = (shape,) if isinstance(shape, int) else tuple(shape)
         if value is None:
-            if initialization == "random_0_2pi":
-                value = self.rng.uniform(0, 2 * np.pi, shape)
-            elif initialization in {"small_normal", "normal_0_1"}:
-                value = self.rng.normal(
-                    0, 0.1 if initialization == "small_normal" else 1, shape
-                )
-            elif initialization in {"zeros", "ones"}:
-                value = np.zeros(shape) if initialization == "zeros" else np.ones(shape)
-            else:
-                raise ValueError(
-                    "Unknown initializer; use random_0_2pi, small_normal, normal_0_1 or zeros."
-                )
+            from qasp.initialization import sample_parameters
+
+            value = sample_parameters(shape, initialization, rng=self.rng)
         value = _numpy(value)
         if value.shape != shape or not np.all(np.isfinite(value)):
             raise ValueError(
@@ -585,12 +580,18 @@ class PQCBM:
                 else self.get_probs(params=p, input_scaling_params=scales)
             )
             return (loss_fn or nll_loss)(probs, basis_indices(data))
-        first = self.moments(params=p, input_scaling_params=scales)
-        second = (
-            self.moments(params=p, input_scaling_params=scales)
-            if self.shots is not None
-            else None
-        )
+        # Sampled classical correlators also need independent replicas:
+        # shots=None means no quantum shots, not necessarily exact moments.
+        from contextlib import nullcontext
+        independent = getattr(self.device, "independent_estimates", None)
+        context = independent() if independent else nullcontext({"approximate": False})
+        with context as estimation:
+            first = self.moments(params=p, input_scaling_params=scales)
+            second = (
+                self.moments(params=p, input_scaling_params=scales)
+                if self.shots is not None or estimation["approximate"]
+                else None
+            )
         return self.mmd(first, data, model_moments_2=second)
 
     def _fisher_matrix(self):

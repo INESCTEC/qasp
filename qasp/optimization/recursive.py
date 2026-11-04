@@ -104,6 +104,7 @@ class RecursiveQAOA:
         device=None,
         mpi: bool | None = None,
         device_kwargs: dict | None = None,
+        init=None,
     ):
         """Configure correlation-based QAOA reduction followed by exact enumeration.
 
@@ -112,13 +113,16 @@ class RecursiveQAOA:
         qaoa_options dictionary configures these solvers, with explicit device/mpi/
         device_kwargs overriding it. optimizer and optimizer_options apply per
         reduction step (default COBYLA, maxiter=100). step_solvers and step_results
-        record the later solve operation; construction alone does not reduce the QUBO."""
+        record the later solve operation; construction alone does not reduce the QUBO.
+        init sets each subproblem's initializer and overrides qaoa_options['init']."""
         self.problem = problem if isinstance(problem, QUBO) else QUBO(problem)
         self.cutoff = int(cutoff)
         if self.cutoff < 1:
             raise ValueError("cutoff must be positive.")
         self.n_layers = int(n_layers)
         self.qaoa_options = dict(qaoa_options or {})
+        if init is not None:
+            self.qaoa_options["init"] = init
         if device is not None:
             self.qaoa_options["device"] = device
         if mpi is not None:

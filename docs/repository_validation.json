@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-03",
+  "upstream_revision": "3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718",
+  "library": "All 60 non-generated qasp files match upstream Git blob hashes.",
+  "environment": "torchlane",
+  "regression": {
+    "command": "python -m pytest -q -p no:cacheprovider tests",
+    "passed": 746,
+    "warnings": 4,
+    "seconds": 72.99,
+    "warnings_summary": "Three PennyLane/NumPy __array_wrap__ deprecations; one legacy BornMachine alias deprecation."
+  },
+  "examples_executed": [
+    "examples/iqp_simulator.ipynb (all code cells, including 100-qubit gradient)",
+    "examples/pauli_propagation_modules.py (run_examples)",
+    "examples/iqp_quantum_kernels.py"
+  ],
+  "notebooks": {
+    "retained": 9,
+    "schema_valid": 9,
+    "stored_outputs": 0,
+    "scope": "Remaining tutorials were checked for syntax/schema and dependencies; not all long training or LaTeX cells were executed."
+  },
+  "documentation": "All local Markdown links in README, guides and example index resolve; omitted resources link to the pinned upstream tree.",
+  "packaging": {
+    "wheel_bytes": 275964,
+    "build": "pip wheel --no-deps --no-build-isolation (offline)",
+    "imports": "IQPSimulator and PauliPropagationSimulator imported from unpacked wheel in isolation."
+  },
+  "before_worktree_bytes_excluding_git": 263877611,
+  "history": "Existing GitLab history and INESC TEC LICENSE retained; no history rewrite.",
+  "scope": "No new performance benchmark or MPI cluster execution."
+}

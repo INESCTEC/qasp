@@ -1,8 +1,0 @@
-{
-  "readout": "per_action",
-  "seed": 9,
-  "episode": 400,
-  "frames": 53120,
-  "updates": 13217,
-  "last_20_mean": 130.6
-}

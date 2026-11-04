@@ -97,6 +97,13 @@ more restrictive call signatures. `circuits.uqc.UQC` is a retained historical
 function with missing imports and an old broadcast API, not a supported template.
 The initializer named `discrete_0_pi_over_2` in the builder currently samples
 0 or **pi**; its legacy name should not be used as a mathematical specification.
+Prefer the shared objects in `qasp.initialization`: for example,
+`initialization=Normal(0, 0.2), input_scaling_init=Uniform(0.8, 1.2)` when
+creating a Torch layer. Model dictionaries use `init` for the first setting.
+`Choice((0, np.pi / 2))` specifies discrete values without legacy ambiguity.
+See the [initialization API](../README.md#parameter-initialization) and
+[executed cross-module notebook](../examples/initialization_across_modules.ipynb)
+for defaults, reproducibility, explicit arrays and optimization models.
 
 ## Drawing
 
@@ -249,7 +256,7 @@ certify a globally optimal binary solution. Separate finite-shot **training**
 from independent `result_shots` used to estimate the output distribution.
 Full basis-probability arrays grow exponentially; counts-only output avoids
 allocating that dense result but not the simulator state itself.
-See [optimization notebook](../tests/optimization_algorithms.ipynb).
+See [optimization notebook](../examples/optimization_algorithms.ipynb).
 
 ## RL policies, Q-functions and trainers
 
@@ -338,10 +345,21 @@ call a nonexistent QNode method; use Torch state dictionaries instead.
 
 ## Pauli propagation
 
-Sources: [differentiable engine](../qasp/rl/differentiable_pp_sim.py),
+Sources: [shared device](../qasp/simulators/pauli_propagation.py),
+[differentiable engine](../qasp/simulators/_pauli_propagation.py),
 [non-autograd engine](../qasp/rl/pp_sim.py).
 
-`lightning.pp` is a QASP execution route, **not a PennyLane plugin name**.
+Use `device="PauliPropagationSimulator"`, `shots=None` and
+`diff_method="backprop"` for the shared analytic Torch device across RL,
+classifiers, fidelity/projected kernels, generative learning and optimization
+(`backend="torch"`). It supports noncommuting circuits, arbitrary Pauli rotations,
+Pauli expectations/variances and bounded probability readouts. Exact execution
+is the default. See the [shared-device guide](pauli_propagation.md) and
+[application example](../examples/pauli_propagation_modules.py).
+
+`lightning.pp` remains a legacy QASP execution route, **not a PennyLane plugin name**.
+Its model-level `pp_*` controls below are preserved; the new device uses
+`device_kwargs` and different, exact defaults.
 The differentiable engine propagates observables backward through supported
 operations and contracts them with the all-zero state. Coefficients remain Torch
 scalars connected to gate/input-scaling parameters. PQDQN uses live parameters
@@ -365,7 +383,7 @@ establish learning or an approximation-error bound.
 
 The non-autograd `FastTruncatedPauliProp` uses Python complex coefficients and
 must not be substituted for differentiable training. See
-[PP benchmark](../examples/pqdqn_pauli_propagation_benchmark.ipynb).
+[PP benchmark](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/pqdqn_pauli_propagation_benchmark.ipynb).
 The subsequent one-seed 400-episode CartPole comparison was **cancelled**; its
 partial data are not a completed learning study and must not be restarted by
 a documentation or paper update.
@@ -386,7 +404,7 @@ Parameters/mode are restored after the diagnostic.
 A PQDQN is classified as a generic model: supply a scalar
 `cost_function(model, state)`, such as a selected Q-value or actual TD loss.
 Do not label cost concentration alone proof of a barren plateau or inability
-to learn. See [diagnostic validation](../examples/barren_plateau_diagnoser_validation.ipynb).
+to learn. See [diagnostic validation](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/barren_plateau_diagnoser_validation.ipynb).
 
 [Legacy RL metrics](../qasp/rl/metrics.py) retain `policy_variance` and heuristic
 Lie-closure utilities. `compute_DLA_generators` returns closure **sizes**, not
@@ -424,7 +442,7 @@ ownership, supported configurations and limitations. Keep executable examples
 small; full learning experiments belong in notebooks/runners with saved metadata.
 When modifying behavior, update the relevant source docstring and guide together.
 
-[Documentation audit](documentation_audit.md) records coverage, syntax/code-change
+[Documentation audit](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/docs/documentation_audit.md) records coverage, syntax/code-change
 checks, example execution and test limitations for this pass. The source inventory
 below includes every Python module under `qasp`, including export-only modules;
 notebook cells and external dependencies are outside its denominator.

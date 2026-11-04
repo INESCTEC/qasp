@@ -68,7 +68,8 @@ class PQCClassifier(nn.Module):
         strict_majority_blocks: bool = False,
         observables=None,
         observable=None,
-        init: str = "normal_0_1",
+        init="normal_0_1",
+        input_scaling_init=None,
         device: str = "default.qubit",
         diff_method: str = "best",
         shots: int | None = None,
@@ -87,7 +88,10 @@ class PQCClassifier(nn.Module):
 
         ``n_qubits`` and ``n_classes`` define circuit width and output labels.
         Supply ``circuit_builder`` or ansatz/feature_map classes and their configs;
-        registered names are accepted by the factory. Probability readout aggregates
+        registered names are accepted by the factory. init accepts a shared
+        initializer object, legacy name or tensor callable. input_scaling_init
+        independently initializes feature-map scales (defaults to init).
+        Probability readout aggregates
         basis probabilities using decoder (default contiguous). Expectation readout
         uses observable(s); binary groups are averaged to one score, while multiclass
         requires one observable/group per class. Decoder is then disallowed.
@@ -129,6 +133,7 @@ class PQCClassifier(nn.Module):
                 )
             self.decoder_name = None
         self.init = init
+        self.input_scaling_init = input_scaling_init
         self.device_name = device
         self.diff_method = diff_method
         self.shots = shots
@@ -244,7 +249,7 @@ class PQCClassifier(nn.Module):
             self.qnode, self.pp_tape = compiled
             # Import only when requested so ordinary classifier workflows do
             # not eagerly load the reinforcement-learning dependency stack.
-            from qasp.rl.differentiable_pp_sim import DifferentiablePauliProp
+            from qasp.simulators import DifferentiablePauliProp
 
             self.pp_engine = DifferentiablePauliProp(
                 topM=self.pp_topM,
@@ -254,7 +259,7 @@ class PQCClassifier(nn.Module):
         else:
             self.qnode = compiled
         self.qlayer = self.circuit_builder.create_torchlayer(
-            initialization=self.init
+            initialization=self.init, input_scaling_init=self.input_scaling_init
         )
 
         self.output_scaling = output_scaling

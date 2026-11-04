@@ -83,8 +83,12 @@ conditional = create_qcbm(conditional_config, 3, data)
 `NeuralEmbedding` and explicit feature-map classes also work. `features` may
 be a callable of `n_qubits`. Pass `inputs` with exactly the embedding's feature
 count. Input scaling parameters are trained together with ansatz parameters;
-set `input_scaling_params` to initialize them explicitly. Otherwise they start
-at one. Reuploading follows the ansatz's `reuploading` setting. Training a
+set `input_scaling_params` to initialize them explicitly, or use
+`input_scaling_init=Uniform(0.8, 1.2)` from `qasp.initialization`.
+Without either setting they start at one. `init=Normal(0, 0.2)` independently
+initializes ansatz weights; both distributions use the model's local `seed`.
+Explicit arrays override their own group. Reuploading follows the ansatz's
+`reuploading` setting. Training a
 conditional model on different input vectors for different rows is outside
 this trainer's contract; separate conditioning vectors require an external
 training loop.
@@ -110,7 +114,8 @@ differentiation method and shots; it cannot be reconfigured by device options.
 | `lr=0.1` | Positive optimizer learning rate |
 | `batch_size=None` | Full data; otherwise sample rows without replacement |
 | `seed=0` | Local RNG for initialization and batches; default MMD seed too |
-| `init="random_0_2pi"` | Also `small_normal` (std 0.1), `normal_0_1` (std 1), `zeros` |
+| `init="random_0_2pi"` | Ansatz initializer from `qasp.initialization` (e.g. `Normal`, `Beta`, `TruncatedNormal`, `LogNormal`), legacy string, or tensor callable |
+| `input_scaling_init=None` | Independent input-scale initializer; omitted means ones |
 | `init_params` | Explicit initial tensor, matching ansatz shape |
 | `train(steps, ...)` / `fit(steps, ...)` | Returns `(ansatz_params, pre_update_losses)` |
 | `loss(data=None)` | Differentiable scalar at current weights and fixed masks |

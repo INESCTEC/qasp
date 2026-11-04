@@ -115,18 +115,6 @@ def _sample_worker_batch(policy_class, policy_config_kwargs, n_qubits, action, b
                 #print("measurement_qubits:", resolved_config["measurement_qubits"])
         #show fig
         #plt.show()
-        def init_binary_0_pi_over_2(tensor: torch.Tensor) -> torch.Tensor:
-            """Fill a parameter tensor in place with independent equiprobable values 0 or pi/2."""
-            with torch.no_grad():
-                # Sample 0 or 1 with equal probability for each entry
-                bits = torch.randint(
-                    low=0,
-                    high=2,
-                    size=tensor.shape,
-                    device=tensor.device,
-                )
-                tensor.copy_(bits * (np.pi / 2))
-            return tensor
         def init_binary_minus_one_plus_one(
             tensor: torch.Tensor,
         ) -> torch.Tensor:
@@ -150,70 +138,15 @@ def _sample_worker_batch(policy_class, policy_config_kwargs, n_qubits, action, b
             # ========================================================
             """Reinitialize supported quantum weights and affine-head weights/bias in place."""
             if isinstance(module, qml.qnn.TorchLayer):
-                with torch.no_grad():
-                    if resolved_config["init"] == "random_-pi_pi":
-                        torch.nn.init.uniform_(
-                            module.params,
-                            -torch.pi,
-                            torch.pi,
-                        )
+                from qasp.initialization import initialize_tensor
 
-                        if hasattr(module, "input_scaling_params"):
-                            torch.nn.init.uniform_(
-                                module.input_scaling_params,
-                                -torch.pi,
-                                torch.pi,
-                            )
-
-                    elif resolved_config["init"] == "random_0_2pi":
-                        torch.nn.init.uniform_(
-                            module.params,
-                            0.0,
-                            2 * torch.pi,
-                        )
-
-                        if hasattr(module, "input_scaling_params"):
-                            torch.nn.init.uniform_(
-                                module.input_scaling_params,
-                                0.0,
-                                2 * torch.pi,
-                            )
-
-                    elif resolved_config["init"] == "random_0_pi":
-                        torch.nn.init.uniform_(
-                            module.params,
-                            0.0,
-                            torch.pi,
-                        )
-
-                        if hasattr(module, "input_scaling_params"):
-                            torch.nn.init.uniform_(
-                                module.input_scaling_params,
-                                0.0,
-                                torch.pi,
-                            )
-
-                    elif resolved_config["init"] == "normal_0_1":
-                        torch.nn.init.normal_(
-                            module.params,
-                            mean=0.0,
-                            std=1.0,
-                        )
-
-                        if hasattr(module, "input_scaling_params"):
-                            torch.nn.init.normal_(
-                                module.input_scaling_params,
-                                mean=0.0,
-                                std=1.0,
-                            )
-
-                    elif resolved_config["init"] == "discrete_0_pi_over_2":
-                        init_binary_0_pi_over_2(module.params)
-
-                        if hasattr(module, "input_scaling_params"):
-                            init_binary_0_pi_over_2(
-                                module.input_scaling_params
-                            )
+                initialize_tensor(module.params, resolved_config["init"])
+                if hasattr(module, "input_scaling_params"):
+                    scale_init = resolved_config.get("input_scaling_init")
+                    initialize_tensor(
+                        module.input_scaling_params,
+                        resolved_config["init"] if scale_init is None else scale_init,
+                    )
 
             # ========================================================
             # Classical softmax head
