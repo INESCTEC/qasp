@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/qasp/"><img src="https://img.shields.io/pypi/v/qasp" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/qasp/"><img src="https://img.shields.io/pypi/v/qasp.svg?cacheSeconds=300" alt="PyPI version"></a>
   <a href="#installation"><img src="https://img.shields.io/badge/python-%3E%3D3.10-3776AB?logo=python&amp;logoColor=white" alt="Python requirement: 3.10 or newer"></a>
   <a href="https://github.com/INESCTEC/qasp/blob/main/pyproject.toml"><img src="https://img.shields.io/badge/status-alpha-orange" alt="Development status: alpha"></a>
   <a href="https://github.com/INESCTEC/qasp/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
@@ -146,7 +146,6 @@ python -m pip check
 python -c "from importlib.metadata import version; import qasp; print(version('qasp'))"
 ```
 
-For a reproducible package version, use `python -m pip install qasp==0.1.3`.
 The package includes its core Python dependencies. Optional PennyLane device
 plugins, GPU/MPI libraries and tensor-device dependencies require separate
 installation appropriate to your platform. See the
