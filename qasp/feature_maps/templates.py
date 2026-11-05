@@ -144,21 +144,24 @@ class NeuralEmbedding:
         self.imprimitive_pattern = imprimitive_pattern
         self.imprimitive = qml.CZ if imprimitive == "CZ" else qml.CNOT
 
-    def __call__(self, inputs=None , input_scaling_params=None) -> None:
+    def __call__(self, inputs=None, input_scaling_params=None, *, layer_index=1) -> None:
         """Queue rotations with angles equal to input/weight dot products.
 
-        Supply one feature vector and a flat input_scaling_params array with a
-        length-features block per wire (axis strings) or Pauli specification. The
-        current implementation sums all product entries and is intended for a single
-        sample; evaluate batches sample by sample. Returns None."""
+        The last input axis contains features. Each rotation projects that axis
+        onto its own flat weight block, preserving a leading sample axis for
+        devices that support parameter broadcasting. Axis strings share each
+        wire's projection across axes; explicit Pauli words use one projection
+        per word. layer_index labels the weight block in drawings (one-based). Returns None."""
 
         if type(self.rotations) is str:
             
             for i in range(len(self.rotations)):
                 for n in range(self.n_qubits):
 
-                    inputsScaled = qml.math.multiply(inputs, input_scaling_params[n*self.features: n*self.features + self.features]).sum()
-                    qml.PauliRot(theta=inputsScaled,pauli_word=self.rotations[i], wires=n)
+                    weights = input_scaling_params[n * self.features: (n + 1) * self.features]
+                    angle = qml.math.sum(qml.math.multiply(inputs, weights), axis=-1)
+                    rotation = qml.PauliRot(angle, self.rotations[i], wires=n)
+                    rotation._qasp_neural_projection = (layer_index, n)
 
         else:
             for (index,pf) in zip(range(len(self.rotations)), self.rotations):
@@ -169,9 +172,11 @@ class NeuralEmbedding:
                 "get the second element of the list and convert it to a list of integers"
                 qubits = [int(i) for i in wires]
                 "apply the rotation to the qubit"
-                inputsScaled = qml.math.multiply(inputs, input_scaling_params[index*self.features: index*self.features + self.features]).sum()
+                weights = input_scaling_params[index * self.features: (index + 1) * self.features]
+                angle = qml.math.sum(qml.math.multiply(inputs, weights), axis=-1)
 
-                qml.PauliRot(theta=inputsScaled,pauli_word=pauli, wires=qubits)
+                rotation = qml.PauliRot(angle, pauli, wires=qubits)
+                rotation._qasp_neural_projection = (layer_index, index)
         
                 
         if self.imprimitive_pattern is not None:

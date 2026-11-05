@@ -341,3 +341,38 @@ def test_identity_feature_does_not_overwrite_a_physical_measurement():
         result = tape_to_tikz(make_tape([], measurements, [0]))
         assert r"\langle Z\rangle" in result
         assert r"\langle I\rangle" not in result
+
+
+@pytest.mark.parametrize("rotations, sites", [("YZ", [0, 1, 0, 1]),
+                                             (["Y 0", "YY 0 1"], [0, 1])])
+def test_policy_neural_projection_labels_follow_weight_sharing(rotations, sites):
+    import torch
+    from qasp import create_model, draw_model
+
+    policy = create_model("PQCSoftmax", {
+        "feature_map": "NeuralEmbedding",
+        "feature_map_config": {"features": 4, "rotations": rotations},
+        "ansatz": "AngleAnsatz",
+        "ansatz_config": {"n_layers": 2, "rotations": "Y", "reuploading": True},
+        "n_actions": 2, "observables": ["Z 0", "Z 1"],
+        "device": "default.qubit", "diff_method": "backprop", "shots": None,
+    }, n_qubits=2)
+    inputs = torch.zeros(4)  # Identical angles must still have distinct labels.
+    options = {"symbolic_parameters": True}
+    def render():
+        return draw_model(model=policy, inputs=inputs, output="tikz", tikz_options=options)
+
+    tex = render()
+    for layer in (1, 2):
+        for site in set(sites):
+            label = rf"\langle\mathbf{{s}},\boldsymbol{{\lambda}}_{{{layer},{site}}}\rangle"
+            assert tex.count(label) == sites.count(site)
+    assert all(rf"\theta_{{{i}}}" in tex for i in range(1, 5))
+    assert r"\theta_{5}" not in tex
+
+    # Explicit labels still receive every scalar, including encoding angles.
+    labels = [f"p_{{{i}}}" for i in range(2 * (len(sites) + 2))]
+    options["parameter_labels"] = labels
+    custom = render()
+    assert all(label in custom for label in labels)
+    assert r"\langle\mathbf{s}" not in custom

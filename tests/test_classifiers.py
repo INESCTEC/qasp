@@ -653,3 +653,38 @@ def test_factory_and_trainer_use_qasp_configuration_notation():
     assert 0.0 <= evaluation["accuracy"] <= 1.0
     assert 0.0 <= evaluation["roc_auc"] <= 1.0
     assert 0.0 <= evaluation["pr_auc"] <= 1.0
+
+
+@pytest.mark.parametrize("rotations", ["Y", ["Y 0", "Y 1", "YY 0 1"]])
+def test_neural_classifier_batch_matches_individual_scores_and_gradients(rotations):
+    model = create_classifier({
+        "feature_map": "NeuralEmbedding",
+        "feature_map_config": {"features": 2, "rotations": rotations},
+        "ansatz": "AngleAnsatz",
+        "ansatz_config": {"n_layers": 2, "rotations": "YZ", "reuploading": True},
+        "readout": "expectation", "observables": ["Z 0", "ZZ 0 1"],
+        "device": "default.qubit", "diff_method": "backprop", "shots": None,
+    }, n_qubits=2, n_classes=2).double()
+    x = torch.tensor([[-0.8, -0.5], [0.3, 0.7], [-0.1, 0.9]],
+                     dtype=torch.float64, requires_grad=True)
+    for samples in (x, x[:2], x[:1]):
+        together = model(samples)
+        individual = torch.stack([model(sample) for sample in samples])
+        torch.testing.assert_close(together, individual)
+        weights = torch.arange(1, len(samples) + 1, dtype=x.dtype).view(-1, 1)
+        variables = (x, *model.parameters())
+        batch_grads = torch.autograd.grad((together * weights).sum(), variables)
+        sample_grads = torch.autograd.grad((individual * weights).sum(), variables)
+        for got, expected in zip(batch_grads, sample_grads):
+            torch.testing.assert_close(got, expected)
+
+
+def test_neural_pauli_words_each_receive_their_own_feature_projection():
+    from qasp import NeuralEmbedding
+
+    embedding = NeuralEmbedding(2, ["Y 0", "Y 1", "YY 0 1"], features=2)
+    x = torch.tensor([[1., 2.], [3., 4.]])
+    weights = torch.tensor([[0., 1.], [2., 0.], [-1., 1.]])
+    tape = qml.tape.make_qscript(embedding)(x, weights.flatten())
+    angles = torch.stack([op.data[0] for op in tape.operations], dim=-1)
+    torch.testing.assert_close(angles, x @ weights.T)

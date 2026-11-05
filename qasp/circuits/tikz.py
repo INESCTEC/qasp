@@ -142,6 +142,7 @@ class _ParameterFormatter:
         self.feature_map_input_scaling = feature_map_input_scaling
         self.feature_map_layer_indices = feature_map_layer_indices
         self.embedding_index = 0
+        self.ansatz_index = 0
         self.cursor = 0
 
     def format(self, value: Any, operation: Any, parameter_index: int) -> str:
@@ -157,7 +158,14 @@ class _ParameterFormatter:
                 )
             return str(self.labels[global_index])
         if self.symbolic:
-            return rf"\theta_{{{global_index + 1}}}"
+            base, _ = _base_operation(operation)
+            projection = getattr(base, "_qasp_neural_projection", None)
+            if projection is not None:
+                layer, site = projection
+                subscript = f"{layer},{site}" if self.feature_map_layer_indices else str(site)
+                return rf"\langle\mathbf{{s}},\boldsymbol{{\lambda}}_{{{subscript}}}\rangle"
+            self.ansatz_index += 1
+            return rf"\theta_{{{self.ansatz_index}}}"
         return _format_number(value, self.decimals)
 
     def validate(self) -> None:

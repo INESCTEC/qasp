@@ -55,8 +55,9 @@ Sources: [constructor](../qasp/circuits/constructor.py),
 
 `AngleEmbedding` encodes features as rotation angles, optionally multiplied by
 trainable scales. `NeuralEmbedding` uses learned linear projections of a feature
-vector to rotation angles, with no projection bias. Its current reduction is
-single-sample; use sequential evaluation for it and explicit-word encodings.
+vector to rotation angles, with no projection bias. Each neural projection sums over the final feature axis. With a
+broadcast-capable device such as `default.qubit`, pass a single feature vector
+or a batch shaped `(samples, features)` to the classifier.
 
 `AngleAnsatz` provides axis/Pauli-word rotations with optional fixed CZ/CNOT
 entanglers on chain, ring, all-to-all or explicit edges. For `"YZ"` on (n)
@@ -119,7 +120,12 @@ complete LaTeX document; compilation to PDF requires a suitable TeX installation
 with Quantikz. `compress=True` draws a complete first layer and represents later
 layers schematically, with supported reuploading boundaries. Compression does
 not change simulation. Numeric labels describe the supplied weights/input;
-symbolic labels show the parameter structure.
+symbolic labels show the parameter structure. In a policy with a
+`NeuralEmbedding`, `draw_model(..., output="tikz",
+tikz_options={"symbolic_parameters": True})` labels each encoding angle
+$\langle\mathbf{s},\boldsymbol{\lambda}_j\rangle$ and numbers the ansatz
+angles separately. Reuploading adds the layer index to the projection weight.
+Axes sharing the same projection display the same label.
 
 ```python
 from qasp.circuits import circuit_to_tikz
