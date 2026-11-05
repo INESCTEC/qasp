@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 from torchrl.envs import TransformedEnv, GymEnv
-from torchrl.collectors import SyncDataCollector
 from torchrl.data.replay_buffers import ReplayBuffer
 from torchrl.modules import ProbabilisticActor, ValueOperator
 from torchrl.objectives import ClipPPOLoss
@@ -24,6 +23,13 @@ from torchrl.envs import (
 )
 from torchrl.envs.utils import ExplorationType, set_exploration_type
 from collections import defaultdict
+
+# TorchRL 0.14 uses Collector for the synchronous single-environment collector.
+try:
+    from torchrl.collectors import Collector
+except ImportError:  # Older TorchRL releases
+    from torchrl.collectors import SyncDataCollector as Collector
+
 
 class PQCWrapper(nn.Module):
     """Legacy dictionary-output wrapper around a configured quantum policy."""
@@ -91,7 +97,7 @@ class TorchRLTrainer:
         )
 
         self.env.transform[0].init_stats(num_iter=1000, reduce_dim=0, cat_dim=0)
-        self.collector = SyncDataCollector(self.env, self.actor, frames_per_batch=128)
+        self.collector = Collector(self.env, self.actor, frames_per_batch=128)
         self.loss_module = ClipPPOLoss(actor_network=self.actor, critic_network=self.value_module)
         self.optimizer = Adam(self.loss_module.parameters(), lr=lr)
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=1000)
