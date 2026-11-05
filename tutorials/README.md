@@ -33,6 +33,8 @@ Edit the initializer objects directly in a model's Python configuration, then re
 
 ## View and export a model
 
-Each notebook displays the Matplotlib circuit first. Its TikZ cell writes a standalone Quantikz document to `figures/` in the working directory. To generate the paper-ready vector PDF, install a TeX distribution with `pdflatex`, `standalone` and `quantikz`. Install Ghostscript for the inline preview of that PDF. You can also copy the saved LaTeX source to your paper project.
+Each notebook displays the Matplotlib circuit first. Pass standalone Quantikz source to `show_tikz(tex)` for an inline preview. Rendering requires pdfLaTeX with the `standalone` and `quantikz` packages plus Ghostscript. The helper compiles in a temporary directory and deletes the build files automatically. The inline image is part of the Jupyter cell output; clear that output before saving if you want a smaller notebook.
+
+To keep a figure, use `builder.save_tikz(..., standalone=True)` with the same inputs and weights, or write a module's returned source explicitly with `Path("circuit.tex").write_text(tex, encoding="utf-8")`. Compile that file with `pdflatex circuit.tex` for a vector PDF.
 
 The repository tracks notebooks with cleared outputs. **Run All Cells** regenerates the printed results and figures. For more configurations and API signatures, see the [interactive documentation](https://andre-sequeira10.github.io/QASP/) and the [package guide](../docs/package_guide.md).
