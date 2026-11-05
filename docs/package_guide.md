@@ -119,7 +119,12 @@ complete LaTeX document; compilation to PDF requires a suitable TeX installation
 with Quantikz. `compress=True` draws a complete first layer and represents later
 layers schematically, with supported reuploading boundaries. Compression does
 not change simulation. Numeric labels describe the supplied weights/input;
-symbolic labels show the parameter structure.
+symbolic labels show the parameter structure. In a policy with a
+`NeuralEmbedding`, `draw_model(..., output="tikz",
+tikz_options={"symbolic_parameters": True})` labels each encoding angle
+$\langle\mathbf{s},\boldsymbol{\lambda}_j\rangle$ and numbers the ansatz
+angles separately. Reuploading adds the layer index to the projection weight.
+Axes sharing the same projection display the same label.
 
 ```python
 from qasp.circuits import circuit_to_tikz

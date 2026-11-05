@@ -144,13 +144,14 @@ class NeuralEmbedding:
         self.imprimitive_pattern = imprimitive_pattern
         self.imprimitive = qml.CZ if imprimitive == "CZ" else qml.CNOT
 
-    def __call__(self, inputs=None , input_scaling_params=None) -> None:
+    def __call__(self, inputs=None, input_scaling_params=None, *, layer_index=1) -> None:
         """Queue rotations with angles equal to input/weight dot products.
 
         Supply one feature vector and a flat input_scaling_params array with a
         length-features block per wire (axis strings) or Pauli specification. The
         current implementation sums all product entries and is intended for a single
-        sample; evaluate batches sample by sample. Returns None."""
+        sample; evaluate batches sample by sample. layer_index labels the projection
+        weight block in circuit drawings (one-based). Returns None."""
 
         if type(self.rotations) is str:
             
@@ -158,7 +159,8 @@ class NeuralEmbedding:
                 for n in range(self.n_qubits):
 
                     inputsScaled = qml.math.multiply(inputs, input_scaling_params[n*self.features: n*self.features + self.features]).sum()
-                    qml.PauliRot(theta=inputsScaled,pauli_word=self.rotations[i], wires=n)
+                    rotation = qml.PauliRot(inputsScaled, self.rotations[i], wires=n)
+                    rotation._qasp_neural_projection = (layer_index, n)
 
         else:
             for (index,pf) in zip(range(len(self.rotations)), self.rotations):
@@ -171,7 +173,8 @@ class NeuralEmbedding:
                 "apply the rotation to the qubit"
                 inputsScaled = qml.math.multiply(inputs, input_scaling_params[index*self.features: index*self.features + self.features]).sum()
 
-                qml.PauliRot(theta=inputsScaled,pauli_word=pauli, wires=qubits)
+                rotation = qml.PauliRot(inputsScaled, pauli, wires=qubits)
+                rotation._qasp_neural_projection = (layer_index, index)
         
                 
         if self.imprimitive_pattern is not None:

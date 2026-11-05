@@ -10,6 +10,22 @@ import torch
 import functools
 
 
+from qasp.feature_maps.templates import NeuralEmbedding
+
+
+def _apply_neural_block(embedding, inputs, scales, n_qubits, start=0):
+    """Apply the existing slice and identify its layer for symbolic drawings."""
+    sites = n_qubits if isinstance(embedding.rotations, str) else len(embedding.rotations)
+    width = sites * embedding.features
+    weights = scales[start:start + width]
+    if type(embedding).__call__ is NeuralEmbedding.__call__:
+        layer_index = start // width + 1 if width else 1
+        embedding(inputs, input_scaling_params=weights, layer_index=layer_index)
+    else:
+        # Custom encoders may implement the original two-argument protocol.
+        embedding(inputs, input_scaling_params=weights)
+
+
 class IQPAnsatz:
     """Layered Hadamard, optional RZ and trainable ZZ circuit template.
 
@@ -98,10 +114,9 @@ class IQPAnsatz:
                 if self.feature_map.name == "AngleEmbedding":
                     self.feature_map(inputs, input_scaling_params=input_scaling_params[:self.feature_map.features])
                 elif self.feature_map.name == "NeuralEmbedding":
-                    if type(self.feature_map.rotations) is str:
-                        self.feature_map(inputs, input_scaling_params=input_scaling_params[:self.n_qubits*self.feature_map.features])
-                    else:
-                        self.feature_map(inputs, input_scaling_params=input_scaling_params[:len(self.feature_map.rotations)*self.feature_map.features])
+                    _apply_neural_block(
+                        self.feature_map, inputs, input_scaling_params, self.n_qubits
+                    )
 
             else:
                 self.feature_map(inputs)
@@ -164,10 +179,9 @@ class IQPAnsatz:
                     if self.feature_map.name == "AngleEmbedding":
                         self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
                     elif self.feature_map.name == "NeuralEmbedding":
-                        if type(self.feature_map.rotations) is str:
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.n_qubits*self.feature_map.features])
-                        else:
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + len(self.feature_map.rotations)*self.feature_map.features])
+                        _apply_neural_block(
+                            self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
+                        )
                 else:
                     self.feature_map(inputs)
 
@@ -194,10 +208,9 @@ class IQPAnsatz:
                         if self.feature_map.name == "AngleEmbedding":
                             self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
                         elif self.feature_map.name == "NeuralEmbedding":
-                            if type(self.feature_map.rotations) is str:
-                                self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.n_qubits*self.feature_map.features])
-                            else:
-                                self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + len(self.feature_map.rotations)*self.feature_map.features])
+                            _apply_neural_block(
+                                self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
+                            )
                     else:
                         self.feature_map(inputs)
 
@@ -357,10 +370,9 @@ class AngleAnsatz:
                     if self.feature_map.name == "AngleEmbedding":
                         self.feature_map(inputs, input_scaling_params=input_scaling_params[:self.feature_map.features])
                     elif self.feature_map.name == "NeuralEmbedding":
-                        if type(self.feature_map.rotations) is str:
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[:self.n_qubits*self.feature_map.features])
-                        else:
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[:len(self.feature_map.rotations)*self.feature_map.features])
+                        _apply_neural_block(
+                            self.feature_map, inputs, input_scaling_params, self.n_qubits
+                        )
 
                 else:
                     self.feature_map(inputs)
@@ -439,10 +451,9 @@ class AngleAnsatz:
                     if self.feature_map.name == "AngleEmbedding":
                         self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
                     elif self.feature_map.name == "NeuralEmbedding":
-                        if type(self.feature_map.rotations) is str:
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.n_qubits*self.feature_map.features])
-                        else:
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + len(self.feature_map.rotations)*self.feature_map.features])
+                        _apply_neural_block(
+                            self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
+                        )
                 else:
                     self.feature_map(inputs)
 
@@ -478,10 +489,9 @@ class AngleAnsatz:
                         if self.feature_map.name == "AngleEmbedding":
                             self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
                         elif self.feature_map.name == "NeuralEmbedding":
-                            if type(self.feature_map.rotations) is str:
-                                self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.n_qubits*self.feature_map.features])
-                            else:
-                                self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + len(self.feature_map.rotations)*self.feature_map.features])
+                            _apply_neural_block(
+                                self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
+                            )
                     else:
                         self.feature_map(inputs)
 
