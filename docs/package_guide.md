@@ -55,8 +55,9 @@ Sources: [constructor](../qasp/circuits/constructor.py),
 
 `AngleEmbedding` encodes features as rotation angles, optionally multiplied by
 trainable scales. `NeuralEmbedding` uses learned linear projections of a feature
-vector to rotation angles, with no projection bias. Its current reduction is
-single-sample; use sequential evaluation for it and explicit-word encodings.
+vector to rotation angles, with no projection bias. Each neural projection sums over the final feature axis. With a
+broadcast-capable device such as `default.qubit`, pass a single feature vector
+or a batch shaped `(samples, features)` to the classifier.
 
 `AngleAnsatz` provides axis/Pauli-word rotations with optional fixed CZ/CNOT
 entanglers on chain, ring, all-to-all or explicit edges. For `"YZ"` on (n)
