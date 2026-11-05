@@ -10,7 +10,17 @@ import torch
 import functools
 
 
-from qasp.feature_maps.templates import NeuralEmbedding
+from qasp.feature_maps.templates import AngleEmbedding, NeuralEmbedding
+
+
+def _apply_angle_block(embedding, inputs, scales, start=0):
+    """Identify the scale-vector slice used by each upload in symbolic drawings."""
+    width = embedding.features
+    weights = scales[start:start + width]
+    if type(embedding).__call__ is AngleEmbedding.__call__:
+        embedding(inputs, input_scaling_params=weights, layer_index=start // width + 1 if width else 1)
+    else:
+        embedding(inputs, input_scaling_params=weights)
 
 
 def _apply_neural_block(embedding, inputs, scales, n_qubits, start=0):
@@ -112,7 +122,7 @@ class IQPAnsatz:
         if self.feature_map is not None:
             if self.feature_map.input_scaling:
                 if self.feature_map.name == "AngleEmbedding":
-                    self.feature_map(inputs, input_scaling_params=input_scaling_params[:self.feature_map.features])
+                    _apply_angle_block(self.feature_map, inputs, input_scaling_params)
                 elif self.feature_map.name == "NeuralEmbedding":
                     _apply_neural_block(
                         self.feature_map, inputs, input_scaling_params, self.n_qubits
@@ -177,7 +187,7 @@ class IQPAnsatz:
             if self.feature_map is not None and self.reuploading and l < self.n_layers - 1:
                 if self.feature_map.input_scaling:
                     if self.feature_map.name == "AngleEmbedding":
-                        self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
+                        _apply_angle_block(self.feature_map, inputs, input_scaling_params, start_features)
                     elif self.feature_map.name == "NeuralEmbedding":
                         _apply_neural_block(
                             self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
@@ -206,7 +216,7 @@ class IQPAnsatz:
                 if self.feature_map is not None and self.reuploading and l < self.n_layers - 1:
                     if self.feature_map.input_scaling:
                         if self.feature_map.name == "AngleEmbedding":
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
+                            _apply_angle_block(self.feature_map, inputs, input_scaling_params, start_features)
                         elif self.feature_map.name == "NeuralEmbedding":
                             _apply_neural_block(
                                 self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
@@ -368,7 +378,7 @@ class AngleAnsatz:
             if self.include_feature_map_first:
                 if self.feature_map.input_scaling:
                     if self.feature_map.name == "AngleEmbedding":
-                        self.feature_map(inputs, input_scaling_params=input_scaling_params[:self.feature_map.features])
+                        _apply_angle_block(self.feature_map, inputs, input_scaling_params)
                     elif self.feature_map.name == "NeuralEmbedding":
                         _apply_neural_block(
                             self.feature_map, inputs, input_scaling_params, self.n_qubits
@@ -449,7 +459,7 @@ class AngleAnsatz:
             if self.feature_map is not None and (self.reuploading or (self.include_feature_map_first==False)and l==0) and l < self.n_layers - 1:
                 if self.feature_map.input_scaling:
                     if self.feature_map.name == "AngleEmbedding":
-                        self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
+                        _apply_angle_block(self.feature_map, inputs, input_scaling_params, start_features)
                     elif self.feature_map.name == "NeuralEmbedding":
                         _apply_neural_block(
                             self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
@@ -487,7 +497,7 @@ class AngleAnsatz:
                 if self.feature_map is not None and self.reuploading and l < self.n_layers - 1:
                     if self.feature_map.input_scaling:
                         if self.feature_map.name == "AngleEmbedding":
-                            self.feature_map(inputs, input_scaling_params=input_scaling_params[start_features: start_features + self.feature_map.features])
+                            _apply_angle_block(self.feature_map, inputs, input_scaling_params, start_features)
                         elif self.feature_map.name == "NeuralEmbedding":
                             _apply_neural_block(
                                 self.feature_map, inputs, input_scaling_params, self.n_qubits, start_features
