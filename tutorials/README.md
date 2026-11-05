@@ -1,6 +1,6 @@
 # QASP tutorials
 
-Start with the circuit builder, then choose the model you want to train. Each notebook runs on CPU using the published QASP 0.1.2 API. The application notebooks use small datasets or short training runs so you can inspect the inputs, weights, model output and circuit together.
+Start with the circuit builder, then choose the model you want to train. Each notebook runs on CPU. The inline TikZ examples use the preview build from [QASP PR #9](https://github.com/INESCTEC/qasp/pull/9). The application notebooks use small datasets or short training runs so you can inspect the inputs, weights, model output and circuit together.
 
 | Topic | Notebook | What you will do |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ From this repository, create an environment with Python 3.12 or 3.13 and launch 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install "qasp==0.1.2" jupyterlab
+python -m pip install "qasp[preview] @ https://github.com/INESCTEC/qasp/archive/0121207a2d8c530143ea5884abfaf477f456762c.zip" jupyterlab
 python -m jupyterlab tutorials
 ```
 
@@ -33,8 +33,14 @@ Edit the initializer objects directly in a model's Python configuration, then re
 
 ## View and export a model
 
-Each notebook displays the Matplotlib circuit first. Pass standalone Quantikz source to `show_tikz(tex)` for an inline preview. Rendering requires pdfLaTeX with the `standalone` and `quantikz` packages plus Ghostscript. The helper compiles in a temporary directory and deletes the build files automatically. The inline image is part of the Jupyter cell output; clear that output before saving if you want a smaller notebook.
+Each notebook displays the Matplotlib circuit first. For a model, request an inline TikZ figure directly from its drawing helper:
 
-To keep a figure, use `builder.save_tikz(..., standalone=True)` with the same inputs and weights, or write a module's returned source explicitly with `Path("circuit.tex").write_text(tex, encoding="utf-8")`. Compile that file with `pdflatex circuit.tex` for a vector PDF.
+```python
+draw_classifier(model, inputs=X_test[0], output="tikz", return_tex=False)
+```
+
+To display the same figure and also keep its LaTeX in memory, use `tex = draw_classifier(model, inputs=X_test[0], output="tikz")`. With a low-level circuit builder, call `tex = builder.to_tikz(..., standalone=True)` and pass it to `show_tikz(tex)` imported from `qasp`.
+
+Inline previews require pdfLaTeX with the `standalone` and `quantikz` packages plus Ghostscript. QASP renders the image in a temporary directory and cleans up afterward. Jupyter stores the displayed image in the cell output when you save the notebook. To keep a paper-ready file separately, call `builder.save_tikz(..., standalone=True)` or write the module’s standalone source to a `.tex` file and compile it with pdfLaTeX.
 
 The repository tracks notebooks with cleared outputs. **Run All Cells** regenerates the printed results and figures. For more configurations and API signatures, see the [interactive documentation](https://andre-sequeira10.github.io/QASP/) and the [package guide](../docs/package_guide.md).
