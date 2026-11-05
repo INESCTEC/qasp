@@ -342,3 +342,89 @@ def test_non_trainable_kernel_and_nonscalar_cost_are_rejected():
             state=torch.zeros(2),
             cost_function=lambda model, state: model.predict_proba(state),
         )
+
+
+@pytest.mark.parametrize("return_node", [False, True])
+def test_building_block_sweep_matches_explicit_qnode_calls(return_node):
+    from qasp import AngleAnsatz, AngleEmbedding, CircuitBuilder, Ones, Uniform
+
+    nodes = {}
+    def factory(n):
+        builder = CircuitBuilder(n)
+        builder.set_ansatz(AngleAnsatz(n, rotations="Y", feature_map=AngleEmbedding(
+            n, features=n, rotations="Y", input_scaling=True)))
+        builder.set_measurement("probs", wires=[0, n - 1])
+        builder.build()
+        nodes[n] = builder.compile(device="default.qubit")
+        return nodes[n] if return_node else builder
+
+    widths = [2, 4, 3]
+    seed = 17
+    init = Uniform(-1, 1)
+    def fixed_input(n):
+        return torch.linspace(-0.2, 0.5, n, dtype=torch.float64)
+
+    sweep = barren_plateau_diagnoser(
+        model_factory=factory, qubit_list=widths, state_factory=fixed_input,
+        n_samples=6, initialization=init, input_scaling_init=Ones(),
+        seed=seed, output_index=1, return_samples=True,
+    )
+    for i, n in enumerate(widths):
+        x = fixed_input(n)
+        generator = torch.Generator().manual_seed(seed + i)
+        costs, expectations = [], []
+        for _ in range(6):
+            angles = torch.empty(n, dtype=x.dtype).uniform_(-1, 1, generator=generator)
+            probabilities = nodes[n](x, params=angles, input_scaling_params=torch.ones_like(x))
+            costs.append(probabilities[1].item())
+            p = probabilities.detach().numpy().reshape(2, 2)
+            expectations.append([p[0].sum() - p[1].sum(), p[:, 0].sum() - p[:, 1].sum()])
+        np.testing.assert_allclose(sweep["cost_samples_by_qubit"][n], costs)
+        np.testing.assert_allclose(sweep["expectation_samples_by_qubit"][n], expectations)
+        assert sweep["cost_variance"][i] == pytest.approx(np.var(costs, ddof=1))
+        assert sweep["results_by_qubit"][n]["n_parameters"] == 2 * n
+
+
+def test_unencoded_compiled_expectations_need_no_state_or_layer():
+    builder = qasp.CircuitBuilder(2)
+    builder.set_ansatz(qasp.AngleAnsatz(2, rotations="Y"))
+    builder.set_measurement("expectation", observables=["Z 0", "ZZ 0 1"])
+    builder.build()
+    node = builder.compile(device="default.qubit")
+    r = barren_plateau_diagnoser(node, n_samples=4, initialization=qasp.Constant(0.3),
+                                output_index=1, return_samples=True, seed=2)
+    assert r["state_mode"] == "none"
+    np.testing.assert_allclose(r["cost_samples"], np.cos(0.3)**2)
+    np.testing.assert_allclose(r["expectation_mean"], [np.cos(0.3), np.cos(0.3)**2])
+
+
+def test_builder_diagnostics_reject_uncompiled_and_state_readout():
+    builder = qasp.CircuitBuilder(2)
+    builder.set_ansatz(qasp.AngleAnsatz(2))
+    builder.set_measurement("state")
+    builder.build()
+    with pytest.raises(ValueError, match="compile"):
+        barren_plateau_diagnoser(builder, n_samples=2)
+    node = builder.compile(device="default.qubit")
+    with pytest.raises(ValueError, match="readout"):
+        barren_plateau_diagnoser(node, n_samples=2)
+
+
+def test_circuit_sweep_infers_features_and_validates_factory_width():
+    builder = qasp.CircuitBuilder(3)
+    builder.set_ansatz(qasp.AngleAnsatz(
+        3, rotations="X", feature_map=qasp.AngleEmbedding(3, features=2, rotations="X")))
+    builder.set_measurement("probs", wires=[1])
+    builder.build()
+    node = builder.compile(device="auto")
+    def cost(bound_node, x):
+        assert x.shape == (2,)
+        return bound_node(x)[1]
+
+    result = barren_plateau_diagnoser(model_factory=lambda n: node, qubit_list=[3],
+                                     n_samples=3, seed=1, cost_function=cost,
+                                     return_samples=True)
+    p = result["cost_samples_by_qubit"][3]
+    np.testing.assert_allclose(result["expectation_samples_by_qubit"][3][:, 0], 1 - 2*p)
+    with pytest.raises(ValueError, match="3-qubit circuit for width 5"):
+        barren_plateau_diagnoser(model_factory=lambda n: node, qubit_list=[5], n_samples=2)

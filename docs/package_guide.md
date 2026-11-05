@@ -410,6 +410,31 @@ variation; sampled inputs mix parameter and input variability. Default parameter
 scope is the quantum layer; `"all"` also includes trainable classical parameters.
 Parameters/mode are restored after the diagnostic.
 
+For a building-block sweep, define `model_factory(n)` to attach an ansatz and
+measurement to a `CircuitBuilder(n)`, call `build()` and `compile()`, then return
+the compiled builder **or the returned QNode**. The diagnoser obtains fresh
+angle and optional encoding-weight tensors from the ansatz at every width.
+Use `input_scaling_init=Ones()` to keep input scales at one while varying
+angles. An unencoded ansatz needs no state. For encoded circuits use a fixed
+`state`, a width-specific `state_factory`, or the normal input sampling options.
+
+```python
+sweep = barren_plateau_diagnoser(
+    qubit_list=[4, 6, 8, 10, 12, 14, 16], model_factory=build_circuit,
+    state_factory=lambda n: torch.zeros(n, dtype=torch.float64),
+    initialization=Uniform(-np.pi, np.pi), input_scaling_init=Ones(),
+    n_samples=128, seed=19,
+)
+```
+
+For expectation readout, `output_index` picks a measured observable and the
+diagnostic records each raw expectation. For ordinary probability readout,
+it picks a basis probability and reconstructs a local Z expectation on each
+measured wire in readout order. The default cost and raw statistics use the
+same circuit execution for each draw. See the [runnable parity sweep](../examples/builder_diagnostic_sweep.py).
+State vectors, shot vectors, samples, decoded action probabilities, adaptive
+circuits and overlap-builder circuits are outside this direct interface.
+
 A PQDQN is classified as a generic model: supply a scalar
 `cost_function(model, state)`, such as a selected Q-value or actual TD loss.
 Do not label cost concentration alone proof of a barren plateau or inability
