@@ -37,7 +37,7 @@ CONFIG = {
 OUTPUT = Path(__file__).resolve().parent / "results" / "pqcbm_small_experiment"
 
 
-def run_experiment(output=OUTPUT, steps=120):
+def run_experiment(output=OUTPUT, steps=120, *, export_tikz=True):
     """Train matched statevector and unpruned-PP models; save portable artifacts."""
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
@@ -103,18 +103,19 @@ def run_experiment(output=OUTPUT, steps=120):
         pp_losses=pp_history,
         samples=bits,
     )
-    (output / "pqcbm.tex").write_text(
-        draw_qcbm(
-            statevector,
-            output="tikz",
-            tikz_options={
-                "standalone": True,
-                "symbolic_parameters": True,
-                "compress": True,
-                "gate_colors": False,
-            },
+    if export_tikz:
+        (output / "pqcbm.tex").write_text(
+            draw_qcbm(
+                statevector,
+                output="tikz",
+                tikz_options={
+                    "standalone": True,
+                    "symbolic_parameters": True,
+                    "compress": True,
+                    "gate_colors": False,
+                },
+            )
         )
-    )
     plt.rcParams.update(
         {"font.size": 11, "axes.spines.top": False, "axes.spines.right": False}
     )
