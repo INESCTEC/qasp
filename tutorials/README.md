@@ -21,7 +21,7 @@ From this repository, create an environment with Python 3.12 or 3.13 and launch 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install "qasp[preview] @ https://github.com/INESCTEC/qasp/archive/0121207a2d8c530143ea5884abfaf477f456762c.zip" jupyterlab
+python -m pip install "qasp[preview] @ https://github.com/INESCTEC/qasp/archive/43c4acdbb7c9e206e86158727315ceba22a199d9.zip" jupyterlab
 python -m jupyterlab tutorials
 ```
 
