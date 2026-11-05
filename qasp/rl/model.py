@@ -223,11 +223,12 @@ def draw_model(
         "inputs": draw_inputs,
         "params": pqc_model.qlayer.state_dict()["params"],
     }
-    if pqc_model.fm.input_scaling is not None:
-        if pqc_model.fm.input_scaling == True:
-            circuit_kwargs["input_scaling_params"] = pqc_model.qlayer.state_dict()[
-                "input_scaling_params"
-            ]
+    builder = getattr(pqc_model, "circuit_builder", None)
+    feature_map = getattr(getattr(builder, "ansatz", None), "feature_map", getattr(pqc_model, "fm", None))
+    if getattr(feature_map, "input_scaling", False):
+        circuit_kwargs["input_scaling_params"] = pqc_model.qlayer.state_dict()[
+            "input_scaling_params"
+        ]
 
     if output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz

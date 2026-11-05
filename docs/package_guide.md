@@ -139,6 +139,45 @@ tex = circuit_to_tikz(
 assert "quantikz" in tex
 ```
 
+### Preview any circuit in Jupyter
+
+Import `show_tikz` once. Pass the constructed model and the same representative
+input or fitted weights you would pass to its drawing helper. The second
+positional argument for a builder or QNode is its first circuit argument.
+
+| Object you have | Preview call |
+| --- | --- |
+| CircuitBuilder or compiled QNode | `show_tikz(builder, x, params=angles, input_scaling_params=scales)` |
+| RL policy or Q-function | `show_tikz(policy, inputs=observation)` or `show_tikz(qfunction, inputs=observation)` |
+| Classifier | `show_tikz(classifier, inputs=X_test[0])` |
+| Fidelity or projected kernel | `show_tikz(kernel, x=x, y=y)` for fidelity; `show_tikz(kernel, x=x)` for projected |
+| Born machine | `show_tikz(model)` (or pass its conditioning `inputs`) |
+| QAOA, warm-start, linear-ramp or PCE | `show_tikz(model, parameters=result)` |
+| Recursive QAOA | `show_tikz(model, step=0)` after solving |
+| Diagnostic or simulator experiment | Pass the underlying constructed model, builder, QNode or tape |
+| Fisher score kernel | `show_tikz(fisher_kernel)` previews the circuit at its stored parameters |
+
+```python
+from qasp import show_tikz
+
+show_tikz(classifier, inputs=X_test[0], tikz_options={"symbolic_parameters": True})
+# Existing Quantikz fragments or standalone documents work too:
+show_tikz(tex)
+```
+
+Previewing is optional. In a notebook environment, `%pip install "qasp[preview]"`
+supplies the Python display dependency (IPython). For local rendering, install
+pdfLaTeX with the **standalone** and **quantikz** packages using your TeX
+distribution, and install [Ghostscript](https://ghostscript.com/releases/gsdnld.html).
+The kernel must be able to find `pdflatex` and either `gs` or `gswin64c` on
+PATH. Calling the preview with a missing component shows installation guidance.
+Normal QASP installation, simulation, Matplotlib drawing and TikZ source export
+do not need these external programs.
+
+The preview compiles trusted LaTeX in a temporary directory, removes its files
+and displays the PNG inline. Saving the notebook may embed that image in its
+output. Use `save_tikz` for a permanent source file.
+
 Meters display quantum measurements. They do not draw a Q-function's affine
 head or encode all classical product/reconstruction coefficients. Explain those
 in the caption/equation or accompanying readout metadata.

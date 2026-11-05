@@ -31,6 +31,7 @@ class QFKernel:
         fisher='quantum' selects quantum Fisher; other values select classical
         Fisher. lambda_reg adds a diagonal ridge before later linear solves.
         Scores are Jacobian rows divided by outcome probabilities, without clipping."""
+        self.circuit = circuit
         self.params = params
 
         # 1) Build F

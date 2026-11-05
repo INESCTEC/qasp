@@ -98,6 +98,13 @@ initializer options are listed under [parameter initialization](#parameter-initi
 
 ## Documentation
 
+In Jupyter, `from qasp import show_tikz` previews a constructed model directly,
+for example `show_tikz(classifier, inputs=x)`. Install the optional Python
+display extra with `python -m pip install "qasp[preview]"` (or `".[preview]"`
+from this checkout). The [drawing guide](docs/package_guide.md#preview-any-circuit-in-jupyter)
+lists the external rendering tools and calls for each module.
+
+
 Explore the **[interactive QASP documentation](https://andre-sequeira10.github.io/QASP/)**:
 Building Blocks → Simulators → Modules, with step-by-step configuration,
 training and visualization examples, searchable APIs and argument descriptions.
