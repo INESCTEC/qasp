@@ -6,7 +6,9 @@ Run from a checkout with QASP installed::
     python examples/render_readme_circuits.py --source-only
 
 Only Python fences immediately following ``<!-- readme-circuit: NAME -->``
-are executed. Fences with the same NAME share a namespace. Training and
+or ``<!-- readme-circuit: NAME -> FIGURE.tex -->`` are executed. The latter
+marks a final preview call whose LaTeX the gallery generator should save.
+Fences with the same NAME share a namespace. Training and
 dataset-dependent examples are unmarked and therefore are not executed.
 The README is executable repository code; review changes before running it.
 """
@@ -14,6 +16,7 @@ The README is executable repository code; review changes before running it.
 from __future__ import annotations
 
 import argparse
+import ast
 from contextlib import contextmanager
 import os
 from pathlib import Path
@@ -25,7 +28,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = re.compile(
-    r"<!-- readme-circuit: ([a-z_]+) -->\s*```python\n(.*?)\n```", re.DOTALL
+    r"<!-- readme-circuit: ([a-z_]+)(?: -> ([a-z_]+\.tex))? -->\s*```python\n(.*?)\n```", re.DOTALL
 )
 
 
@@ -44,6 +47,27 @@ def run(command):
                             stderr=subprocess.STDOUT)
     if result.returncode:
         raise RuntimeError(f"Command failed: {command[0]}\n{result.stdout[-8000:]}")
+
+
+def execute_example(group, filename, source, namespace):
+    label = f"README.md:{group}"
+    if not filename:
+        exec(compile(source, label, "exec"), namespace)
+        return
+
+    # Request the LaTeX from the final preview call for the gallery export.
+    tree = ast.parse(source, filename=label)
+    preview = tree.body.pop()
+    if not isinstance(preview, ast.Expr) or not isinstance(preview.value, ast.Call):
+        raise ValueError(f"{label}: expected a final drawing call for {filename}")
+    call = preview.value
+    flag = next((kw.value for kw in call.keywords if kw.arg == "return_tex"), None)
+    if not isinstance(flag, ast.Constant) or flag.value is not False:
+        raise ValueError(f"{label}: expected return_tex=False for {filename}")
+    flag.value = True
+    exec(compile(tree, label, "exec"), namespace)
+    latex = eval(compile(ast.Expression(call), label, "eval"), namespace)
+    Path(filename).write_text(latex, encoding="utf-8")
 
 
 def main():
@@ -67,9 +91,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix="qasp-readme-circuits-") as directory:
         scratch = Path(directory)
         with working_directory(scratch):
-            for group, source in examples:
+            for group, filename, source in examples:
                 namespace = namespaces.setdefault(group, {"__name__": "__readme__"})
-                exec(compile(source, f"README.md:{group}", "exec"), namespace)
+                execute_example(group, filename, source, namespace)
                 print(f"Executed {group}", flush=True)
 
             sources = sorted(scratch.glob("*.tex"))
