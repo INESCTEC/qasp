@@ -10,6 +10,17 @@ from qasp.rl.model import create_model
 from qasp.rl.torchrl import PQCBornWrapper
 
 
+def test_public_wildcard_import_resolves_lazy_rl_exports():
+    import qasp
+    from qasp.rl import trl
+
+    namespace = {}
+    exec('from qasp import *', namespace)
+    assert set(qasp.__all__) <= namespace.keys()
+    assert namespace['TorchRLTrainer'] is trl.TorchRLTrainer
+    assert namespace['PQCWrapper'] is trl.PQCWrapper
+
+
 @pytest.mark.parametrize('device', ['default.qubit', 'IQPSimulator', 'PauliPropagationSimulator'])
 def test_torchrl_actor_preserves_quantum_policy_gradients(device):
     torch.manual_seed(17)
