@@ -28,6 +28,8 @@ conda run -n torchlane python examples/pauli_propagation_modules.py
 `pqdqn_cartpole_experiment.py` and `pqdqn_paper_figures.py` are supporting
 helpers for the Q-function notebook and its regression test.
 `render_readme_circuits.py` rebuilds the small documentation circuit gallery.
+In Jupyter, module calls with `output="tikz", return_tex=False` display a figure. Omit `return_tex` and assign the result to keep the LaTeX as well. For a builder, import `show_tikz` from QASP and call `show_tikz(builder.to_tikz(...))`. Inline rendering uses pdfLaTeX, Quantikz, standalone and Ghostscript.
+
 Drawing compilation requires a local LaTeX installation with Quantikz; numerical
 examples and regression tests do not require compiling the gallery.
 

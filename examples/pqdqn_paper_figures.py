@@ -13,7 +13,6 @@ from pathlib import Path
 import torch
 
 from qasp.circuits import circuit_to_tikz
-from qasp.rl import draw_qfunction
 from qasp.rl.qfunctions import PQDQN
 
 PASTEL_COLORS = {
@@ -110,9 +109,7 @@ def save_circuit_drawing(model, output_dir, name="circuit"):
     """
 
     def export(options):
-        if isinstance(model, PQDQN):
-            return draw_qfunction(model, output="tikz", tikz_options=options)
-        # Born probability references used in the validation notebook.
+        # Export both paper files without triggering notebook display.
         state = model.qlayer.state_dict()
         features = model.circuit_builder.ansatz.feature_map.features
         kwargs = {
