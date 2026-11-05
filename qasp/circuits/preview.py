@@ -78,7 +78,9 @@ def show_tikz(source: str, name: str = "Quantum circuit") -> None:
                     return
             raise RuntimeError("pdfLaTeX could not render the circuit:\n" + latex.stdout[-2000:])
         png = subprocess.check_output(
-            [gs, "-q", "-dSAFER", "-sDEVICE=png16m", "-r120", "-o", "-", "circuit.pdf"],
+            [gs, "-q", "-dSAFER", "-sDEVICE=png16m", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r300", "-o", "-", "circuit.pdf"],
             cwd=folder, timeout=120,
         )
-    display(Image(data=png, alt=name))
+    # Keep the original display width. Specifying only width preserves the aspect ratio.
+    width_px = int.from_bytes(png[16:20], "big")  # PNG IHDR width
+    display(Image(data=png, width=max(1, round(width_px * 120 / 300)), alt=name))

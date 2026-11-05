@@ -179,7 +179,8 @@ Normal QASP installation, simulation, Matplotlib drawing and TikZ source export
 do not need these external programs.
 
 The preview compiles trusted LaTeX in a temporary directory, removes its files
-and displays the PNG inline. Saving the notebook may embed that image in its
+and displays an antialiased 300 dpi PNG inline. The preview specifies only its
+display width so the notebook can scale it proportionally. Saving the notebook may embed that image in its
 output. Use `save_tikz` for a permanent source file.
 
 Meters display quantum measurements. They do not draw a Q-function's affine

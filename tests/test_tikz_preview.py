@@ -60,6 +60,9 @@ def test_actual_preview_renders_once_without_saving(monkeypatch, tmp_path):
     show_tikz(FRAGMENT, "Hadamard")
     assert len(images) == 1 and images[0].data.startswith(b"\x89PNG")
     assert images[0].alt == "Hadamard"
+    width_px = int.from_bytes(images[0].data[16:20], "big")
+    assert images[0].width == round(width_px * 120 / 300)
+    assert images[0].height is None
     assert not list(tmp_path.iterdir())
 
 
