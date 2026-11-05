@@ -141,28 +141,32 @@ assert "quantikz" in tex
 
 ### Preview any circuit in Jupyter
 
-Import `show_tikz` once. Pass the constructed model and the same representative
-input or fitted weights you would pass to its drawing helper. The second
-positional argument for a builder or QNode is its first circuit argument.
+Use the existing drawing helper with `output="tikz"`. In Jupyter it displays
+the circuit and returns the exact generated LaTeX by default. Set
+`return_tex=False` for just the inline figure. All TikZ formatting options
+apply to the same source that supplies the preview.
 
-| Object you have | Preview call |
-| --- | --- |
-| CircuitBuilder or compiled QNode | `show_tikz(builder, x, params=angles, input_scaling_params=scales)` |
-| RL policy or Q-function | `show_tikz(policy, inputs=observation)` or `show_tikz(qfunction, inputs=observation)` |
-| Classifier | `show_tikz(classifier, inputs=X_test[0])` |
-| Fidelity or projected kernel | `show_tikz(kernel, x=x, y=y)` for fidelity; `show_tikz(kernel, x=x)` for projected |
-| Born machine | `show_tikz(model)` (or pass its conditioning `inputs`) |
-| QAOA, warm-start, linear-ramp or PCE | `show_tikz(model, parameters=result)` |
-| Recursive QAOA | `show_tikz(model, step=0)` after solving |
-| Diagnostic or simulator experiment | Pass the underlying constructed model, builder, QNode or tape |
-| Fisher score kernel | `show_tikz(fisher_kernel)` previews the circuit at its stored parameters |
+```python
+from qasp import draw_classifier
+
+tex = draw_classifier(classifier, inputs=x, output="tikz",
+                      tikz_options={"symbolic_parameters": True})
+draw_classifier(classifier, inputs=x, output="tikz", return_tex=False)
+```
+
+The same flag works with `draw_model`, `draw_qfunction`, `draw_kernel`,
+`draw_qcbm`, `draw_qaoa`, `draw_pce`, `draw_recursive_qaoa` and
+`draw_optimization`. For example, pass `x=x, y=y` to a fidelity kernel,
+or `parameters=result` to a QAOA drawing. Assign the default result to
+`tex` to capture it; a bare string result can also be echoed by Jupyter.
+A plain Python script returns the requested value without starting a renderer.
+
+For a builder, QNode or tape, generate source with the ordinary exporter and
+call the same source-only preview helper explicitly:
 
 ```python
 from qasp import show_tikz
-
-show_tikz(classifier, inputs=X_test[0], tikz_options={"symbolic_parameters": True})
-# Existing Quantikz fragments or standalone documents work too:
-show_tikz(tex)
+show_tikz(builder.to_tikz(x, params=angles, input_scaling_params=scales))
 ```
 
 Previewing is optional. In a notebook environment, `%pip install "qasp[preview]"`

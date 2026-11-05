@@ -110,6 +110,7 @@ def draw_model(
     inputs=None,
     output="matplotlib",
     tikz_options=None,
+    return_tex: bool = True,
 ):
     """Draw a QASP policy or PQDQN as Matplotlib (default) or Quantikz/TikZ.
 
@@ -117,6 +118,9 @@ def draw_model(
     to :func:`qasp.circuits.circuit_to_tikz` and can contain options such as
     ``standalone``, ``wire_labels``, and ``symbolic_parameters``.
     For PQDQN, omitted inputs use the configured feature count and zero values.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
     """
 
     from qasp.rl.qfunctions import PQDQN, draw_qfunction
@@ -129,6 +133,7 @@ def draw_model(
             inputs=inputs,
             output=output,
             tikz_options=tikz_options,
+            return_tex=return_tex,
         )
 
     pqc_model = None
@@ -232,13 +237,15 @@ def draw_model(
 
     if output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
         circuit_source = getattr(pqc_model, "circuit_builder", pqc_model.circuit)
-        return circuit_to_tikz(
+        tex = circuit_to_tikz(
             circuit_source,
             circuit_kwargs=circuit_kwargs,
             **(tikz_options or {}),
         )
+        return _tikz_result(tex, return_tex)
 
     fig, ax = qml.draw_mpl(
         pqc_model.circuit, decimals=2, style="sketch"

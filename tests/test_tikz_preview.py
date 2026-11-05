@@ -19,12 +19,12 @@ def test_missing_dependencies_are_actionable_and_skip_rendering(monkeypatch):
 
 
 def test_fragment_and_standalone_source():
-    document = preview._source(FRAGMENT, (), {}, None)
+    document = preview._standalone(FRAGMENT)
     assert document.startswith(r"\documentclass")
     assert FRAGMENT in document
-    assert preview._source(document, (), {}, None) == document
+    assert preview._standalone(document) == document
     with pytest.raises(ValueError, match="Quantikz"):
-        preview._source("hello", (), {}, None)
+        preview._standalone("hello")
 
 
 @pytest.mark.parametrize("missing", ["quantikz.sty", "standalone.cls"])
@@ -64,7 +64,7 @@ def test_actual_preview_renders_once_without_saving(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("kind", ["classifier", "policy", "qfunction", "fidelity", "projected", "born", "qaoa"])
-def test_model_preview_routes_to_standalone_circuit(kind):
+def test_model_tikz_previews_source_and_returns_it_on_request(kind, monkeypatch):
     import torch
     from qasp import QAOA, QUBO, create_classifier, create_kernel, create_model, create_qcbm, create_qfunction
 
@@ -87,5 +87,40 @@ def test_model_preview_routes_to_standalone_circuit(kind):
     else:
         model = QAOA(QUBO.maxcut(2, [(0, 1)]))
         kwargs = {"parameters": model.initial_parameters()}
-    tex = preview._source(model, (), kwargs, {"wire_labels": {0: "testwire"}})
-    assert r"\begin{document}" in tex and r"\begin{quantikz}" in tex and "testwire" in tex
+    from qasp import draw_classifier, draw_kernel, draw_model, draw_qcbm, draw_optimization
+    figures = []
+    monkeypatch.setattr(preview, "_in_notebook", lambda: True)
+    monkeypatch.setattr(preview, "show_tikz", figures.append)
+    if kind in ("policy", "qfunction"):
+        draw, kwargs = draw_model, dict(kwargs, model=model)
+    elif kind in ("fidelity", "projected"):
+        draw, kwargs = draw_kernel, dict(kwargs, kernel=model)
+    elif kind == "classifier":
+        draw, kwargs = draw_classifier, dict(kwargs, classifier=model)
+    elif kind == "born":
+        draw, kwargs = draw_qcbm, dict(kwargs, model=model)
+    else:
+        draw, kwargs = draw_optimization, dict(kwargs, model=model)
+    kwargs.update(output="tikz", tikz_options={"wire_labels": {0: "testwire"},
+                                               "symbolic_parameters": True})
+    tex = draw(**kwargs)
+    assert r"\begin{quantikz}" in tex and "testwire" in tex
+    assert r"\documentclass" not in tex  # Preserve the requested fragment format.
+    assert figures == [tex]
+    assert draw(**kwargs, return_tex=False) is None
+    assert figures == [tex, tex]
+
+
+def test_script_exports_source_without_running_a_renderer(monkeypatch):
+    monkeypatch.setattr(preview, "_in_notebook", lambda: False)
+    monkeypatch.setattr(preview, "show_tikz", lambda *a: pytest.fail("unexpected render"))
+    assert preview._tikz_result(FRAGMENT, True) == FRAGMENT
+
+
+def test_render_failure_preserves_returned_source(monkeypatch):
+    def fail(source):
+        raise RuntimeError("invalid LaTeX")
+    monkeypatch.setattr(preview, "_in_notebook", lambda: True)
+    monkeypatch.setattr(preview, "show_tikz", fail)
+    with pytest.warns(UserWarning, match="TikZ preview failed"):
+        assert preview._tikz_result(FRAGMENT, True) == FRAGMENT

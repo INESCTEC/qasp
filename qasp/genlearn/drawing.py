@@ -18,6 +18,7 @@ def draw_qcbm(
     decimals=2,
     style="pennylane",
     tikz_options=None,
+    return_tex: bool = True,
 ):
     """Draw the Born sampling circuit as Matplotlib, text, or Quantikz source.
 
@@ -26,6 +27,9 @@ def draw_qcbm(
     ``tikz_options`` passes through to circuit_to_tikz: standalone, compress,
     symbolic_parameters, wire_labels, gate_colors and all existing options.
     The model and its training measurement are unchanged. No simulator runs.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
     """
     output = output.lower()
     if output not in {"matplotlib", "mpl", "text", "ascii", "tikz", "tex", "latex"}:
@@ -63,10 +67,12 @@ def draw_qcbm(
         target = function
     if output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
         options = dict(tikz_options or {})
         options.setdefault("decimals", decimals)
-        return circuit_to_tikz(target, circuit_kwargs=kwargs, **options)
+        tex = circuit_to_tikz(target, circuit_kwargs=kwargs, **options)
+        return _tikz_result(tex, return_tex)
     if output in {"text", "ascii"}:
         return qml.draw(function, decimals=decimals)(**kwargs)
     return qml.draw_mpl(function, decimals=decimals, style=style)(**kwargs)
