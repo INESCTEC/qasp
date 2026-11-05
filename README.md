@@ -122,7 +122,7 @@ contains the full mathematical and performance study.
 
 ## Installation
 
-QASP **0.1.1** is an alpha research release. It requires **Python 3.10 or
+QASP **0.1.2** is an alpha research release. It requires **Python 3.10 or
 newer**, subject to dependency support; Python 3.12 is a tested starting point.
 
 ### From PyPI
@@ -138,7 +138,7 @@ python -m pip check
 python -c "from importlib.metadata import version; import qasp; print(version('qasp'))"
 ```
 
-For a reproducible package version, use `python -m pip install qasp==0.1.1`.
+For a reproducible package version, use `python -m pip install qasp==0.1.2`.
 The package includes its core Python dependencies. Optional PennyLane device
 plugins, GPU/MPI libraries and tensor-device dependencies require separate
 installation appropriate to your platform. See the
