@@ -20,6 +20,7 @@ from .circuits import (
     UQC,
     circuit_to_tikz,
     save_tikz,
+    show_tikz,
     tape_to_tikz,
 )
 
@@ -161,7 +162,7 @@ __all__ = [
     "Initializer", "Normal", "Uniform", "Beta", "TruncatedNormal", "LogNormal",
     "Gamma", "Exponential", "Laplace", "Rademacher", "Constant", "Zeros", "Ones", "Choice",
     "CircuitBuilder", "IQPAnsatz", "AngleAnsatz", "UQC",
-    "circuit_to_tikz", "save_tikz", "tape_to_tikz",
+    "circuit_to_tikz", "save_tikz", "show_tikz", "tape_to_tikz",
     "AngleEmbedding", "NeuralEmbedding",
     "BornMachine", "PQCBM", "PauliMMD", "create_qcbm", "draw_qcbm",
     "QFKernel", "FidelityKernel", "ProjectedKernel",

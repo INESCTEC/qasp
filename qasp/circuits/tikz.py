@@ -143,7 +143,37 @@ class _ParameterFormatter:
         self.feature_map_layer_indices = feature_map_layer_indices
         self.embedding_index = 0
         self.ansatz_index = 0
+        self.theta_indices = {}
+        self.overlap_partners = {}
+        self.current_gate = None
         self.cursor = 0
+
+    def set_overlap(self, operations):
+        """Pair gate positions in U(x) and U(y)† independently of numerical values."""
+        if len(operations) % 2:
+            raise ValueError("Symbolic fidelity drawings require the same gate layout for both inputs")
+        for forward, inverse in zip(operations[:len(operations) // 2], reversed(operations)):
+            base, adjoint = _base_operation(inverse)
+            if not adjoint or base.name != forward.name or tuple(base.wires) != tuple(forward.wires):
+                raise ValueError("Symbolic fidelity drawings require the same gate layout for both inputs")
+            self.overlap_partners[id(inverse)] = id(forward)
+
+    def begin_operation(self, operation):
+        self.current_gate = id(operation)
+
+    def feature_angle(self, index, layer):
+        symbol = self.input_symbol or "f"
+        angle = rf"{symbol}_{{{index}}}"
+        if self.feature_map_input_scaling:
+            subscript = f"{layer},{index}" if self.feature_map_layer_indices else str(index)
+            angle += rf"\lambda_{{{subscript}}}"
+        return angle
+
+    @property
+    def input_symbol(self):
+        if self.overlap_partners:
+            return "y" if self.current_gate in self.overlap_partners else "x"
+        return None
 
     def format(self, value: Any, operation: Any, parameter_index: int) -> str:
         """Render one parameter and advance the global cursor; custom callbacks take precedence."""
@@ -159,13 +189,21 @@ class _ParameterFormatter:
             return str(self.labels[global_index])
         if self.symbolic:
             base, _ = _base_operation(operation)
+            feature_index = getattr(base, "_qasp_feature_index", None)
+            if feature_index is not None and self.overlap_partners:
+                return self.feature_angle(feature_index, base._qasp_scale_layer)
             projection = getattr(base, "_qasp_neural_projection", None)
             if projection is not None:
                 layer, site = projection
                 subscript = f"{layer},{site}" if self.feature_map_layer_indices else str(site)
-                return rf"\langle\mathbf{{s}},\boldsymbol{{\lambda}}_{{{subscript}}}\rangle"
-            self.ansatz_index += 1
-            return rf"\theta_{{{self.ansatz_index}}}"
+                symbol = self.input_symbol or "s"
+                return rf"\langle\mathbf{{{symbol}}},\boldsymbol{{\lambda}}_{{{subscript}}}\rangle"
+            if not self.overlap_partners:
+                self.ansatz_index += 1
+                return rf"\theta_{{{self.ansatz_index}}}"
+            gate = self.overlap_partners.get(self.current_gate, self.current_gate)
+            index = self.theta_indices.setdefault((gate, parameter_index), len(self.theta_indices) + 1)
+            return rf"\theta_{{{index}}}"
         return _format_number(value, self.decimals)
 
     def validate(self) -> None:
@@ -387,14 +425,8 @@ def _angle_embedding_column(
         if wire not in row_for_wire:
             continue
         if parameters.symbolic:
-            angle = rf"f_{{{index}}}"
-            if parameters.feature_map_input_scaling:
-                subscript = (
-                    f"{parameters.embedding_index},{index}"
-                    if parameters.feature_map_layer_indices
-                    else str(index)
-                )
-                angle += rf"\lambda_{{{subscript}}}"
+            layer = getattr(operation, "_qasp_scale_layer", parameters.embedding_index)
+            angle = parameters.feature_angle(index, layer)
         else:
             angle = _format_number(value, parameters.decimals)
         column[row_for_wire[wire]] = _gate(
@@ -512,6 +544,7 @@ def _schedule_operations(
         while len(columns) <= column_index:
             columns.append([r"\qw" for _ in wire_order])
 
+        parameters.begin_operation(operation)
         rendered = _operation_column(
             operation, wire_order, row_for_wire, parameters, colors
         )
@@ -846,6 +879,7 @@ def tape_to_tikz(
     max_explicit_layers: int = 4,
     mirror_layers: bool = False,
     layer_operation_count: int | None = None,
+    fidelity_overlap: bool = False,
     feature_map_input_scaling: bool = False,
     feature_map_layer_indices: bool = False,
 ) -> str:
@@ -855,7 +889,9 @@ def tape_to_tikz(
     ``parameter_formatter(value, operation, local_index, global_index)`` can be
     supplied for complete control over parameter notation. ``gate_colors`` accepts
     the semantic keys ``single``, ``two``, ``multi``, and ``measurement`` with HTML
-    hex or xcolor values; pass ``False`` for monochrome output. With ``compress=True``,
+    hex or xcolor values. For a fidelity overlap, ``fidelity_overlap=True``
+    pairs the symbolic weights in U(x) and its mirrored adjoint U(y)†.
+    For gate colors, pass ``False`` for monochrome output. With ``compress=True``,
     the first layer remains expanded and later layers become ``U(theta_l)`` blocks.
     """
     operations = list(getattr(tape, "operations", ()) or ())
@@ -879,6 +915,8 @@ def tape_to_tikz(
         feature_map_input_scaling=feature_map_input_scaling,
         feature_map_layer_indices=feature_map_layer_indices,
     )
+    if fidelity_overlap and symbolic_parameters:
+        parameters.set_overlap(operations)
     group: tuple[int, int] | None = None
     if compress:
         if n_layers is None or first_layer_operation_count is None:
@@ -1141,6 +1179,7 @@ def circuit_to_tikz(circuit: Any, *args: Any, **kwargs: Any) -> str:
         "suffix_operation_count",
         "max_explicit_layers",
         "mirror_layers",
+        "fidelity_overlap",
         "layer_operation_count",
         "feature_map_input_scaling",
         "feature_map_layer_indices",
@@ -1166,6 +1205,8 @@ def circuit_to_tikz(circuit: Any, *args: Any, **kwargs: Any) -> str:
         options.setdefault(
             "feature_map_layer_indices", bool(getattr(ansatz, "reuploading", False))
         )
+    function = getattr(circuit, "circuit", getattr(circuit, "func", circuit))
+    options.setdefault("fidelity_overlap", getattr(function, "_qasp_fidelity_overlap", False))
     tape = _circuit_tape(circuit, args, kwargs)
     if "wire_order" not in options and builder_wire_order:
         options["wire_order"] = builder_wire_order

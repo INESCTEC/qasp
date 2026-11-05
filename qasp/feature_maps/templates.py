@@ -45,7 +45,7 @@ class AngleEmbedding:
         self.name = "AngleEmbedding"
         self.imprimitive = qml.CZ if imprimitive == "CZ" else qml.CNOT
 
-    def __call__(self, inputs=None , input_scaling_params=None) -> None:
+    def __call__(self, inputs=None, input_scaling_params=None, *, layer_index=1) -> None:
         """Queue encoding rotations and optional entanglers; return None.
 
         ``inputs`` is a feature vector (or PennyLane-compatible broadcast input for
@@ -59,11 +59,12 @@ class AngleEmbedding:
 
             for r in self.rotations:
                 
-                qml.AngleEmbedding(
+                rotation = qml.AngleEmbedding(
                     features=inputs,
                     wires=range(self.n_qubits),
                     rotation=r,
                 )
+                rotation._qasp_scale_layer = layer_index
         else:
             for (index,pf) in zip(range(len(inputs)), self.rotations):
                 "get the first element of the list and convert it to a string"
@@ -73,7 +74,9 @@ class AngleEmbedding:
                 "get the second element of the list and convert it to a list of integers"
                 qubits = [int(i) for i in wires]
                 "apply the rotation to the qubit"
-                qml.PauliRot(theta=inputs[index],pauli_word=pauli, wires=qubits)
+                rotation = qml.PauliRot(theta=inputs[index], pauli_word=pauli, wires=qubits)
+                rotation._qasp_scale_layer = layer_index
+                rotation._qasp_feature_index = index + 1
         
         if self.imprimitive_pattern is not None:
             if isinstance(self.imprimitive_pattern, str):

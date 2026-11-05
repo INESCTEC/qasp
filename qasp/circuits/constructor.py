@@ -439,6 +439,7 @@ class CircuitBuilder:
                 )
                 return measure()
 
+        circuit._qasp_fidelity_overlap = True
         self.circuit = circuit
         return self.circuit
 
