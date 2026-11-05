@@ -252,6 +252,11 @@ class CircuitBuilder:
 
             self.circuit = circuit
 
+        # Retain the parameter layout and readout for QNode-only diagnostics.
+        # Mark standard builds only: overlap and adaptive circuits have different inputs.
+        self.circuit._qasp_build_layout = (
+            self.n_qubits, self.ansatz, meas_type, tuple(wires), getattr(self, "action_decoder", None)
+        )
         return self.circuit
 
     def build_adaptive(self, for_torchlayer=False):
@@ -624,6 +629,9 @@ class CircuitBuilder:
 
             return self.qnode, self.ansatz_tape  # _compiled
         else:
+            layout = getattr(self.circuit, "_qasp_build_layout", None)
+            if layout is not None:
+                self.qnode._qasp_diagnostic_layout = layout
             return self.qnode
 
     def to_tikz(self, *args, **kwargs):

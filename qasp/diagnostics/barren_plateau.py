@@ -43,6 +43,67 @@ def _sample_tensor(
     return initialize_tensor(torch.empty_like(tensor), initialization, generator=generator)
 
 
+class _CircuitReadout:
+    """Bind private diagnostic weights to a standard compiled CircuitBuilder QNode."""
+
+    def __init__(self, node, state):
+        self.node = node
+        self.n_qubits, ansatz, self.measurement, wires, decoder = node._qasp_diagnostic_layout
+        self.n_wires = len(wires)
+        if self.measurement not in ("probs", "expectation") or decoder is not None:
+            raise ValueError("Circuit diagnostics require expectation or undecoded probs readout.")
+        shots = getattr(node, "shots", getattr(node, "_shots", node.device.shots))
+        if getattr(shots, "has_partitioned_shots", False):
+            raise ValueError("Circuit diagnostics require a single shot count or analytic shots.")
+        if not callable(getattr(ansatz, "get_param_shapes", None)):
+            raise ValueError("Circuit diagnostics require ansatz.get_param_shapes().")
+        feature_map = ansatz.feature_map
+        self.encoded = feature_map is not None
+        self.nfeat = getattr(feature_map, "features", None)
+        names = ["params"]
+        if getattr(feature_map, "input_scaling", False):
+            names.insert(0, "input_scaling_params")
+        shapes = ansatz.get_param_shapes()
+        if len(shapes) != len(names):
+            raise ValueError("Ansatz parameter shapes do not match its feature-map configuration.")
+        dtype = state.dtype if torch.is_tensor(state) and state.is_floating_point() else torch.float64
+        device = state.device if torch.is_tensor(state) else None
+        self.weights = {name: torch.zeros(shape, dtype=dtype, device=device)
+                        for name, shape in zip(names, shapes)}
+
+    def __call__(self, state=None):
+        kwargs = dict(self.weights)
+        if self.encoded:
+            kwargs["inputs"] = _as_model_tensor(state, self.weights["params"])
+        output = self.node(**kwargs)
+        if self.measurement == "expectation":
+            return torch.stack([torch.as_tensor(value).reshape(()) for value in output])
+        return torch.as_tensor(output)
+
+
+def _compiled_readout(model, model_type, parameter_scope, state, custom_callbacks):
+    """Use the direct interface only for standard builds or their compiled QNodes."""
+    from pennylane import QNode
+    from qasp.circuits import CircuitBuilder
+
+    if model_type.lower() not in ("auto", "circuit") or not isinstance(parameter_scope, str):
+        return None
+    if isinstance(model, CircuitBuilder):
+        # Keep the original generic callback protocol for builders with an owned layer.
+        if custom_callbacks and getattr(model, "qlayer", None) is not None and model_type.lower() == "auto":
+            return None
+        node = getattr(model, "qnode", None)
+        if node is None or getattr(node, "func", None) is not getattr(model, "circuit", None):
+            raise ValueError("Run builder.build() and builder.compile() before circuit diagnostics.")
+    else:
+        node = model
+    if isinstance(node, QNode) and getattr(node, "_qasp_diagnostic_layout", None) is not None:
+        return _CircuitReadout(node, state)
+    if isinstance(model, CircuitBuilder) or model_type.lower() == "circuit":
+        raise ValueError("Circuit diagnostics require a standard CircuitBuilder.build() and compile().")
+    return None
+
+
 def _model_type(model: Any, requested: str) -> str:
     """Resolve a requested model family or infer classifier, kernel, policy or generic by protocol."""
     normalized = requested.lower()
@@ -352,6 +413,7 @@ def _diagnose_single_model(
     seed: int | None = None,
     ddof: int = 1,
     return_samples: bool = False,
+    expected_width: int | None = None,
 ) -> dict[str, Any]:
     r"""Estimate cost concentration across random circuit initializations.
 
@@ -404,7 +466,11 @@ def _diagnose_single_model(
     if cost_function is not None and (targets is not None or objective is not None):
         raise ValueError("targets/objective cannot be combined with cost_function.")
 
-    kind = _model_type(model, model_type)
+    circuit = _compiled_readout(model, model_type, parameter_scope, state,
+                                cost_function is not None or expectation_function is not None)
+    if circuit is not None and expected_width is not None and circuit.n_qubits != expected_width:
+        raise ValueError(f"Factory returned a {circuit.n_qubits}-qubit circuit for width {expected_width}.")
+    kind = "circuit" if circuit is not None else _model_type(model, model_type)
     if targets is not None and kind != "classifier":
         raise ValueError(
             "targets/objective are built-in only for classifiers; use "
@@ -412,7 +478,12 @@ def _diagnose_single_model(
         )
     if objective is not None and targets is None:
         raise ValueError("objective requires classifier targets.")
-    named_parameters = _named_parameters(model, parameter_scope)
+    if circuit is None:
+        named_parameters = _named_parameters(model, parameter_scope)
+    else:
+        if parameter_scope.lower() not in ("quantum", "all"):
+            raise ValueError("Circuit parameter_scope must be 'quantum' or 'all'.")
+        named_parameters = list(circuit.weights.items())
     if not named_parameters:
         raise ValueError(
             "No trainable parameters were found in the selected parameter_scope. "
@@ -454,6 +525,9 @@ def _diagnose_single_model(
         "sampler" if state_sampler is not None else "random"
     )
 
+    if circuit is not None and not circuit.encoded and state_mode == "random":
+        state_mode = "none"
+
     try:
         with torch.no_grad():
             for sample_index in range(n_samples):
@@ -469,9 +543,11 @@ def _diagnose_single_model(
                     sampled_state = state_sampler(sample_index, state_generator)
                 elif state is not None:
                     sampled_state = state
+                elif state_mode == "none":
+                    sampled_state = None
                 else:
                     sampled_state = _random_state(
-                        model,
+                        circuit if circuit is not None else model,
                         kind,
                         state_initialization,
                         state_generator,
@@ -479,7 +555,14 @@ def _diagnose_single_model(
                         state_shape,
                     )
 
-                if cost_function is None:
+                callback_model = circuit if circuit is not None else model
+                readout = None
+                if circuit is not None and (cost_function is None or expectation_function is None):
+                    readout = circuit(sampled_state)
+                if circuit is not None and cost_function is None:
+                    cost_name = f"{circuit.measurement}[{output_index}]"
+                    value = _select_output(readout, output_index, cost_name)
+                elif cost_function is None:
                     value, cost_name = _default_cost(
                         model,
                         sampled_state,
@@ -489,7 +572,7 @@ def _diagnose_single_model(
                         objective,
                     )
                 else:
-                    value = torch.as_tensor(cost_function(model, sampled_state))
+                    value = torch.as_tensor(cost_function(callback_model, sampled_state))
                 if value.numel() != 1:
                     raise ValueError(
                         "cost_function must return exactly one scalar per sample; "
@@ -502,13 +585,18 @@ def _diagnose_single_model(
                     )
                 costs.append(cost)
 
-                if expectation_function is None:
+                if circuit is not None and expectation_function is None:
+                    expectation_value = (
+                        _z_expectations_from_probabilities(readout, circuit.n_wires)
+                        if circuit.measurement == "probs" else readout
+                    )
+                elif expectation_function is None:
                     expectation_value = _default_expectations(
                         model, sampled_state, kind
                     )
                 else:
                     expectation_value = torch.as_tensor(
-                        expectation_function(model, sampled_state)
+                        expectation_function(callback_model, sampled_state)
                     ).reshape(-1)
                 expectation_array = np.asarray(
                     expectation_value.detach().cpu(), dtype=float
@@ -670,6 +758,15 @@ def barren_plateau_diagnoser(
     ``expectation_variance_by_qubit``.  Full single-width results are retained
     in ``results_by_qubit``.
 
+    A factory can also return a standard compiled CircuitBuilder or the QNode
+    returned by its compile(). Each width gets private tensors from the ansatz's
+    get_param_shapes(); input_scaling_init controls encoding weights and defaults
+    to initialization. output_index selects a probability or expectation. Raw
+    expectations are the measured observables, or local Z on each probability
+    wire. Custom callbacks in circuit mode receive (bound_circuit, state);
+    bound_circuit(state) returns the readout vector. This mode supports standard
+    expectation and computational-basis probability measurements.
+
     A fixed ``state`` is reused across widths.  When input dimensionality grows
     with circuit width, ``state_factory(n_qubits)`` supplies one fixed input per
     width, while leaving ``state=None`` samples fresh inputs of each model's
@@ -752,6 +849,7 @@ def barren_plateau_diagnoser(
         width_state = state_factory(n_qubits) if state_factory is not None else state
         width_result = _diagnose_single_model(
             width_model,
+            expected_width=n_qubits,
             n_samples=n_samples,
             initialization=initialization,
             input_scaling_init=input_scaling_init,
