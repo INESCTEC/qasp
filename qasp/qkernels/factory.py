@@ -139,6 +139,7 @@ def draw_kernel(
     decimals: int = 2,
     output: str = "matplotlib",
     tikz_options=None,
+    return_tex: bool = True,
 ):
     """Draw the circuit underlying a kernel.
 
@@ -148,6 +149,9 @@ def draw_kernel(
     Set ``output="tikz"`` to return Quantikz-compatible LaTeX source.
     ``tikz_options`` accepts the circuit exporter options, including
     ``compress``, ``standalone`` and ``gate_colors``.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
     """
     if kernel is None:
         if config is None or n_qubits is None:
@@ -159,7 +163,13 @@ def draw_kernel(
     normalized_output = output.lower()
     if normalized_output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
+        from .kernels import QFKernel
+
+        if isinstance(kernel, QFKernel):
+            tex = circuit_to_tikz(kernel.circuit, kernel.params, **(tikz_options or {}))
+            return _tikz_result(tex, return_tex)
         overlap = isinstance(kernel, _OVERLAP_KERNELS)
         circuit_kwargs = _tikz_circuit_kwargs(
             kernel,
@@ -171,11 +181,12 @@ def draw_kernel(
         options.setdefault("decimals", decimals)
         if options.get("compress"):
             options.setdefault("mirror_layers", overlap)
-        return circuit_to_tikz(
+        tex = circuit_to_tikz(
             kernel.builder,
             circuit_kwargs=circuit_kwargs,
             **options,
         )
+        return _tikz_result(tex, return_tex)
 
     if normalized_output not in {"matplotlib", "mpl"}:
         raise ValueError(

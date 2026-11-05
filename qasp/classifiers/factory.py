@@ -107,6 +107,7 @@ def draw_classifier(
     decimals: int = 2,
     output: str = "matplotlib",
     tikz_options: dict | None = None,
+    return_tex: bool = True,
 ):
     """Draw a classifier circuit as Matplotlib, text, or Quantikz/TikZ.
 
@@ -115,6 +116,9 @@ def draw_classifier(
     useful paper settings include ``standalone=True``,
     ``symbolic_parameters=True``, ``compress=True``, and custom
     ``wire_labels`` / ``gate_colors``.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
     """
     if classifier is None:
         if config is None or n_qubits is None or n_classes is None:
@@ -127,14 +131,16 @@ def draw_classifier(
     normalized_output = output.lower()
     if normalized_output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
         options = dict(tikz_options or {})
         options.setdefault("decimals", decimals)
-        return circuit_to_tikz(
+        tex = circuit_to_tikz(
             classifier.circuit_builder,
             circuit_kwargs=circuit_kwargs,
             **options,
         )
+        return _tikz_result(tex, return_tex)
     if normalized_output in {"text", "ascii"}:
         return qml.draw(classifier.circuit, decimals=decimals)(**circuit_kwargs)
     if normalized_output not in {"matplotlib", "mpl"}:

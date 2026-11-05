@@ -118,12 +118,16 @@ def draw_qaoa(
     style: str = "pennylane",
     decimals: int = 2,
     tikz_options: dict | None = None,
+    return_tex: bool = True,
 ):
     """Draw a QAOA-family circuit as Matplotlib, text, or Quantikz/TikZ.
 
     Pass an existing standard, multi-angle, warm-start, or linear-ramp QAOA
     model.  Alternatively, pass ``problem`` and constructor ``config``.
     ``parameters`` may be a flat array or an :class:`OptimizationResult`.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
     """
     if model is None:
         if problem is None:
@@ -139,6 +143,7 @@ def draw_qaoa(
         return qml.draw(circuit, decimals=decimals)(values)
     if normalized_output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
         options = dict(tikz_options or {})
         options.setdefault("decimals", decimals)
@@ -154,7 +159,8 @@ def draw_qaoa(
         if options.get("compress"):
             for name, value in _qaoa_compression_options(model).items():
                 options.setdefault(name, value)
-        return circuit_to_tikz(circuit, values, **options)
+        tex = circuit_to_tikz(circuit, values, **options)
+        return _tikz_result(tex, return_tex)
     if normalized_output not in {"matplotlib", "mpl"}:
         raise ValueError(
             "output must be 'matplotlib', 'mpl', 'text', 'ascii', 'tikz', "
@@ -173,8 +179,13 @@ def draw_pce(
     style: str = "pennylane",
     decimals: int = 2,
     tikz_options: dict | None = None,
+    return_tex: bool = True,
 ):
-    """Draw a PCE QASP ansatz and its Pauli-correlation measurements."""
+    """Draw a PCE QASP ansatz and its Pauli-correlation measurements.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
+    """
     if model is None:
         if problem is None:
             raise ValueError("Provide a PCE model or a QUBO problem.")
@@ -189,15 +200,17 @@ def draw_pce(
         return qml.draw(model.qnode, decimals=decimals)(**circuit_kwargs)
     if normalized_output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
         options = dict(tikz_options or {})
         options.setdefault("decimals", decimals)
         options.setdefault("symbolic_parameters", True)
-        return circuit_to_tikz(
+        tex = circuit_to_tikz(
             model.builder,
             circuit_kwargs=circuit_kwargs,
             **options,
         )
+        return _tikz_result(tex, return_tex)
     if normalized_output not in {"matplotlib", "mpl"}:
         raise ValueError(
             "output must be 'matplotlib', 'mpl', 'text', 'ascii', 'tikz', "
@@ -213,9 +226,14 @@ def draw_recursive_qaoa(
     *,
     step: int = 0,
     parameters=None,
+    return_tex: bool = True,
     **drawing_options,
 ):
-    """Draw the QAOA circuit used at one completed RQAOA reduction step."""
+    """Draw the QAOA circuit used at one completed RQAOA reduction step.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
+    """
     if not isinstance(model, RecursiveQAOA):
         raise TypeError("model must be a RecursiveQAOA instance.")
     step_solvers = getattr(model, "step_solvers", None)
@@ -233,6 +251,7 @@ def draw_recursive_qaoa(
     return draw_qaoa(
         solver,
         parameters=parameters,
+        return_tex=return_tex,
         **drawing_options,
     )
 
@@ -245,9 +264,14 @@ def draw_optimization(
     config: dict | None = None,
     parameters=None,
     step: int = 0,
+    return_tex: bool = True,
     **drawing_options,
 ):
-    """Draw any supported optimization model with one high-level function."""
+    """Draw any supported optimization model with one high-level function.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
+    """
     if model is None:
         if problem is None:
             raise ValueError("Provide an optimization model or a QUBO problem.")
@@ -275,18 +299,21 @@ def draw_optimization(
             model,
             step=step,
             parameters=parameters,
+            return_tex=return_tex,
             **drawing_options,
         )
     if isinstance(model, PauliCorrelationEncoding):
         return draw_pce(
             model,
             parameters=parameters,
+            return_tex=return_tex,
             **drawing_options,
         )
     if isinstance(model, QAOA):
         return draw_qaoa(
             model,
             parameters=parameters,
+            return_tex=return_tex,
             **drawing_options,
         )
     raise TypeError("Unsupported optimization model type.")

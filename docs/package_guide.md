@@ -139,6 +139,50 @@ tex = circuit_to_tikz(
 assert "quantikz" in tex
 ```
 
+### Preview any circuit in Jupyter
+
+Use the existing drawing helper with `output="tikz"`. In Jupyter it displays
+the circuit and returns the exact generated LaTeX by default. Set
+`return_tex=False` for just the inline figure. All TikZ formatting options
+apply to the same source that supplies the preview.
+
+```python
+from qasp import draw_classifier
+
+tex = draw_classifier(classifier, inputs=x, output="tikz",
+                      tikz_options={"symbolic_parameters": True})
+draw_classifier(classifier, inputs=x, output="tikz", return_tex=False)
+```
+
+The same flag works with `draw_model`, `draw_qfunction`, `draw_kernel`,
+`draw_qcbm`, `draw_qaoa`, `draw_pce`, `draw_recursive_qaoa` and
+`draw_optimization`. For example, pass `x=x, y=y` to a fidelity kernel,
+or `parameters=result` to a QAOA drawing. Assign the default result to
+`tex` to capture it; a bare string result can also be echoed by Jupyter.
+A plain Python script returns the requested value without starting a renderer.
+
+For a builder, QNode or tape, generate source with the ordinary exporter and
+call the same source-only preview helper explicitly:
+
+```python
+from qasp import show_tikz
+show_tikz(builder.to_tikz(x, params=angles, input_scaling_params=scales))
+```
+
+Previewing is optional. In a notebook environment, `%pip install "qasp[preview]"`
+supplies the Python display dependency (IPython). For local rendering, install
+pdfLaTeX with the **standalone** and **quantikz** packages using your TeX
+distribution, and install [Ghostscript](https://ghostscript.com/releases/gsdnld.html).
+The kernel must be able to find `pdflatex` and either `gs` or `gswin64c` on
+PATH. Calling the preview with a missing component shows installation guidance.
+Normal QASP installation, simulation, Matplotlib drawing and TikZ source export
+do not need these external programs.
+
+The preview compiles trusted LaTeX in a temporary directory, removes its files
+and displays an antialiased 300 dpi PNG inline. The preview specifies only its
+display width so the notebook can scale it proportionally. Saving the notebook may embed that image in its
+output. Use `save_tikz` for a permanent source file.
+
 Meters display quantum measurements. They do not draw a Q-function's affine
 head or encode all classical product/reconstruction coefficients. Explain those
 in the caption/equation or accompanying readout metadata.

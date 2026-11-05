@@ -253,3 +253,52 @@ def test_draw_kernel_supports_compressed_trainable_layers():
     assert "U(\\theta_{3})" in tikz
     assert "U^{\\dagger}(\\theta_{3})" in tikz
     assert "U^{\\dagger}(\\theta_{1})" in tikz
+
+
+@pytest.mark.parametrize(("embedding", "rotations"), [
+    ("AngleEmbedding", "YZ"), ("AngleEmbedding", ["Y 0", "ZZ 0 1"]),
+    ("NeuralEmbedding", "Y"),
+])
+def test_fidelity_draw_shares_weights_and_distinguishes_inputs(embedding, rotations):
+    import pennylane as qml
+
+    cfg = {
+        "feature_map": embedding,
+        "feature_map_config": {"features": 2, "rotations": rotations},
+        "ansatz": "AngleAnsatz",
+        "ansatz_config": {"n_layers": 2, "rotations": "YZ", "reuploading": True},
+        "device": "default.qubit",
+    }
+    if embedding == "AngleEmbedding":
+        cfg["feature_map_config"]["input_scaling"] = True
+    kernel = create_kernel(cfg, n_qubits=2)
+    tex = draw_kernel(kernel, x=X[0], y=Y[1], output="tikz",
+                      tikz_options={"symbolic_parameters": True})
+    for index in range(1, 9):
+        theta = rf"\theta_{{{index}}}"
+        assert tex.count(theta) == 2
+        assert tex.count(theta + r")^{\dagger}") == 1
+    assert r"\theta_{9}" not in tex
+    if embedding == "AngleEmbedding":
+        for layer in (1, 2):
+            for site in (1, 2):
+                for data in ("x", "y"):
+                    assert rf"{data}_{{{site}}}\lambda_{{{layer},{site}}}" in tex
+        assert r"\lambda_{3," not in tex
+    else:
+        for data in ("x", "y"):
+            assert rf"\langle\mathbf{{{data}}},\boldsymbol{{\lambda}}_{{2,1}}\rangle" in tex
+
+    @qml.qnode(qml.device("default.qubit", wires=2), interface="torch")
+    def state(features):
+        kernel.ansatz(inputs=features, params=kernel.qlayer.params,
+                      input_scaling_params=kernel.qlayer.input_scaling_params)
+        return qml.state()
+
+    x, y = kernel._x_tensor(X[0]), kernel._x_tensor(Y[1])
+    reference = torch.vdot(state(y), state(x)).abs().square()
+    actual = kernel._overlap_out(X[0], Y[1]).squeeze()
+    torch.testing.assert_close(actual.double(), reference, atol=2e-6, rtol=2e-6)
+    for observed, expected in zip(torch.autograd.grad(actual, kernel.parameters()),
+                                  torch.autograd.grad(reference, kernel.parameters())):
+        torch.testing.assert_close(observed, expected, atol=2e-6, rtol=2e-6)

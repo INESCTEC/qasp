@@ -98,6 +98,12 @@ initializer options are listed under [parameter initialization](#parameter-initi
 
 ## Documentation
 
+In Jupyter, `tex = draw_classifier(model, inputs=x, output="tikz")` previews
+the circuit and returns its LaTeX. Pass `return_tex=False` for a preview only.
+The same convention applies across module drawing helpers.
+See the [drawing guide](docs/package_guide.md#preview-any-circuit-in-jupyter)
+for optional rendering dependencies and examples.
+
 Explore the **[interactive QASP documentation](https://andre-sequeira10.github.io/QASP/)**:
 Building Blocks → Simulators → Modules, with step-by-step configuration,
 training and visualization examples, searchable APIs and argument descriptions.

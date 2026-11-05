@@ -19,6 +19,7 @@ def draw_qfunction(
     decimals: int = 2,
     style: str = "pennylane",
     tikz_options: dict | None = None,
+    return_tex: bool = True,
 ):
     """Draw a PQDQN as Matplotlib, text, or Quantikz/TikZ source.
 
@@ -35,6 +36,9 @@ def draw_qfunction(
     Pauli measurements; the classical coefficient matrix and linear readout are
     not circuit operations and are not included. Existing models are not rebuilt
     or modified. TikZ output is source, not a compiled PDF.
+
+    In Jupyter, TikZ output previews the generated figure. By default the
+    LaTeX string is also returned; return_tex=False displays only.
     """
     output = output.lower()
     if output not in {"matplotlib", "mpl", "text", "ascii", "tikz", "tex", "latex"}:
@@ -71,12 +75,14 @@ def draw_qfunction(
 
     if output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
+        from qasp.circuits.preview import _tikz_result
 
         options = dict(tikz_options or {})
         options.setdefault("decimals", decimals)
-        return circuit_to_tikz(
+        tex = circuit_to_tikz(
             model.circuit_builder, circuit_kwargs=circuit_kwargs, **options
         )
+        return _tikz_result(tex, return_tex)
     if output in {"text", "ascii"}:
         return qml.draw(model.circuit, decimals=decimals)(**circuit_kwargs)
     return qml.draw_mpl(model.circuit, decimals=decimals, style=style)(**circuit_kwargs)
