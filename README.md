@@ -27,7 +27,7 @@ Run compatible models with PennyLane devices or QASP's differentiable
 and **PauliPropagationSimulator**. Reuse the same building blocks across modules,
 with execution and gradient methods chosen for each circuit and readout.
 
-**[Get started](#installation)** · **[Examples](https://github.com/INESCTEC/qasp/blob/main/examples/README.md)** ·
+**[Get started](#installation)** · **[Tutorials](https://github.com/INESCTEC/qasp/tree/main/tutorials)** · **[Examples](https://github.com/INESCTEC/qasp/blob/main/examples/README.md)** ·
 **[Documentation website](https://andre-sequeira10.github.io/QASP/)** · **[Package guide](https://github.com/INESCTEC/qasp/blob/main/docs/package_guide.md)** · **[Architecture](#architecture)**
 
 **Table of contents**
@@ -97,6 +97,8 @@ still depends on the circuit, measurement and differentiation method. Full
 initializer options are listed under [parameter initialization](#parameter-initialization).
 
 ## Documentation
+
+The [module tutorials](https://github.com/INESCTEC/qasp/tree/main/tutorials) are runnable Jupyter notebooks covering circuit construction, training, results, Matplotlib and TikZ drawings, trainability diagnostics and differentiable simulation.
 
 In Jupyter, `tex = draw_classifier(model, inputs=x, output="tikz")` previews
 the circuit and returns its LaTeX. Pass `return_tex=False` for a preview only.

@@ -24,7 +24,9 @@ describes the earlier GitLab cleanup.
 - Nine tutorials with cleared outputs and seven supporting Python examples.
 - Essential API guides, logos and the small circuit-drawing gallery used by the README.
 
-Start with the [example index](../examples/README.md). The optimization tutorial
+For guided, executable lessons by module, start with the [tutorial index](../tutorials/README.md). Generated tutorial figures stay in ignored local directories.
+
+For existing examples, start with the [example index](../examples/README.md). The optimization tutorial
 now lives under `examples/` rather than `tests/`.
 
 ## Research archive

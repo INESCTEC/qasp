@@ -32,3 +32,8 @@ htmlcov/
 /tests/tikz_output/
 /tests/qasp_tikz_circuit_exports/
 /tests/policy_circuit.*
+
+# Local tutorial outputs and executed review copies
+/tutorials/*/figures/
+/tutorials/*/*_executed.ipynb
+/tutorials/EXECUTED.md
