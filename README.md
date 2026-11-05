@@ -130,7 +130,7 @@ contains the full mathematical and performance study.
 
 ## Installation
 
-QASP **0.1.2** is an alpha research release. It requires **Python 3.10 or
+QASP **0.1.3** is an alpha research release. It requires **Python 3.10 or
 newer**, subject to dependency support; Python 3.12 is a tested starting point.
 
 ### From PyPI
@@ -146,7 +146,7 @@ python -m pip check
 python -c "from importlib.metadata import version; import qasp; print(version('qasp'))"
 ```
 
-For a reproducible package version, use `python -m pip install qasp==0.1.2`.
+For a reproducible package version, use `python -m pip install qasp==0.1.3`.
 The package includes its core Python dependencies. Optional PennyLane device
 plugins, GPU/MPI libraries and tensor-device dependencies require separate
 installation appropriate to your platform. See the
@@ -1058,8 +1058,8 @@ local_kernel = create_kernel(local_config, n_qubits=4)
 The fidelity circuit evaluates an overlap between the two encoded samples.
 This example keeps every gate visible because mirrored layer compression
 requires `reuploading=False`. Open the vector PDF to inspect the full-width
-circuit. The parameter labels below explicitly reuse the same angles in the
-adjoint half. Each half's `f_i` symbols denote its respective input sample.
+circuit. QASP labels the forward input as `x` and the adjoint input as `y`.
+Both halves reuse the same variational angles and input scales.
 
 <!-- readme-circuit: kernel -->
 
@@ -1068,14 +1068,11 @@ from pathlib import Path
 import numpy as np
 from qasp import draw_kernel
 
-n_angles = kernel.qlayer.state_dict()["params"].numel()
-labels = [rf"\theta_{{{i}}}" for i in range(1, n_angles + 1)]
 tex = draw_kernel(
     kernel=kernel, x=np.zeros(4), y=np.ones(4), output="tikz",
     tikz_options={
         "standalone": True,
         "symbolic_parameters": True,
-        "parameter_labels": labels + labels[::-1],
     },
 )
 Path("fidelity_kernel.tex").write_text(tex, encoding="utf-8")
@@ -1485,8 +1482,7 @@ tikz = draw_kernel(
     tikz_options={
         "standalone": True,
         "symbolic_parameters": True,
-        "compress": True,
-        "max_explicit_layers": 4,
+        "compress": False,  # show both uploads and their shared weights
     },
 )
 ```

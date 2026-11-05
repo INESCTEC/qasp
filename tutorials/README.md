@@ -1,6 +1,6 @@
 # QASP tutorials
 
-Start with the circuit builder, then choose the model you want to train. Each notebook runs on CPU. The inline TikZ examples use the preview build from [QASP PR #9](https://github.com/INESCTEC/qasp/pull/9). The application notebooks use small datasets or short training runs so you can inspect the inputs, weights, model output and circuit together.
+Start with the circuit builder, then choose the model you want to train. Each notebook runs on CPU. The inline TikZ examples use QASP 0.1.3. The application notebooks use small datasets or short training runs so you can inspect the inputs, weights, model output and circuit together.
 
 | Topic | Notebook | What you will do |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ From this repository, create an environment with Python 3.12 or 3.13 and launch 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install "qasp[preview] @ https://github.com/INESCTEC/qasp/archive/43c4acdbb7c9e206e86158727315ceba22a199d9.zip" jupyterlab
+python -m pip install "qasp[preview]==0.1.3" jupyterlab
 python -m jupyterlab tutorials
 ```
 
