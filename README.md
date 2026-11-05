@@ -100,8 +100,9 @@ initializer options are listed under [parameter initialization](#parameter-initi
 
 The [module tutorials](https://github.com/INESCTEC/qasp/tree/main/tutorials) are runnable Jupyter notebooks covering circuit construction, training, results, Matplotlib and TikZ drawings, trainability diagnostics and differentiable simulation.
 
-In Jupyter, `tex = draw_classifier(model, inputs=x, output="tikz")` previews
-the circuit and returns its LaTeX. Pass `return_tex=False` for a preview only.
+In Jupyter, `draw_classifier(model, inputs=x, output="tikz", return_tex=False)`
+displays the circuit inline. To keep the LaTeX as well, omit `return_tex` and
+assign the result to `tex`.
 The same convention applies across module drawing helpers.
 See the [drawing guide](docs/package_guide.md#preview-any-circuit-in-jupyter)
 for optional rendering dependencies and examples.
@@ -613,13 +614,11 @@ See [the generative-learning guide](https://github.com/INESCTEC/qasp/blob/main/d
 expectation-based MMD, differentiable Pauli propagation, sampling, and MPI.
 
 A three-qubit Born machine generates bitstrings by measuring a two-layer
-`AngleAnsatz`. This example builds its sampling circuit and saves the complete
-paper-ready LaTeX document; no training is needed to draw the topology.
+`AngleAnsatz`. This example displays its sampling circuit in Jupyter before training.
 
-<!-- readme-circuit: generative -->
+<!-- readme-circuit: generative -> born_machine.tex -->
 
 ```python
-from pathlib import Path
 from qasp import create_qcbm, draw_qcbm
 
 model = create_qcbm({
@@ -634,10 +633,9 @@ model = create_qcbm({
     "device": "default.qubit",
     "seed": 7,
 }, n_qubits=3)
-tex = draw_qcbm(model, output="tikz", tikz_options={
+draw_qcbm(model, output="tikz", return_tex=False, tikz_options={
     "standalone": True, "symbolic_parameters": True, "compress": True,
 })
-Path("born_machine.tex").write_text(tex, encoding="utf-8")
 ```
 
 [![Three-qubit Born machine with Y/Z rotations, CNOT-chain entanglers, a compact second layer, and computational-basis measurements](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/born_machine.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/born_machine.pdf)
@@ -702,17 +700,15 @@ single-qubit `X` and two-qubit `XX` mixer. Symbolic labels show the parameter
 structure independently of training. To show fitted numerical values instead,
 pass `parameters=result.parameters` and set `symbolic_parameters=False`.
 
-<!-- readme-circuit: optimization -->
+<!-- readme-circuit: optimization -> qaoa.tex -->
 
 ```python
-from pathlib import Path
 from qasp import draw_optimization
 
-tex = draw_optimization(
-    solver, parameters=solver.initial_parameters("zeros"), output="tikz",
+draw_optimization(
+    solver, parameters=solver.initial_parameters("zeros"), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
-Path("qaoa.tex").write_text(tex, encoding="utf-8")
 ```
 
 [![Two-layer multi-angle triangle MaxCut QAOA circuit with a custom X and XX mixer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/qaoa.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/qaoa.pdf)
@@ -796,14 +792,13 @@ of several Pauli expectations; it supports the ordinary PennyLane gradient
 optimizers and every listed Torch optimizer, but not those three QNode-only
 optimizers. `ShotAdaptive` additionally requires finite-shot QAOA execution.
 
-Optimization circuits use the same drawing outputs as the rest of QASP. TikZ
-exports default to symbolic QAOA parameters and can produce a complete,
-standalone paper-ready document:
+Optimization circuits use the same drawing outputs as the rest of QASP. The inline TikZ
+preview uses symbolic QAOA parameters by default.
 
 ```python
-tikz = sampled.draw(
+sampled.draw(
     sampled_result,
-    output="tikz",
+    output="tikz", return_tex=False,
     tikz_options={
         "standalone": True,
         "compress": True,
@@ -817,11 +812,11 @@ tikz = sampled.draw(
 )
 
 # The high-level helper also constructs and draws a model from configuration.
-tikz = draw_optimization(
+draw_optimization(
     problem=problem,
     algorithm="multi_angle_qaoa",
     config={"n_layers": 2},
-    output="tikz",
+    output="tikz", return_tex=False,
 )
 ```
 
@@ -895,20 +890,17 @@ metrics = trainer.evaluate(X_test, y_test)
 # average precision, which is usually more informative for rare positives.
 ```
 
-Export this classifier's Born-probability circuit with symbolic input scaling
+Display this classifier's Born-probability circuit with symbolic input scaling
 and a compact second reuploading layer. The parity class decoder is classical
 post-processing and is not drawn as a quantum gate.
 
-<!-- readme-circuit: classifier -->
+<!-- readme-circuit: classifier -> classifier_born.tex -->
 
 ```python
-from pathlib import Path
-
-tex = draw_classifier(
-    classifier, inputs=torch.zeros(4), output="tikz",
+draw_classifier(
+    classifier, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
-Path("classifier_born.tex").write_text(tex, encoding="utf-8")
 ```
 
 [![Four-qubit Born classifier with input scaling, reuploading, and a compact second layer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/classifier_born.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_born.pdf)
@@ -918,7 +910,7 @@ Path("classifier_born.tex").write_text(tex, encoding="utf-8")
 Binary expectation-value classification with an averaged custom observable and
 MSE is configured directly in the same notation:
 
-<!-- readme-circuit: classifier -->
+<!-- readme-circuit: classifier -> classifier_expectation.tex -->
 
 ```python
 expectation_config = {
@@ -930,14 +922,13 @@ expectation_config = {
 classifier = create_classifier(expectation_config, n_qubits=4, n_classes=2)
 trainer = ClassifierTrainer(classifier, objective="mean_squared_error")
 
-# Publication-ready standalone Quantikz source with symbolic parameters.
-tex = draw_classifier(
+# Preview the expectation readout with symbolic parameters.
+draw_classifier(
     classifier,
     inputs=torch.zeros(4),
-    output="tikz",
+    output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
-Path("classifier_expectation.tex").write_text(tex, encoding="utf-8")
 ```
 
 [![The same four-qubit classifier with Z0, Z0Z1, and X1 expectation readouts](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/classifier_expectation.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/classifier_expectation.pdf)
@@ -1060,21 +1051,19 @@ requires `reuploading=False`. Open the vector PDF to inspect the full-width
 circuit. QASP labels the forward input as `x` and the adjoint input as `y`.
 Both halves reuse the same variational angles and input scales.
 
-<!-- readme-circuit: kernel -->
+<!-- readme-circuit: kernel -> fidelity_kernel.tex -->
 
 ```python
-from pathlib import Path
 import numpy as np
 from qasp import draw_kernel
 
-tex = draw_kernel(
-    kernel=kernel, x=np.zeros(4), y=np.ones(4), output="tikz",
+draw_kernel(
+    kernel=kernel, x=np.zeros(4), y=np.ones(4), output="tikz", return_tex=False,
     tikz_options={
         "standalone": True,
         "symbolic_parameters": True,
     },
 )
-Path("fidelity_kernel.tex").write_text(tex, encoding="utf-8")
 ```
 
 [![Four-qubit two-layer IQP fidelity overlap circuit with data reuploading and the adjoint encoding](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/fidelity_kernel.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/fidelity_kernel.pdf)
@@ -1358,22 +1347,19 @@ draw_model(
 )
 ```
 
-Save a paper-ready figure of this six-qubit neural-embedding policy.
+Display the six-qubit neural-embedding policy in Jupyter.
 This configuration places its feature map after the first variational layer,
 so the export shows all three layers without automatic compression. The
 classical neural feature map and final affine policy head are not quantum gates.
 Open the vector PDF to inspect the individual gates at full size.
 
-<!-- readme-circuit: neural_policy -->
+<!-- readme-circuit: neural_policy -> neural_policy.tex -->
 
 ```python
-from pathlib import Path
-
-tikz = draw_model(
-    model=policy, inputs=torch.zeros(4), output="tikz",
+draw_model(
+    model=policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True},
 )
-Path("neural_policy.tex").write_text(tikz, encoding="utf-8")
 ```
 
 [![Six-qubit softmax policy with neural Z encoding, three ZY layers, all-to-all CZ entanglers, and Z and ZZ readouts](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/neural_policy.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/neural_policy.pdf)
@@ -1446,10 +1432,10 @@ prefix visible, draws every gate in the first variational layer inside a dashed
 blocks:
 
 ```python
-tikz = draw_model(
+draw_model(
     model=policy,
     inputs=torch.zeros(4),
-    output="tikz",
+    output="tikz", return_tex=False,
     tikz_options={
         "standalone": True,
         "symbolic_parameters": True,
@@ -1473,11 +1459,11 @@ fidelity kernels use both samples; projected kernels only need `x`:
 ```python
 from qasp import draw_kernel
 
-tikz = draw_kernel(
+draw_kernel(
     kernel=kernel,
     x=X_train[0],
     y=X_train[1],  # omit for a projected kernel
-    output="tikz",
+    output="tikz", return_tex=False,
     tikz_options={
         "standalone": True,
         "symbolic_parameters": True,
@@ -1505,9 +1491,8 @@ meters, and overlapping observables share wires. The observable lists in the
 code specify the complete set of expectations, including correlations and
 measurements in different bases.
 
-QASP returns LaTeX source. With a TeX distribution containing `standalone`,
-`xcolor`, and `quantikz`, compile any saved figure (replace the filename with
-the one from your example):
+For a vector PDF, download the editable TikZ linked beneath a figure and compile
+it with a TeX distribution containing `standalone`, `xcolor`, and `quantikz`:
 
 ```bash
 pdflatex -interaction=nonstopmode -halt-on-error born_machine.tex
@@ -1748,7 +1733,7 @@ and its `pp_*` arguments remain available for existing experiments.
 `qasp.rl.torchrl.DeepQLearning` adds replay-based DQN/Double DQN with a frozen
 target network and epsilon-greedy exploration.
 
-`draw_qfunction(model, output="tikz", tikz_options=...)` and `model.draw(...)`
+`draw_qfunction(model, output="tikz", return_tex=False)` and `model.draw(...)`
 use the same Quantikz exporter as policies and kernels, including full/compact
 views, symbolic parameters, pastel colors, and standalone or paper snippets.
 The example notebooks compile vector PDFs and display PDF-rendered previews.
@@ -1848,19 +1833,16 @@ print("Training episode returns:", returns)
 
 ```
 
-Save the paper-ready circuit for the selected policy. The drawing below
+Display the circuit for the selected policy. The drawing below
 shows the default softmax policy's four `Z` readouts before the classical head.
 
-<!-- readme-circuit: cartpole_policy -->
+<!-- readme-circuit: cartpole_policy -> cartpole_policy.tex -->
 
 ```python
-from pathlib import Path
-
-policy_tex = draw_model(
-    model=policy, inputs=torch.zeros(4), output="tikz",
+draw_model(
+    model=policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
-Path("cartpole_policy.tex").write_text(policy_tex, encoding="utf-8")
 ```
 
 [![CartPole softmax policy with scaled Y inputs, YZ rotations, CNOT-ring entanglers, and a compact second reuploading layer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/cartpole_policy.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_policy.pdf)
@@ -1870,7 +1852,7 @@ Path("cartpole_policy.tex").write_text(policy_tex, encoding="utf-8")
 For comparison, build the Born-policy variant from the same ansatz and feature
 map. Its computational-basis measurements feed the classical parity decoder.
 
-<!-- readme-circuit: cartpole_policy -->
+<!-- readme-circuit: cartpole_policy -> cartpole_born.tex -->
 
 ```python
 born_config = deepcopy(config)
@@ -1880,11 +1862,10 @@ born_config.update(
     policy="parity-like", parity_cnot_decomposition=False, training_method="probs",
 )
 born_policy = create_model("PQCBorn", born_config, n_qubits=4)
-born_tex = draw_model(
-    model=born_policy, inputs=torch.zeros(4), output="tikz",
+draw_model(
+    model=born_policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
-Path("cartpole_born.tex").write_text(born_tex, encoding="utf-8")
 ```
 
 [![The same CartPole circuit with computational-basis measurements for Born parity decoding](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/cartpole_born.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/cartpole_born.pdf)
@@ -1966,19 +1947,16 @@ print("Q-values:", q_values.tolist(), "greedy action:", q_values.argmax().item()
 
 ```
 
-Export this PQDQN's quantum feature circuit; the learned affine map from
-four measured expectations to two Q-values is classical and is not drawn.
+Display the PQDQN circuit that measures four expectations. The classical affine layer
+combines them into two Q-values.
 
-<!-- readme-circuit: pqdqn -->
+<!-- readme-circuit: pqdqn -> pqdqn.tex -->
 
 ```python
-from pathlib import Path
-
-qfunction_tex = draw_qfunction(
-    qfunction, inputs=torch.zeros(4), output="tikz",
+draw_qfunction(
+    qfunction, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
-Path("pqdqn.tex").write_text(qfunction_tex, encoding="utf-8")
 ```
 
 [![Four-qubit PQDQN with scaled Y encoding, two reuploading YZ layers, CNOT-ring entanglers, and Pauli-Z feature readouts](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/circuits/pqdqn.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/circuits/pqdqn.pdf)
