@@ -1,6 +1,6 @@
 """Dictionary factories and circuit drawing for fidelity/projected kernels.
 
-High-level factory for quantum kernels, mirroring ``qasp.rl.create_model``.
+High-level factory for quantum kernels, mirroring ``qasp.rl.create_policy``.
 A user describes the kernel with a configuration dictionary and a single call
 to :func:`create_kernel` returns a ready-to-use kernel object.
 
@@ -108,7 +108,7 @@ def create_kernel(config: dict, n_qubits: int):
             f"Choose from {sorted(_KERNELS)}."
         )
 
-    # resolve callables (allow n_qubits-dependent values, like create_model)
+    # resolve callables (allow n_qubits-dependent values, like create_policy)
     fm_cfg = dict(cfg.get("feature_map_config", {}) or {})
     if callable(fm_cfg.get("features")):
         fm_cfg["features"] = fm_cfg["features"](n_qubits)

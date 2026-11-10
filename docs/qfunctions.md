@@ -35,7 +35,7 @@ config = {
 }
 model = create_qfunction(config, n_qubits=4, n_actions=2)
 # Equivalent: PQDQN.from_config(config, n_qubits=4, n_actions=2).
-# Legacy factory: create_model("PQDQN", config_with_n_actions, n_qubits=4).
+# Legacy factory: create_policy("PQDQN", config_with_n_actions, n_qubits=4).
 
 with DeepQLearning(model, "CartPole-v1", seed=7) as trainer:
     history = trainer.train(num_episodes=500)

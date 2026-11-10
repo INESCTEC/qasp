@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import torch
-from qasp import create_classifier, create_model, expressivity_analyzer, Normal
+from qasp import create_classifier, create_policy, expressivity_analyzer, Normal
 from configuration_helpers import BACKENDS, execution
 
 
@@ -31,7 +31,7 @@ def make_model(kind, embedding, layout, n, backend='statevector', seed=31):
         if kind == 'born':
             config.pop('observables'); config.pop('fc_layer')
             config.update(policy='parity-like', training_method='expectation', parity_cnot_decomposition=False)
-        model = create_model('PQCBorn' if kind == 'born' else 'PQCSoftmax', config, n_qubits=n)
+        model = create_policy('PQCBorn' if kind == 'born' else 'PQCSoftmax', config, n_qubits=n)
     return model.double()
 
 

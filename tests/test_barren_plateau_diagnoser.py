@@ -264,9 +264,9 @@ def test_trainable_kernel_uses_pair_similarity_cost():
 
 
 def test_policy_action_probability_and_custom_scalar_cost():
-    from qasp import create_model
+    from qasp import create_policy
 
-    policy = create_model(
+    policy = create_policy(
         "PQCBorn",
         {
             "ansatz": "AngleAnsatz",

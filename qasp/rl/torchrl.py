@@ -1056,8 +1056,8 @@ Improvements over vanilla REINFORCE that matter specifically for PQC training:
                                    SOLVED_WINDOW consecutive evaluation episodes.
 
 Usage:
-    from qasp import create_model
-    policy = create_model("PQCBorn", policy_model_config, n_qubits=n_qubits)
+    from qasp import create_policy
+    policy = create_policy("PQCBorn", policy_model_config, n_qubits=n_qubits)
     trainer = Reinforce(policy, env_name="CartPole-v1")
     trainer.train()
 """
@@ -1269,7 +1269,7 @@ class Reinforce:
         config:   ReinforceConfig dataclass.  Defaults tuned for CartPole-v1.
 
     Example:
-        policy  = create_model("PQCBorn", policy_model_config, n_qubits=n_qubits)
+        policy  = create_policy("PQCBorn", policy_model_config, n_qubits=n_qubits)
         trainer = Reinforce(policy)
         trainer.train()
     """

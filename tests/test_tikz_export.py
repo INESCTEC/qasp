@@ -347,9 +347,9 @@ def test_identity_feature_does_not_overwrite_a_physical_measurement():
                                              (["Y 0", "YY 0 1"], [0, 1])])
 def test_policy_neural_projection_labels_follow_weight_sharing(rotations, sites):
     import torch
-    from qasp import create_model, draw_model
+    from qasp import create_policy, draw_model
 
-    policy = create_model("PQCSoftmax", {
+    policy = create_policy("PQCSoftmax", {
         "feature_map": "NeuralEmbedding",
         "feature_map_config": {"features": 4, "rotations": rotations},
         "ansatz": "AngleAnsatz",

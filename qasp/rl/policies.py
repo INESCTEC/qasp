@@ -29,7 +29,7 @@ from qasp.simulators import DifferentiablePauliProp
 class PQCBorn(nn.Module):
     """Legacy Born sampler with (action, log_probability) forward output.
 
-    The name differs from create_model("PQCBorn", ...), which constructs the
+    The name differs from create_policy("PQCBorn", ...), which constructs the
     current PQCBornVariance class. Use the latter for decoder-consistent
     probability outputs. This class retains older local-expectation and weight
     setter paths; see their method documentation before using them."""

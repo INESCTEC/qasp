@@ -7,7 +7,7 @@ import torch
 
 from qasp import CircuitBuilder, AngleAnsatz
 from qasp.feature_maps import AngleEmbedding
-from qasp.rl.model import create_model
+from qasp.rl.model import create_policy
 from qasp.rl import PQDQN
 from qasp.classifiers import PQCClassifier
 from qasp.qkernels import create_kernel
@@ -35,8 +35,8 @@ def test_neural_policies_adam_updates_match_statevector(policy):
     if policy == "PQCSoftmax": cfg.update(observables=["Z 0", "XZ 1 2"], fc_layer=None)
     else: cfg.update(policy="parity-like", training_method="probs", parity_cnot_decomposition=False)
     torch.manual_seed(21)
-    a = create_model(policy, deepcopy(cfg), n_qubits=3).double()
-    b = create_model(policy, {**deepcopy(cfg), "device": "default.qubit"}, n_qubits=3).double()
+    a = create_policy(policy, deepcopy(cfg), n_qubits=3).double()
+    b = create_policy(policy, {**deepcopy(cfg), "device": "default.qubit"}, n_qubits=3).double()
     b.load_state_dict(a.state_dict())
     optimizers = [torch.optim.Adam(m.parameters(), lr=.01) for m in (a, b)]
     before = [p.detach().clone() for p in a.parameters()]

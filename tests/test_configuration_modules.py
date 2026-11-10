@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import torch
 from qasp import AngleAnsatz, IQPAnsatz, AngleEmbedding, NeuralEmbedding, CircuitBuilder
-from qasp import create_classifier, create_model, create_qfunction, create_qcbm
+from qasp import create_classifier, create_policy, create_qfunction, create_qcbm
 from qasp.qkernels.quantum_kernels import EncodingAnsatz
 from configuration_helpers import BACKENDS, execution, components, compare_tensors
 
@@ -85,9 +85,9 @@ def test_module_factory_values_gradients_and_batches(backend, layout, embedding,
         if module == 'qfunction':
             return create_qfunction({**options, 'n_actions': 2, 'observables': ['Z 0', 'Z 1'], 'input_activation': None}, n_qubits=2)
         if module == 'softmax':
-            return create_model('PQCSoftmax', {**options, 'n_actions': 2, 'observables': ['Z 0', 'Z 1'], 'fc_layer': None}, 2)
+            return create_policy('PQCSoftmax', {**options, 'n_actions': 2, 'observables': ['Z 0', 'Z 1'], 'fc_layer': None}, 2)
         if which == 'lightning':options['diff_method'] = 'parameter-shift'
-        return create_model('PQCBorn', {**options, 'n_actions': 2, 'policy': 'parity-like',
+        return create_policy('PQCBorn', {**options, 'n_actions': 2, 'policy': 'parity-like',
                             'parity_cnot_decomposition': False, 'training_method': 'expectation'}, 2)
     torch.manual_seed(31)
     actual, reference = make(backend).double(), make('statevector').double()
@@ -148,7 +148,7 @@ def test_policy_optional_configs_are_not_mutated(kind, optional_configs):
     if optional_configs == 'none':cfg.update(ansatz_config=None)
     if kind == 'PQCSoftmax':cfg.update(observables=['Z 0', 'Z 1'], fc_layer=None)
     original = deepcopy(cfg)
-    policy = create_model(kind, cfg, 2)
+    policy = create_policy(kind, cfg, 2)
     assert torch.isfinite(policy(torch.tensor([.2, .4]))).all()
     assert cfg == original
 
@@ -156,7 +156,7 @@ def test_policy_optional_configs_are_not_mutated(kind, optional_configs):
 def test_softmax_probabilities_use_head_scale_and_simulator():
     cfg = {**components('neural', 'angle'), 'n_actions': 3, 'observables': ['Z 0', 'Z 1'],
            'fc_layer': True, 'output_scaling': True, **execution('pp')}
-    model = create_model('PQCSoftmax', cfg, 2).double()
+    model = create_policy('PQCSoftmax', cfg, 2).double()
     x = torch.tensor([[.2, -.3], [.4, .6]], dtype=torch.float64, requires_grad=True)
     probabilities = model.action_probs(x)
     torch.testing.assert_close(probabilities, model(torch.tanh(x)).softmax(-1))

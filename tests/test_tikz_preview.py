@@ -69,7 +69,7 @@ def test_actual_preview_renders_once_without_saving(monkeypatch, tmp_path):
 @pytest.mark.parametrize("kind", ["classifier", "policy", "qfunction", "fidelity", "projected", "born", "qaoa"])
 def test_model_tikz_previews_source_and_returns_it_on_request(kind, monkeypatch):
     import torch
-    from qasp import QAOA, QUBO, create_classifier, create_kernel, create_model, create_qcbm, create_qfunction
+    from qasp import QAOA, QUBO, create_classifier, create_kernel, create_policy, create_qcbm, create_qfunction
 
     config = {"feature_map": "AngleEmbedding", "feature_map_config": {"features": 2, "rotations": "Y"},
               "ansatz": "AngleAnsatz", "ansatz_config": {"n_layers": 1, "rotations": "Y"}, "device": "default.qubit"}
@@ -78,7 +78,7 @@ def test_model_tikz_previews_source_and_returns_it_on_request(kind, monkeypatch)
     if kind == "classifier":
         model = create_classifier(config, n_qubits=2, n_classes=2)
     elif kind == "policy":
-        model = create_model("PQCSoftmax", {**config, "observables": ["Z 0", "Z 1"], "n_actions": 2}, n_qubits=2)
+        model = create_policy("PQCSoftmax", {**config, "observables": ["Z 0", "Z 1"], "n_actions": 2}, n_qubits=2)
     elif kind == "qfunction":
         model = create_qfunction({**config, "observables": ["Z 0", "Z 1"]}, n_qubits=2, n_actions=2)
     elif kind in ("fidelity", "projected"):

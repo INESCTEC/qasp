@@ -111,9 +111,9 @@ def test_factory_preserves_dictionary_and_serialization():
     restored = PQDQN.from_config(cfg)
     restored.load_state_dict(model.state_dict())
     torch.testing.assert_close(model(torch.ones(4)), restored(torch.ones(4)))
-    from qasp.rl.model import create_model
+    from qasp.rl.model import create_policy
 
-    assert isinstance(create_model("PQDQN", cfg, 4), PQDQN)
+    assert isinstance(create_policy("PQDQN", cfg, 4), PQDQN)
 
 
 @pytest.mark.parametrize("spec", ["", "A 0", "ZZ 0", "Z 4", "ZZ 0 0", "Z", "Z x"])

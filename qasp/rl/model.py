@@ -1,6 +1,6 @@
-"""Dictionary-based RL model creation and circuit drawing adapters.
+"""Dictionary-based RL policy creation and circuit drawing adapters.
 
-create_model selects the current Born decoder, softmax policy or PQDQN.
+create_policy selects the current Born decoder, softmax policy or PQDQN.
 Configuration dictionaries and supplied builders are copied before construction."""
 import numpy as np
 import pennylane as qml
@@ -8,8 +8,8 @@ import pennylane as qml
 from copy import deepcopy
 
 
-def create_model(policy_class, policy_config_kwargs, n_qubits):
-    """Create an RL model from a selector, component dictionary and wire count.
+def create_policy(policy_class, policy_config_kwargs, n_qubits):
+    """Create an RL policy from a selector, component dictionary and wire count.
 
     Selectors are PQCBorn (constructs PQCBornVariance), PQCSoftmax and PQDQN.
     For policies, resolve registered ansatz/feature-map names and callable
@@ -160,7 +160,7 @@ def draw_model(
     if model is None:
         if policy_class is None or policy_config_kwargs is None or n_qubits is None:
             raise ValueError("Provide model or policy_class, policy_config_kwargs and n_qubits.")
-        pqc_model = create_model(policy_class, policy_config_kwargs, n_qubits)
+        pqc_model = create_policy(policy_class, policy_config_kwargs, n_qubits)
     else:
         pqc_model = model
 

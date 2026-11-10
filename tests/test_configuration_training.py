@@ -6,7 +6,7 @@ CartPole or a learning advantage.
 import numpy as np
 import pytest
 import torch
-from qasp import create_model
+from qasp import create_policy
 from qasp.initialization import Normal
 from configuration_helpers import BACKENDS, execution
 from qasp.rl.torchrl import (
@@ -40,7 +40,7 @@ def configuration(device):
 def test_training_loops_update_quantum_weights(backend, algorithm):
     torch.manual_seed(404)
     np.random.seed(404)
-    policy = create_model('PQCBorn', {**configuration('default.qubit'), **execution(backend)}, n_qubits=2)
+    policy = create_policy('PQCBorn', {**configuration('default.qubit'), **execution(backend)}, n_qubits=2)
     before = [p.detach().clone() for p in policy.parameters()]
     trainer = None
     try:

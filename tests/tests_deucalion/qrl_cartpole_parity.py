@@ -69,7 +69,7 @@ def main():
 
     print(f"[INFO] n_qubits={n_qubits}, run_id={run_id}", flush=True)
 
-    policy = create_model("PQCBorn", policy_model_config, n_qubits=n_qubits)
+    policy = create_policy("PQCBorn", policy_model_config, n_qubits=n_qubits)
 
     agent = REINFORCE(
         policy=policy,

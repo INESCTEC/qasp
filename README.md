@@ -43,7 +43,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - [Top-level API](#top-level-api)
 - [Distributed statevector simulation (MPI)](#distributed-statevector-simulation-mpi)
 - [Manual circuit construction example](#manual-circuit-construction-example)
-- [High level RL policies from dictionaries and `create_model`](#high-level-rl-policies-from-dictionaries-and-create_model)
+- [High level RL policies from dictionaries and `create_policy`](#high-level-rl-policies-from-dictionaries-and-create_policy)
 - [Reinforcement learning example with REINFORCE](#reinforcement-learning-example-with-reinforce)
 - [Policy classes in `qasp.rl.policies`](#policy-classes-in-qasprlpolicies)
 - [Trainability and analysis utilities](#trainability-and-analysis-utilities)
@@ -428,7 +428,7 @@ qasp/
 ├── devices.py              # Shared device/MPI option handling
 ├── initialization.py       # Reusable NumPy/Torch parameter distributions
 └── rl/
-    ├── model.py            # create_model, draw_model
+    ├── model.py            # create_policy, draw_model
     ├── policies.py         # PQCBorn, PQCSoftmax, related policy classes
     ├── metrics.py          # Legacy probability variance / heuristic Lie closure
     ├── pp_sim.py           # truncated Pauli propagation simulator
@@ -472,7 +472,7 @@ config = {
 classifier = create_classifier(config, n_qubits=4, n_classes=2)
 ```
 
-The same `init` and `input_scaling_init` settings work with `create_model`,
+The same `init` and `input_scaling_init` settings work with `create_policy`,
 `create_qfunction`, trainable `create_kernel` models, and `create_qcbm`.
 They apply to every reuploading layer and to `NeuralEmbedding` projection
 weights. Classical output heads keep their existing initialization.
@@ -1086,7 +1086,7 @@ gradients, and precomputed-kernel SVMs for every kernel class, run
 
 ### RL / training / analysis
 
-- `create_model`
+- `create_policy`
 - `draw_model`
 - `PQCBorn`
 - `PQCSoftmax`
@@ -1286,14 +1286,14 @@ This lower-level workflow is useful when:
 
 ---
 
-## High level RL policies from dictionaries and `create_model`
+## High level RL policies from dictionaries and `create_policy`
 
 This is the main high-level workflow for reinforcement learning with QASP.
 
 <!-- readme-circuit: neural_policy -->
 
 ```python
-from qasp import create_model, draw_model
+from qasp import create_policy, draw_model
 import torch
 
 n_qubits = 6
@@ -1331,7 +1331,7 @@ policy_model_config = {
     "observables": observables,
 }
 
-policy = create_model("PQCSoftmax", policy_model_config, n_qubits=n_qubits)
+policy = create_policy("PQCSoftmax", policy_model_config, n_qubits=n_qubits)
 ```
 
 To visualize the resulting circuit:
@@ -1565,7 +1565,7 @@ QASP currently exposes several policy-model families.
 ### `PQCBorn`
 
 The direct class is a legacy sampler whose `forward` returns an action and log
-probability. The factory selector `create_model("PQCBorn", ...)` instead constructs
+probability. The factory selector `create_policy("PQCBorn", ...)` instead constructs
 `PQCBornVariance`, the current probability-returning decoder model.
 
 ### `PQCSoftmax`
@@ -1779,14 +1779,14 @@ training budget and episode cap for a learning experiment.
 
 Choose `PQCSoftmax` to turn learned action logits into a categorical policy, or
 `PQCBorn` to decode circuit probabilities into action probabilities. The
-`create_model("PQCBorn", ...)` factory constructs the current
+`create_policy("PQCBorn", ...)` factory constructs the current
 `PQCBornVariance` implementation. Set the trainer's `logits` flag to match the
 selected model's output.
 
 <!-- readme-circuit: cartpole_policy -->
 
 ```python
-from qasp.rl import create_model, draw_model
+from qasp.rl import create_policy, draw_model
 from copy import deepcopy
 import torch
 
@@ -1822,7 +1822,7 @@ else:
     )
 
 # Copy nested dictionaries because the policy factory resolves them in place.
-policy = create_model(policy_kind, deepcopy(config), n_qubits=4)
+policy = create_policy(policy_kind, deepcopy(config), n_qubits=4)
 ```
 
 ```python
@@ -1882,7 +1882,7 @@ born_config.pop("fc_layer", None)
 born_config.update(
     policy="parity-like", parity_cnot_decomposition=False, training_method="probs",
 )
-born_policy = create_model("PQCBorn", born_config, n_qubits=4)
+born_policy = create_policy("PQCBorn", born_config, n_qubits=4)
 draw_model(
     model=born_policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},

@@ -6,8 +6,9 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'validation'
-os.environ.update(PYTHONPATH=str(ROOT), MPLCONFIGDIR=str(OUT / 'mpl'),
+OUT = Path(os.environ.get('QASP_VALIDATION_OUTPUT', ROOT / 'validation')).resolve()
+SOURCE_PATH = '' if os.environ.get('QASP_TUTORIAL_INSTALLED') == '1' else str(ROOT)
+os.environ.update(PYTHONPATH=SOURCE_PATH, MPLCONFIGDIR=str(OUT / 'mpl'),
                   OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1')
 os.environ['JUPYTER_PATH'] = str(OUT / 'jupyter')
 os.environ['JUPYTER_RUNTIME_DIR'] = str(OUT / 'jupyter/runtime')
@@ -21,7 +22,7 @@ kernel.mkdir(parents=True, exist_ok=True)
 (kernel / 'kernel.json').write_text(json.dumps({
     'argv': [sys.executable, '-m', 'ipykernel_launcher', '-f', '{connection_file}'],
     'display_name': 'QASP configuration validation', 'language': 'python',
-    'env': {'PYTHONPATH': str(ROOT)},
+    'env': {'PYTHONPATH': SOURCE_PATH},
 }))
 results = []
 for source in sorted((ROOT / 'tutorials').rglob('*.ipynb')):
@@ -29,6 +30,9 @@ for source in sorted((ROOT / 'tutorials').rglob('*.ipynb')):
     destination = OUT / 'executed_tutorials' / relative
     destination.parent.mkdir(parents=True, exist_ok=True)
     notebook = nbformat.read(source, as_version=4)
+    if os.environ.get('QASP_TUTORIAL_INSTALLED') == '1':
+        notebook.cells.insert(0, nbformat.v4.new_code_cell(
+            "import qasp\nassert 'site-packages' in qasp.__file__, qasp.__file__"))
     result = {'notebook': str(relative)}
     started = time.monotonic()
     try:

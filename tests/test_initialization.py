@@ -16,7 +16,7 @@ from qasp.initialization import (
     Choice, Constant, Normal, Ones, Uniform, Zeros,
     initialize_tensor, resolve_initializer, sample_parameters,
 )
-from qasp.rl import create_model, create_qfunction
+from qasp.rl import create_policy, create_qfunction
 
 
 def config(ansatz="AngleAnsatz", feature_map="AngleEmbedding"):
@@ -185,7 +185,7 @@ def test_public_factories_use_both_initializers_and_preserve_gradients(kind):
             cfg.update(policy="parity-like", parity_cnot_decomposition=False)
         else:
             cfg.update(observables=["Z 0", "Z 1"], fc_layer=True)
-        model = create_model("PQCBorn" if kind == "born_policy" else "PQCSoftmax", cfg, 2)
+        model = create_policy("PQCBorn" if kind == "born_policy" else "PQCSoftmax", cfg, 2)
     elif kind == "pqdqn":
         model = create_qfunction({**cfg, "observables": ["Z 0", "Z 1"]}, n_qubits=2, n_actions=2)
     else:
@@ -320,7 +320,7 @@ def test_shared_initializers_with_differentiable_pauli_propagation(kind):
         model = create_classifier(cfg, 2, 2)
     elif kind == "policy":
         cfg.update(n_actions=2, fc_layer=True)
-        model = create_model("PQCSoftmax", cfg, 2)
+        model = create_policy("PQCSoftmax", cfg, 2)
     else:
         model = create_qfunction(cfg, n_qubits=2, n_actions=2)
     assert_groups(model.qlayer.params, model.qlayer.input_scaling_params)

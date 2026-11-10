@@ -334,7 +334,7 @@ Sources: [policies](../qasp/rl/policies.py), [factory/drawing](../qasp/rl/model.
 
 | Model/API | Returned quantity | Readout distinction |
 | --- | --- | --- |
-| `create_model("PQCBorn", ...)` | `PQCBornVariance` action probabilities | Fixed basis decoder; probability, supported moment reconstruction or majority sparse projectors |
+| `create_policy("PQCBorn", ...)` | `PQCBornVariance` action probabilities | Fixed basis decoder; probability, supported moment reconstruction or majority sparse projectors |
 | `PQCSoftmax.forward` | Action logits | Expectations, scaling and optional **biased** affine head; apply categorical softmax afterward |
 | `PQDQN.forward` / `q_values` | Unconstrained Q-values | Observable features, optional affine head; no softmax |
 | Direct legacy `PQCBorn.forward` | Sampled action and log probability | Historical interface, not the factory's current Born model |

@@ -207,7 +207,7 @@ def main():
         Uniform,
         Normal,
         create_classifier,
-        create_model,
+        create_policy,
         expressivity_analyzer,
     )
 
@@ -279,7 +279,7 @@ def main():
                     cols = [3, 4] if dec == "parity" else [5, 6]
                 elif module == "policy_logits":
                     config.update(n_actions=3, observables=labels)
-                    model = create_model("PQCSoftmax", config, n_qubits=n)
+                    model = create_policy("PQCSoftmax", config, n_qubits=n)
                     cols = [0, 1, 2]
                 else:
                     dec = module.split("_")[1]
@@ -292,7 +292,7 @@ def main():
                     )
                     if dec == "majority":
                         config["majority_blocks"] = [list(range(n))]
-                    model = create_model("PQCBorn", config, n_qubits=n)
+                    model = create_policy("PQCBorn", config, n_qubits=n)
                     cols = [3, 4] if dec == "parity" else [5, 6]
                 theta = model.qlayer.params.detach().numpy().copy()
                 scales = (
