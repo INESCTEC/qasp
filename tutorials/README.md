@@ -1,6 +1,6 @@
 # QASP tutorials
 
-Start with the circuit builder, then choose the model you want to train. Each notebook runs on CPU. The inline TikZ examples use QASP 0.1.3. The application notebooks use small datasets or short training runs so you can inspect the inputs, weights, model output and circuit together.
+Start with the circuit builder, then choose the model you want to train. Each notebook runs on CPU. The inline TikZ examples use QASP 0.2.0. The application notebooks use small datasets or short training runs so you can inspect the inputs, weights, model output and circuit together.
 
 | Topic | Notebook | What you will do |
 | --- | --- | --- |
@@ -11,7 +11,7 @@ Start with the circuit builder, then choose the model you want to train. Each no
 | Reinforcement learning | [Quantum Q-learning](rl/quantum_q_learning.ipynb) | Train an online Q-function with replay and a target network, then compare action values. |
 | Generative learning | [Fit a Born machine](genlearn/born_machine.ipynb) | Learn a bitstring distribution with MMD and compare initial, fitted and target probabilities. |
 | Optimization | [MaxCut with QAOA](optimization/maxcut_qaoa.ipynb) | Initialize cost and mixer angles, optimize the expected energy and check a candidate against the exact discrete optimum. |
-| Tools | [Fourier expressivity across models](tools/expressivity_analyzer.ipynb) | Check classifier, policy, Q-function and kernel spectra against direct outputs. Use QASP random initializers and plot frequency counts, spectra, and coefficient statistics across qubit widths, with a fixed scalar analytic benchmark. This tutorial uses the analyzer from the source checkout. |
+| Tools | [Fourier expressivity across models](tools/expressivity_analyzer.ipynb) | Check classifier, policy, Q-function and kernel spectra against direct outputs. Use QASP random initializers and plot frequency counts, spectra, and coefficient statistics across qubit widths, with a fixed scalar analytic benchmark. |
 | Tools | [Barren plateau diagnoser](tools/barren_plateau_diagnoser.ipynb) | Sweep seven compiled circuit widths from 4 to 16 qubits and compare measured parity variance with the analytic curve. |
 | Simulators | [Differentiable simulation](simulators/differentiable_simulation.ipynb) | Compare IQP tensor contraction, sampling and auto selection with exact Pauli propagation and a full-state reference. Check gradients and train with both exact backends. |
 
@@ -22,7 +22,7 @@ From this repository, create an environment with Python 3.12 or 3.13 and launch 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install "qasp[preview]==0.1.3" jupyterlab
+python -m pip install --upgrade "qasp[preview]" jupyterlab
 python -m jupyterlab tutorials
 ```
 

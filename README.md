@@ -136,16 +136,13 @@ contains the full mathematical and performance study.
 QASP is an alpha research package. It requires **Python 3.10 or newer**,
 subject to dependency support; Python 3.12 is a tested starting point.
 
-**These examples follow GitHub main.** The `create_policy` / `draw_policy`
-helpers and Fourier expressivity analyzer are available in the source installation
-below and will be included in the next PyPI release. Install main to use them:
+**QASP 0.2.0** includes the Fourier expressivity analyzer, configuration and
+simulator fixes, and the `create_policy` / `draw_policy` helpers.
 
-```bash
-python -m pip install "qasp @ git+https://github.com/INESCTEC/qasp.git@main"
-```
-
-In existing code, update policy-factory and drawing imports/calls to
-`create_policy` and `draw_policy`. Their arguments and behavior are unchanged.
+When upgrading from 0.1.x, replace `create_model` with `create_policy` and
+`draw_model` with `draw_policy` in imports and calls. Their arguments are unchanged.
+The unused `TorchRLTrainer` and `PQCWrapper` prototypes were removed;
+`PQCBornWrapper` and the maintained RL trainers remain available.
 
 ### From PyPI
 
@@ -155,7 +152,7 @@ Create an isolated environment, then install the published package:
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install qasp
+python -m pip install --upgrade qasp
 python -m pip check
 python -c "from importlib.metadata import version; import qasp; print(version('qasp'))"
 ```
@@ -164,6 +161,16 @@ The package includes its core Python dependencies. Optional PennyLane device
 plugins, GPU/MPI libraries and tensor-device dependencies require separate
 installation appropriate to your platform. See the
 [device and compilation guide](https://andre-sequeira10.github.io/QASP/#/guide/execution?step=compile).
+
+For inline TikZ previews in Jupyter, install the optional Python extra:
+
+```bash
+python -m pip install --upgrade "qasp[preview]" jupyterlab
+```
+
+Rendering TikZ also requires a local TeX distribution with Quantikz and
+Ghostscript; these external tools are optional. Restart notebook kernels after
+upgrading so they load the new package.
 
 ### From source
 
