@@ -47,6 +47,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - [Reinforcement learning example with REINFORCE](#reinforcement-learning-example-with-reinforce)
 - [Policy classes in `qasp.rl.policies`](#policy-classes-in-qasprlpolicies)
 - [Trainability and analysis utilities](#trainability-and-analysis-utilities)
+- [Fourier expressivity before and after training](#fourier-expressivity)
 - [Notebooks and example scripts](#notebooks-and-example-scripts)
 - [End-to-end CartPole examples](#end-to-end-cartpole-examples)
 - [Citing QASP](#citing-qasp)
@@ -58,6 +59,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - Build PQCs from composable **feature maps** and **ansätze**
 - Train **Born** and **softmax** policies on Gym/Gymnasium-style environments
 - Run lightweight **REINFORCE** training loops directly from QASP
+- Inspect each model output with **Fourier expressivity analysis**: complex coefficients, learned input frequencies, qubit sweeps, and before/after-training comparisons
 - Evaluate trainability with utilities such as:
   - model-agnostic cost-concentration diagnosis,
   - policy variance,
@@ -131,8 +133,19 @@ contains the full mathematical and performance study.
 
 ## Installation
 
-QASP **0.1.3** is an alpha research release. It requires **Python 3.10 or
-newer**, subject to dependency support; Python 3.12 is a tested starting point.
+QASP is an alpha research package. It requires **Python 3.10 or newer**,
+subject to dependency support; Python 3.12 is a tested starting point.
+
+**These examples follow GitHub main.** The `create_policy` / `draw_policy`
+helpers and Fourier expressivity analyzer are available in the source installation
+below and will be included in the next PyPI release. Install main to use them:
+
+```bash
+python -m pip install "qasp @ git+https://github.com/INESCTEC/qasp.git@main"
+```
+
+In existing code, update policy-factory and drawing imports/calls to
+`create_policy` and `draw_policy`. Their arguments and behavior are unchanged.
 
 ### From PyPI
 
@@ -1697,24 +1710,47 @@ claim without a corresponding gradient analysis.
 
 ### Fourier expressivity
 
-Analyze a trained model’s current encoding scales and compare observables with
-`expressivity_analyzer`. It returns signed frequency vectors, complex coefficients,
-magnitudes and active counts for RL policies, Q-functions, classifiers and kernels.
+Use `expressivity_analyzer` to inspect a model's current finite Fourier series.
+It supports classifiers, policies, Q-functions, fidelity kernels and projected
+kernel features. Each output has its own complex-coefficient column, including
+both logits of a two-action softmax policy:
 
 ```python
 from qasp import expressivity_analyzer
 
-spectrum = expressivity_analyzer(model, observables=["X 0", "Z 0"])
-print(spectrum.n_frequencies, spectrum.active_counts)
-values = spectrum.evaluate(x)
+before = expressivity_analyzer(policy)
+# Train the same policy with your usual optimizer or QASP trainer.
+after = expressivity_analyzer(policy)
 
-sweep = expressivity_analyzer(model_factory=make_model, qubit_list=[2, 4, 6],
-                             observables=lambda n: ["Z 0", "Z" * n])
+print(after.output_labels)          # ("logit[0]", "logit[1]")
+print(after.coefficients.shape)     # (number_of_frequencies, 2)
+print(before.active_counts, after.active_counts)
+logits = after.evaluate(x)          # reconstruct both logits
+```
+
+The default policy spectrum includes output scaling and the affine head, before
+softmax. Explicit `observables=["X 0", "Z 0"]` selects individual quantum
+expectations instead. Fixed unscaled encodings keep their allowed frequencies;
+learned scales and neural projections can move them. Active counts alone are not
+a measure of predictive quality. Saved spectra remain independent snapshots.
+
+```python
+sweep = expressivity_analyzer(
+    model_factory=make_model, qubit_list=[2, 4, 6, 8],
+    observables=lambda n: ["Z 0", "Z" * n],
+)
 print(sweep.summary())
 ```
 
-For input-coordinate conventions, two-input kernels, analysis limits and a worked
-width comparison, see the [Fourier expressivity guide](docs/expressivity.md).
+The analyzer uses ideal statevector evaluation and a phase grid, which can grow
+exponentially. Simulator scalability does not automatically transfer to spectrum
+analysis. `max_evaluations` bounds the grid per width.
+
+Follow the [interactive expressivity guide](https://andre-sequeira10.github.io/QASP/#/guide/expressivity),
+the [API and mathematical conventions](docs/expressivity.md), and the
+[before/after-training notebook](tutorials/tools/expressivity_training.ipynb).
+The notebook compares a classifier and two policy families, then checks a
+structured qubit sweep through 16 qubits against known analytical spectra.
 
 The legacy `qasp.rl.metrics` module provides probability-variance sampling and
 heuristic Lie-closure utilities. `compute_DLA_generators` returns closure sizes;
