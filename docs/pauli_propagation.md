@@ -77,7 +77,7 @@ without hand-written QNodes. Numerical parity checks live in
 
 | Module | Supported analytic paths | Configuration notes |
 | --- | --- | --- |
-| RL | `PQCSoftmax`, `PQCBornVariance` (the `create_model("PQCBorn", ...)` route), and `PQDQN` | Pauli expectations or Born probabilities; neural PQDQN encodings use `batch_mode="sequential"`, as on other ordinary devices. |
+| RL | `PQCSoftmax`, `PQCBornVariance` (the `create_policy("PQCBorn", ...)` route), and `PQDQN` | Pauli expectations or Born probabilities; neural PQDQN encodings use `batch_mode="sequential"`, as on other ordinary devices. |
 | Classifiers | Expectation and probability readouts, including classical decoders | `PQCClassifier` / `create_classifier`; usual Torch losses and optimizers. |
 | Kernels | Global/local fidelity projectors and projected Pauli kernels | Trainable Gram matrices and parameter gradients; kernel convenience methods retain their existing input-conversion behavior. |
 | Generative learning | Expectation-based MMD and probability-based NLL | `create_qcbm`, default Torch interface; MMD avoids full probability vectors. |

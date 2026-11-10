@@ -145,14 +145,14 @@ def configuration():
 
 @pytest.mark.parametrize("kind", ["classifier", "policy", "pqdqn", "kernel", "pqcbm"])
 def test_bounded_initializers_work_in_both_parameter_groups_with_gradients(kind):
-    from qasp.rl import create_model, create_qfunction
+    from qasp.rl import create_policy, create_qfunction
 
     cfg = configuration()
     if kind == "classifier":
         model = qasp.create_classifier(cfg, 2, 2)
     elif kind == "policy":
         cfg.update(n_actions=2, observables=["Z 0", "Z 1"])
-        model = create_model("PQCSoftmax", cfg, 2)
+        model = create_policy("PQCSoftmax", cfg, 2)
     elif kind == "pqdqn":
         model = create_qfunction({**cfg, "observables": ["Z 0", "Z 1"]}, 2, 2)
     elif kind == "kernel":

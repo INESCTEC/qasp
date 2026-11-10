@@ -113,8 +113,8 @@ _RL_EXPORTS = {
     "cnot_decomposition",
     "_policy_expressivity",
     "_sample_worker_batch",
-    "create_model",
-    "draw_model",
+    "create_policy",
+    "draw_policy",
     "PQCBorn",
     "PQCSoftmax",
     "PQDQN",
@@ -125,15 +125,14 @@ _RL_EXPORTS = {
     "LearnablePQCBorn",
     "FastTruncatedPauliProp",
     "PQCBornWrapper",
-    "TorchRLTrainer",
     "REINFORCE",
     "BanditAWRConfig",
     "ContextualBanditTrainer",
-    "PQCWrapper",
     "WindyTargetNavigationEnv",
 }
 
 _LAZY_EXPORTS = {
+    "expressivity_analyzer": (".diagnostics", "expressivity_analyzer"),
     "barren_plateau_diagnoser": (
         ".diagnostics",
         "barren_plateau_diagnoser",
@@ -177,7 +176,7 @@ __all__ = [
     "recall_score", "f1_score", "confusion_matrix", "roc_auc_score",
     "pr_auc_score", "average_precision_score",
     "classification_metrics", "top_k_accuracy", "log_loss", "brier_score",
-    "barren_plateau_diagnoser",
+    "barren_plateau_diagnoser", "expressivity_analyzer",
     "QUBO", "PauliTerm", "QAOA", "WarmStartQAOA", "RQAOA",
     "RecursiveQAOA", "LRQAOA", "LinearRampQAOA", "PCE",
     "PauliCorrelationEncoding", "OptimizationResult", "RecursiveQAOAResult",
@@ -187,13 +186,13 @@ __all__ = [
     "draw_optimization", "draw_qaoa", "draw_pce", "draw_recursive_qaoa",
     "policy_variance", "compute_DLA_generators", "fourier_analysis", 
     "hadamard_decomposition", "cz_decomposition", "cnot_decomposition", 
-    "_policy_expressivity", "_sample_worker_batch", "create_model", 
+    "_policy_expressivity", "_sample_worker_batch", "create_policy",
     "PQDQN", "create_qfunction", "draw_qfunction", "DeepQLearning",
-    "draw_model", "PQCBorn", "PQCSoftmax", "PQCBornVariance", 
+    "draw_policy", "PQCBorn", "PQCSoftmax", "PQCBornVariance",
     "LearnablePQCBorn", "FastTruncatedPauliProp", "DifferentiablePauliProp",
     "PQCBornWrapper",
-    "TorchRLTrainer", "REINFORCE", "BanditAWRConfig", 
-    "ContextualBanditTrainer", "PQCWrapper", "WindyTargetNavigationEnv"
+    "REINFORCE", "BanditAWRConfig",
+    "ContextualBanditTrainer", "WindyTargetNavigationEnv"
 ]
 
 from .simulators import IQPSimulator, IQPOptions, IQPReport, IQPTNSimulator, IQPTNOptions, DecoderSpec, action_probs

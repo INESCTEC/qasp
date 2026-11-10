@@ -29,7 +29,7 @@ from qasp.simulators import DifferentiablePauliProp
 class PQCBorn(nn.Module):
     """Legacy Born sampler with (action, log_probability) forward output.
 
-    The name differs from create_model("PQCBorn", ...), which constructs the
+    The name differs from create_policy("PQCBorn", ...), which constructs the
     current PQCBornVariance class. Use the latter for decoder-consistent
     probability outputs. This class retains older local-expectation and weight
     setter paths; see their method documentation before using them."""
@@ -693,12 +693,18 @@ class PQCSoftmax(nn.Module):
 
         # x = torch.tanh(x)
 
-        """Return unnormalized single-sample action logits, without input tanh.
+        """Return unnormalized action logits, preserving leading input batch axes.
 
         Execute expectations (or PP), scale them by output_scaling and the optional
         inverse-temperature multiplier, then apply the optional affine head.
-        Statevector output is flattened, so this is not an arbitrary-batch API.
         Use softmax on the final axis or Categorical(logits=...) for probabilities."""
+        if x.ndim > 1:
+            flat = x.reshape(-1, x.shape[-1])
+            if not len(flat):
+                return x.new_empty((*x.shape[:-1], self.n_actions))
+            return torch.stack([self.forward(row, temperature=temperature) for row in flat]).reshape(
+                *x.shape[:-1], -1
+            )
         if self.device == "lightning.pp":
 
             out = self._get_pp_output(x)
@@ -732,23 +738,13 @@ class PQCSoftmax(nn.Module):
         return out
     
     def action_probs(self, x, temperature=None):
-        """Legacy tanh/softmax path over raw layer outputs.
+        """Return action probabilities using tanh inputs and the complete model.
 
-        This method bypasses the affine head, the PP execution route and the
-        trainable output_scaling_weight. It can return a different number of
-        outputs from n_actions when a head is configured. For the complete model
-        use softmax(self.forward(x), dim=-1), with input preprocessing as desired."""
-        x = torch.tanh(x)           # each entry ∈ (-1, 1)
-        out = self.qlayer(x).flatten()
-        #check if output scaling is needed
-        if self.output_scaling is not None:
-            out = out*self.output_scaling
-        if temperature is not None:
-            out = out*temperature
-        
-        #nn functional softmax
-        probs = torch.nn.functional.softmax(out, dim=-1)
-        return probs
+        The configured head, backend and trainable output scale are shared with
+        forward. Leading batch axes are preserved; tanh retains this method's
+        historical input preprocessing.
+        """
+        return torch.softmax(self.forward(torch.tanh(x), temperature=temperature), dim=-1)
 
 class _PolicyDecoder(nn.Module):
     """Precompute a basis-state-to-action map and aggregate with scatter-add.
@@ -1774,9 +1770,9 @@ class LearnablePQCBorn(nn.Module):
 
         n_qubits_measure chooses subset size; all combinations are enumerated.
         The selector uses an affine categorical distribution over subsets, and
-        returns a score-function log probability. This path assumes an instantiated
-        ansatz with a feature_map during setup; class-only configuration is not a
-        complete supported path. Other arguments mirror the legacy Born policy.
+        returns a score-function log probability. Supply a configured circuit
+        builder or ansatz and feature-map classes with their component dictionaries.
+        The selector takes its input dimension from the constructed feature map.
         Use current fixed-decoder policies for validated training examples."""
         super().__init__()   
         self.mpi = mpi
@@ -1787,17 +1783,18 @@ class LearnablePQCBorn(nn.Module):
         if self.circuit_builder is None and ansatz is None:
             raise ValueError("Either circuit_builder or ansatz must be provided.")
         
-        self.ansatz = ansatz if self.circuit_builder is None else self.circuit_builder.ansatz
         self.ansatz_config = ansatz_config
         self.feature_map = feature_map if self.circuit_builder is None else self.circuit_builder.feature_map
         self.feature_map_config = feature_map_config
         self.n_qubits=n_qubits
         self.n_actions=n_actions
         self.policy_type = "LearnablePQCBorn"
-        if self.circuit_builder is not None:
-            self.n_layers=self.circuit_builder.ansatz.n_layers
-        else:
-            self.n_layers=self.ansatz_config["n_layers"]
+        if self.circuit_builder is None:
+            self.fm = self.feature_map(**self.feature_map_config)
+            self.circuit_builder = CircuitBuilder(n_qubits=n_qubits)
+            self.circuit_builder.set_ansatz(ansatz(**self.ansatz_config, feature_map=self.fm))
+        self.ansatz = self.circuit_builder.ansatz
+        self.n_layers = self.ansatz.n_layers
         self.init = init
         self.input_scaling_init = input_scaling_init
         self.diff_method = diff_method
@@ -1839,15 +1836,6 @@ class LearnablePQCBorn(nn.Module):
 
     def build_policy(self):
         """Build a call-time measurement circuit and its TorchLayer for the experimental selector."""
-        if self.circuit_builder is None:
-
-            self.fm = self.feature_map(**self.feature_map_config)
-
-            ans = self.ansatz(**self.ansatz_config, feature_map=self.fm)
-
-            self.circuit_builder = CircuitBuilder(n_qubits=self.n_qubits)
-            self.circuit_builder.set_ansatz(ans)           # pass the IQPAnsatz instance
-
         self.circuit_builder.set_measurement("probs", wires=range(self.n_qubits))
         self.c = self.circuit_builder.build_adaptive(for_torchlayer=True)
 

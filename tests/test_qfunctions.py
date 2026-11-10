@@ -111,9 +111,9 @@ def test_factory_preserves_dictionary_and_serialization():
     restored = PQDQN.from_config(cfg)
     restored.load_state_dict(model.state_dict())
     torch.testing.assert_close(model(torch.ones(4)), restored(torch.ones(4)))
-    from qasp.rl.model import create_model
+    from qasp.rl.model import create_policy
 
-    assert isinstance(create_model("PQDQN", cfg, 4), PQDQN)
+    assert isinstance(create_policy("PQDQN", cfg, 4), PQDQN)
 
 
 @pytest.mark.parametrize("spec", ["", "A 0", "ZZ 0", "Z 4", "ZZ 0 0", "Z", "Z x"])
@@ -207,7 +207,7 @@ def test_circuit_builder_is_copied_and_singleton_batches():
 )
 def test_draw_qfunction_tikz_and_legacy_entry_point(observables):
     from qasp import draw_qfunction
-    from qasp.rl import draw_model
+    from qasp.rl import draw_policy
 
     model = PQDQN(**config(observables=observables)).double()
     # Drawing must preserve trained weights, gradients, and mode.
@@ -223,7 +223,7 @@ def test_draw_qfunction_tikz_and_legacy_entry_point(observables):
     assert r"\begin{quantikz}" in source
     assert r"\theta" in source
     assert source == draw_qfunction(model, output="tex", tikz_options=options)
-    assert source == draw_model(model=model, output="tikz", tikz_options=options)
+    assert source == draw_policy(model=model, output="tikz", tikz_options=options)
     for name, value in model.state_dict().items():
         torch.testing.assert_close(value, before[name])
     for name, value in model.named_parameters():
@@ -233,7 +233,7 @@ def test_draw_qfunction_tikz_and_legacy_entry_point(observables):
 
 
 def test_drawing_from_config_infers_neural_feature_count_without_mutation():
-    from qasp.rl import draw_model, draw_qfunction
+    from qasp.rl import draw_policy, draw_qfunction
 
     cfg = config(
         feature_map="NeuralEmbedding",
@@ -241,7 +241,7 @@ def test_drawing_from_config_infers_neural_feature_count_without_mutation():
     )
     before = deepcopy(cfg)
     assert r"\begin{quantikz}" in draw_qfunction(config=cfg, output="tikz")
-    assert r"\begin{quantikz}" in draw_model(
+    assert r"\begin{quantikz}" in draw_policy(
         policy_class="PQDQN", policy_config_kwargs=cfg, n_qubits=4, output="tikz"
     )
     assert cfg == before

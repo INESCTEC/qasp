@@ -41,9 +41,9 @@ they do not remove optional runtime dependencies.
   installed device, not just the name of a QASP model.
 - A Torch tensor device (CPU/CUDA) and a PennyLane simulator backend are distinct.
   Move a model to its intended dtype/device before creating its optimizer.
-- Factories differ in copying behavior: classifier, kernel and Q-function
-  dictionaries are copied; the legacy policy factory shallow-copies and mutates
-  nested component dictionaries. Deep-copy policy configs before reusing them.
+- Classifier, kernel, policy and Q-function factories copy configuration
+  dictionaries before resolving components. Reusing a configuration does not
+  mutate its nested dictionaries.
 - Model construction does not train it. Sampling/measurement, analytic
   expectation evaluation and classical decoding are separate operations.
 
@@ -112,7 +112,7 @@ for defaults, reproducibility, explicit arrays and optimization models.
 ## Drawing
 
 Source: [TikZ exporter](../qasp/circuits/tikz.py). Application adapters:
-`draw_model`, `draw_classifier`, `draw_kernel`, `draw_qfunction`,
+`draw_policy`, `draw_classifier`, `draw_kernel`, `draw_qfunction`,
 `draw_optimization`, and model `.draw()` methods where exposed.
 
 Use `output="tikz"` to obtain Quantikz/TikZ **source**. `standalone=True` creates a
@@ -121,7 +121,7 @@ with Quantikz. `compress=True` draws a complete first layer and represents later
 layers schematically, with supported reuploading boundaries. Compression does
 not change simulation. Numeric labels describe the supplied weights/input;
 symbolic labels show the parameter structure. In a policy with a
-`NeuralEmbedding`, `draw_model(..., output="tikz",
+`NeuralEmbedding`, `draw_policy(..., output="tikz",
 tikz_options={"symbolic_parameters": True})` labels each encoding angle
 $\langle\mathbf{s},\boldsymbol{\lambda}_j\rangle$ and numbers the ansatz
 angles separately. Reuploading adds the layer index to the projection weight.
@@ -154,7 +154,7 @@ tex = draw_classifier(classifier, inputs=x, output="tikz",
 draw_classifier(classifier, inputs=x, output="tikz", return_tex=False)
 ```
 
-The same flag works with `draw_model`, `draw_qfunction`, `draw_kernel`,
+The same flag works with `draw_policy`, `draw_qfunction`, `draw_kernel`,
 `draw_qcbm`, `draw_qaoa`, `draw_pce`, `draw_recursive_qaoa` and
 `draw_optimization`. For example, pass `x=x, y=y` to a fidelity kernel,
 or `parameters=result` to a QAOA drawing. Assign the default result to
@@ -236,7 +236,7 @@ See [classifier validation](../examples/quantum_classifiers_sklearn_validation.i
 
 Sources: [kernel models](../qasp/qkernels/quantum_kernels.py),
 [factory](../qasp/qkernels/factory.py), [alignment](../qasp/qkernels/kta.py),
-[legacy Fisher kernel](../qasp/qkernels/kernels.py).
+[Fisher score kernel](../qasp/qkernels/kernels.py).
 
 `FidelityKernel` measures the global all-zero projector on the overlap circuit
 by default. Explicit projector labels such as `"P 0 2"` define localized
@@ -267,10 +267,24 @@ K = kernel.gram(np.array([[0.1, 0.2], [0.3, -0.2]]))
 assert K.shape == (2, 2)
 ```
 
-The legacy `QFKernel` uses probability-score vectors and a regularized Fisher
-inverse. It enumerates measured outcomes, can divide by zero probabilities, and
-its `normalize` option is currently unused. These restrictions differ from the
-modern fidelity/projected API. See [kernel validation](../examples/iqp_quantum_kernels_validation.ipynb).
+`QFKernel` uses probability-score vectors and regularized classical or quantum
+Fisher information. Its inputs are measured bit strings, not continuous feature
+vectors. Pass a probability-returning QNode and its reference parameters;
+Torch tensors and PennyLane NumPy arrays are supported. Encoding-only circuits
+can use input scales as the reference parameters at a fixed feature vector.
+The kernel is a fixed numerical snapshot and enumerates all outcomes, so it is
+intended for small measured registers. Querying zero-probability outcomes raises
+an explicit error. `normalize=True` gives unit diagonals for nonzero scores;
+use `normalize=False` for the raw Fisher inner product (the behavior of older
+releases, which ignored the normalization flag). Both Matplotlib and TikZ are
+available through `draw_kernel`.
+
+Quantum Fisher requires a compatible metric circuit and sometimes an extra
+wire. Its auxiliary circuits may fall outside strict IQP simulation even when
+the original probability circuit is IQP. Classical Fisher works with QASP's
+Torch probability-capable TN and Pauli engines. Explicit VN and PennyLane's
+MPS/TN devices cannot provide the required full probability vector. See
+[configuration coverage and examples](configuration_validation.md).
 
 ## Optimization
 
@@ -320,13 +334,14 @@ Sources: [policies](../qasp/rl/policies.py), [factory/drawing](../qasp/rl/model.
 
 | Model/API | Returned quantity | Readout distinction |
 | --- | --- | --- |
-| `create_model("PQCBorn", ...)` | `PQCBornVariance` action probabilities | Fixed basis decoder; probability, supported moment reconstruction or majority sparse projectors |
+| `create_policy("PQCBorn", ...)` | `PQCBornVariance` action probabilities | Fixed basis decoder; probability, supported moment reconstruction or majority sparse projectors |
 | `PQCSoftmax.forward` | Action logits | Expectations, scaling and optional **biased** affine head; apply categorical softmax afterward |
 | `PQDQN.forward` / `q_values` | Unconstrained Q-values | Observable features, optional affine head; no softmax |
 | Direct legacy `PQCBorn.forward` | Sampled action and log probability | Historical interface, not the factory's current Born model |
 
-`PQCSoftmax.action_probs()` is a legacy shortcut: it bypasses its classical head,
-PP route and trainable scaling. Use its `forward()` with a logits-aware trainer.
+`PQCSoftmax.forward()` preserves leading batch axes and returns logits.
+`action_probs()` applies its historical tanh input preprocessing and softmax to
+the complete model, including its head, backend and trainable output scaling.
 Its head is disabled by `fc_layer=None`; even `False` currently creates a head.
 PQDQN instead validates `fc_layer` as a boolean.
 
@@ -377,7 +392,6 @@ readout metadata and the corrected experiments.
 | `Reinforce` + `ReinforceConfig` | Separate Monte Carlo implementation with online normalization | Different configuration, learning-rate groups and stopping rules; not an alias of `REINFORCE` |
 | `PPO` | Clipped likelihood ratios and GAE with separate critic | Resets each rollout; both termination and truncation mask GAE; environment time limit applies |
 | `ContextualBanditTrainer` | Advantage-weighted regression from one-step replay | Requires a probability-compatible policy interface |
-| `TorchRLTrainer` | Adapter to external TorchRL actors/losses | Optional dependency/API compatibility; reporting averages are training returns |
 
 `DeepQLearning` owns environments created by name and closes them through its
 context manager. Caller-supplied environment instances remain caller-owned;
@@ -391,8 +405,7 @@ actions, with inertial motion, wind and successive waypoints.
 its nominal oracle/bounds assume nonnegative reward scaling and the normalized
 oracle omits the step formula's epsilon adjustment.
 
-`LearnablePQCBorn` and `rl.trl.TorchRLTrainer` are historical prototypes with
-known setup/postprocessing limitations. They should not be described as validated
+`LearnablePQCBorn` is a historical prototype with known setup/postprocessing limitations. It should not be described as validated
 adaptive-measurement or general PPO support. Legacy policy weight setters may
 call a nonexistent QNode method; use Torch state dictionaries instead.
 
@@ -483,6 +496,10 @@ A PQDQN is classified as a generic model: supply a scalar
 `cost_function(model, state)`, such as a selected Q-value or actual TD loss.
 Do not label cost concentration alone proof of a barren plateau or inability
 to learn. See [diagnostic validation](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/barren_plateau_diagnoser_validation.ipynb).
+
+The [Fourier expressivity analyzer](expressivity.md) computes signed frequencies and
+observable-specific coefficients for policies, Q-functions, classifiers and kernels.
+It supports trained encoding scales and width sweeps.
 
 [Legacy RL metrics](../qasp/rl/metrics.py) retain `policy_variance` and heuristic
 Lie-closure utilities. `compute_DLA_generators` returns closure **sizes**, not
@@ -577,4 +594,3 @@ notebook cells and external dependencies are outside its denominator.
 | [qasp/rl/qfunctions/models.py](../qasp/rl/qfunctions/models.py) | Parametrized quantum deep Q-networks built from QASP circuits. |
 | [qasp/rl/qfunctions/observables.py](../qasp/rl/qfunctions/observables.py) | Pauli features from the exact Z support of QASP decoder projectors. |
 | [qasp/rl/torchrl.py](../qasp/rl/torchrl.py) | Discrete-action RL trainers, baselines and a synthetic contextual bandit. |
-| [qasp/rl/trl.py](../qasp/rl/trl.py) | Historical TorchRL PPO prototype; use qasp.rl.torchrl for maintained trainers. |

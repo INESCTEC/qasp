@@ -7,7 +7,7 @@ import torch
 
 from qasp import IQPSimulator, CircuitBuilder, IQPAnsatz
 from qasp.feature_maps import AngleEmbedding
-from qasp.rl.model import create_model
+from qasp.rl.model import create_policy
 from qasp.classifiers import PQCClassifier
 from qasp.qkernels import create_kernel
 from qasp.genlearn import create_qcbm
@@ -42,8 +42,8 @@ def test_rl_neural_public_dictionary_adam_and_input_gradients(backend):
         "shots":None,"diff_method":"backprop",
     }
     torch.manual_seed(21)
-    model=create_model("PQCSoftmax",deepcopy(config),n_qubits=3).double()
-    reference=create_model("PQCSoftmax",{**deepcopy(config),"device":"default.qubit","device_kwargs":None},n_qubits=3).double()
+    model=create_policy("PQCSoftmax",deepcopy(config),n_qubits=3).double()
+    reference=create_policy("PQCSoftmax",{**deepcopy(config),"device":"default.qubit","device_kwargs":None},n_qubits=3).double()
     reference.load_state_dict(model.state_dict())
     optimizers=[torch.optim.Adam(m.parameters(),lr=.01) for m in (model,reference)]
     for step in range(2):
@@ -144,8 +144,8 @@ def test_born_policy_compact_readout_stays_exact():
             "n_actions":2,"policy":"majority-modulo","training_method":"probs",
             "parity_cnot_decomposition":False,"device":"IQPSimulator","device_kwargs":{"backend":"auto"},
             "diff_method":"backprop","shots":None}
-    a=create_model("PQCBorn",deepcopy(config),n_qubits=3)
-    b=create_model("PQCBorn",{**deepcopy(config),"device":"default.qubit","device_kwargs":None},n_qubits=3)
+    a=create_policy("PQCBorn",deepcopy(config),n_qubits=3)
+    b=create_policy("PQCBorn",{**deepcopy(config),"device":"default.qubit","device_kwargs":None},n_qubits=3)
     b.load_state_dict(a.state_dict())
     x=torch.tensor([.2,.3,-.1])
     torch.testing.assert_close(a(x),b(x),atol=2e-6,rtol=2e-6)

@@ -6,7 +6,7 @@ import pytest
 import torch
 
 from qasp import IQPTNSimulator, DecoderSpec, action_probs
-from qasp.rl.model import create_model
+from qasp.rl.model import create_policy
 from qasp.simulators import UnsupportedIQP
 
 
@@ -118,8 +118,8 @@ def test_rl_dictionary_factory_backprop_and_adam(ansatz,decoder,device):
     }
     if decoder=='majority-modulo': config['majority_blocks']=[[0],[1,2]]
     torch.manual_seed(29)
-    model=create_model('PQCBorn',deepcopy(config),n_qubits=3).double()
-    ref=create_model('PQCBorn',{**deepcopy(config),'device':'default.qubit'},n_qubits=3).double()
+    model=create_policy('PQCBorn',deepcopy(config),n_qubits=3).double()
+    ref=create_policy('PQCBorn',{**deepcopy(config),'device':'default.qubit'},n_qubits=3).double()
     ref.load_state_dict(model.state_dict())
     # Avoid magnifying round-off in mathematically zero gradients into
     # backend-dependent updates; retain the strict value/gradient tolerances.
@@ -164,8 +164,8 @@ def test_neural_commuting_policy_encoder_input_and_adam(readout):
     selector = 'PQCBorn' if readout == 'born' else 'PQCSoftmax'
     torch.manual_seed(2026)
     device = IQPTNSimulator(n, inference_execution='torchscript')
-    actual = create_model(selector, {**deepcopy(config), 'device': device}, n_qubits=n).double()
-    reference = create_model(selector, {**deepcopy(config), 'device': 'default.qubit'}, n_qubits=n).double()
+    actual = create_policy(selector, {**deepcopy(config), 'device': device}, n_qubits=n).double()
+    reference = create_policy(selector, {**deepcopy(config), 'device': 'default.qubit'}, n_qubits=n).double()
     reference.load_state_dict(actual.state_dict())
     optimizers = [torch.optim.Adam(m.parameters(), lr=.01) for m in (actual, reference)]
     def probs(model, x):

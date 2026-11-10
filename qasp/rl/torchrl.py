@@ -3,7 +3,7 @@
 DeepQLearning consumes unconstrained Q-values; policy-gradient trainers consume
 probabilities or logits according to their configuration. REINFORCE and
 Reinforce are distinct implementations, not aliases. PPO is a direct Gymnasium/
-Torch implementation; TorchRLTrainer is the optional external TorchRL adapter.
+Torch implementation. PQCBornWrapper adapts policies to external TorchRL actors.
 Simulator execution device and Torch tensor device are separate choices.
 
 Trainer-specific preprocessing, stopping rules and truncation handling differ;
@@ -14,11 +14,7 @@ import torch
 import torch.nn as nn
 import torch.distributions as D
 from collections import deque
-from typing import Any, Optional, Type, Union
 
-from tensordict.nn import TensorDictModule
-#from torchrl.modules import ProbabilisticActor
-from tensordict import TensorDict
 
 
 
@@ -44,303 +40,8 @@ class PQCBornWrapper(nn.Module):
         return self.pqc.action_probs(obs)
 
 
-# -----------------------------------------------------------------------------
-# Trainer – manual REINFORCE *or* any TorchRL loss class
-# -----------------------------------------------------------------------------
 
 
-class TorchRLTrainer:
-    """Episode-based training loop.
-
-    If loss_class == "REINFORCE": manual REINFORCE (no critic) with grad-safe logp recomputation.
-    Otherwise: TorchRL loss module.
-    """
-
-    def __init__(
-        self,
-        pqc: "PQCBorn",
-        env_name: str,
-        *,
-        lr: float = 3e-3,
-        optimizer_class: Type[torch.optim.Optimizer] = torch.optim.Adam,
-        loss_class: Union[str, Type[nn.Module]] = "REINFORCE",
-        loss_kwargs: Optional[dict] = None,
-        gamma: float = 0.99,
-        max_steps: int = 1000,
-        wandb: bool = False,
-        wandb_project: str = "pqc_rl",
-        **wandb_kwargs: Any,
-    ) -> None:
-        """Create a TorchRL environment, probabilistic actor and optimizer.
-
-        pqc must provide differentiable action_probs. env_name identifies the Gym
-        environment. loss_class='REINFORCE' or None enables the manual Monte Carlo
-        loss; otherwise pass a loss class accepting actor_network plus loss_kwargs.
-        lr/optimizer_class configure updates, gamma discounts rewards, and max_steps
-        caps each rollout. wandb=True initializes a logging run with the supplied
-        project/options. External TorchRL/TensorDict dependencies are required."""
-        self.gamma = gamma
-        self.max_steps = max_steps
-        self.use_manual = loss_class == "REINFORCE" or loss_class is None
-        self.loss_class = loss_class if not self.use_manual else None
-        self.loss_kwargs = loss_kwargs or {}
-
-        # ---------------- Logging ----------------
-        self.wandb = wandb
-        if self.wandb:
-            import wandb as _wandb
-            self._wandb = _wandb
-            self._wandb.init(project=wandb_project, **wandb_kwargs)
-
-        # ---------------- Environment ------------
-        from torchrl.envs import GymEnv
-        self.env = GymEnv(env_name, from_pixels=False)
-        self.obs_dim = self._flat_obs_dim(self.env.observation_spec)
-
-        # ---------------- Actor -------------------
-        self.actor = self._build_actor(pqc, self.env.action_spec)
-
-        # Keep a handle to the PQC (for grabbing any non-Parameter trainables)
-        self.pqc = pqc
-
-        # ---------------- Loss (optional) ---------
-        if not self.use_manual:
-            self.loss_module = self._build_torch_loss()
-
-        # ---------------- Optimiser --------------
-        self.lr = lr
-        params = self._collect_optim_params()
-        self.optim = optimizer_class(params, lr=self.lr)
-
-        # ---------------- Stats ------------------
-        self.frame_count = 0
-        self._last_batch_loss_val: float = float("nan")
-
-    # =====================================================================
-    # Public API
-    # =====================================================================
-
-    def train(
-        self,
-        num_episodes: int = 500,
-        *,
-        batch_episodes: int = 1,
-        eval_every: int = 10,
-        eval_avg_reward: int = 20,
-    ):
-        """Collect num_episodes rollouts and update on batches of complete episodes.
-
-        Returns None; recent_returns, frame_count and last loss are stored on the
-        trainer. eval_every prints a rolling training-return mean over
-        eval_avg_reward episodes, not an independent evaluation. A final incomplete
-        batch is not optimized. Nonfinite losses are skipped; absence of nonzero
-        finite parameter gradients raises RuntimeError. Gradients are clipped to 1."""
-        self.recent_returns = deque(maxlen=eval_avg_reward)
-        batch_loss_acc: list[torch.Tensor] = []
-
-        for ep in range(1, num_episodes + 1):
-            td = self.env.rollout(max_steps=self.max_steps, policy=self.actor)
-
-            ep_return = td["next", "reward"].sum().item()
-            self.recent_returns.append(ep_return)
-            self.frame_count += td["next", "reward"].numel()
-
-            if self.use_manual:
-                ep_loss = self._manual_reinforce_loss(td)
-            else:
-                loss_dict = self.loss_module(td)
-                ep_loss = torch.stack([v for v in loss_dict.values() if torch.is_tensor(v)]).sum()
-
-            batch_loss_acc.append(ep_loss)
-
-            if len(batch_loss_acc) == batch_episodes:
-                self.optim.zero_grad(set_to_none=True)
-                loss = torch.stack(batch_loss_acc).mean()
-
-                if not torch.isfinite(loss):
-                    print(f"[WARN] Non-finite loss at ep {ep}: {float(loss.detach().cpu().item())}")
-                    batch_loss_acc.clear()
-                    continue
-
-                loss.backward()
-
-                # ---- ASSERT: something must receive gradient ----
-                got_grad = False
-                for p in self._all_trainables():
-                    if p.grad is not None and torch.isfinite(p.grad).all() and p.grad.abs().sum().item() > 0:
-                        got_grad = True
-                        break
-                if not got_grad:
-                    raise RuntimeError(
-                        "No gradients reached PQC parameters. "
-                        "Likely pqc.action_probs() detaches/uses numpy or qnode output is detached, "
-                        "or your trainables are not leaf tensors requiring grad."
-                    )
-
-                torch.nn.utils.clip_grad_norm_(self._all_trainables(), max_norm=1.0)
-                self.optim.step()
-
-                self._last_batch_loss_val = float(loss.detach().cpu().item())
-                batch_loss_acc.clear()
-
-                if self.wandb:
-                    self._wandb.log({
-                        "train/total_loss": self._last_batch_loss_val,
-                        "global_step": self.frame_count,
-                    })
-
-            if self.wandb:
-                self._wandb.log({
-                    "train/episode_reward": ep_return,
-                    "train/total_loss": self._last_batch_loss_val,
-                    "global_step": self.frame_count,
-                })
-
-            if ep % eval_every == 0:
-                avg = sum(self.recent_returns) / len(self.recent_returns)
-                print(f"Episode {ep:04d} | AvgReward(last {eval_avg_reward}) = {avg:.2f}")
-
-                # (optional) quick check: print a single parameter value
-                # so you can see it changing.
-                self._debug_print_one_param()
-
-                if self.wandb:
-                    self._wandb.log({
-                        "eval/avg_return_last20": avg,
-                        "global_step": self.frame_count,
-                    })
-
-    # =====================================================================
-    # Internal helpers
-    # =====================================================================
-
-    @staticmethod
-    def _safe_probs(probs: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
-        """Replace nonfinite weights, clamp positive and normalize the final probability axis."""
-        probs = torch.nan_to_num(probs, nan=0.0, posinf=0.0, neginf=0.0)
-        probs = probs.clamp_min(eps)
-        probs = probs / probs.sum(dim=-1, keepdim=True)
-        return probs
-
-    def _manual_reinforce_loss(self, td):
-        """
-        Manual REINFORCE with grad-safe logp recomputation.
-
-        We DO NOT use td["sample_log_prob"] because rollout often detaches it.
-        """
-        r = td["next", "reward"].squeeze(-1)
-        done = td["next", "done"].squeeze(-1).to(r.dtype)
-        a = td["action"].squeeze(-1)          # [T]
-        obs = td["observation"]               # [T, obs_dim] (typical)
-
-        # Recompute probs WITH grad through the same wrapper used by the actor:
-        td_in = TensorDict({"observation": obs}, batch_size=obs.shape[0])
-        td_out = self.actor.module(td_in)     # TensorDictModule, should preserve graph
-        probs = td_out["probs"]
-
-        probs = self._safe_probs(probs)
-        logp = torch.log(probs.gather(-1, a.unsqueeze(-1)).squeeze(-1))  # [T]
-
-        # discounted returns with termination handling
-        returns = torch.zeros_like(r)
-        running = 0.0
-        for t in reversed(range(len(r))):
-            running = r[t] + self.gamma * running * (1.0 - done[t])
-            returns[t] = running
-
-        returns = (returns - returns.mean()) / (returns.std() + 1e-8)
-        return -(returns.detach() * logp).sum()
-
-    def _flat_obs_dim(self, obs_spec):
-        """Infer feature count from a TorchRL observation spec, summing composite components."""
-        from torchrl.data import CompositeSpec
-        if isinstance(obs_spec, CompositeSpec):
-            return sum(int(torch.tensor(s.shape).prod()) for s in obs_spec.values())
-        return obs_spec.shape[-1]
-
-    def _build_actor(self, pqc, action_spec):
-        """Wrap action_probs in a TensorDictModule and categorical ProbabilisticActor."""
-        wrapper = PQCBornWrapper(pqc, obs_dim=self.obs_dim)
-        td_mod = TensorDictModule(wrapper, in_keys=["observation"], out_keys=["probs"])
-        return ProbabilisticActor(
-            module=td_mod,
-            in_keys=["probs"],
-            distribution_class=D.Categorical,
-            return_log_prob=True,
-        )
-
-    def _build_torch_loss(self):
-        """Instantiate the supplied loss class with actor_network and additional loss kwargs."""
-        loss_cls = self.loss_class
-        kwargs = {"actor_network": self.actor, **self.loss_kwargs}
-        return loss_cls(**kwargs)
-
-    # ------------------- Optimizer param collection -------------------
-
-    def _collect_optim_params(self):
-        """
-        Build optimizer param list that includes:
-          - standard nn.Parameters from actor (includes wrapper + pqc if properly registered)
-          - PLUS any leaf tensors (NOT nn.Parameter) named 'params'/'input_scaling_params'
-            inside pqc.qlayer (common if these were registered as buffers/plain tensors).
-        """
-        params = list(self.actor.parameters())
-
-        # Add qlayer extra tensors if they exist and require grad
-        qlayer = getattr(self.pqc, "qlayer", None)
-        if qlayer is not None:
-            for name in ("params", "input_scaling_params"):
-                t = getattr(qlayer, name, None)
-                if isinstance(t, torch.Tensor) and t.requires_grad:
-                    # if it's already a Parameter, it will already be in actor.parameters()
-                    if not isinstance(t, nn.Parameter):
-                        # only leaf tensors can be optimized
-                        if not t.is_leaf:
-                            raise RuntimeError(
-                                f"Found trainable tensor qlayer.{name} but it is not a leaf tensor; "
-                                "make it an nn.Parameter in your model."
-                            )
-                        params.append(t)
-
-        if len(params) == 0:
-            raise RuntimeError("Optimizer got zero parameters — actor/pqc has no trainables.")
-
-        return params
-
-    def _all_trainables(self):
-        """Return a flat list of tensors that optimizer steps over (Parameters + extra tensors)."""
-        trainables: list[torch.Tensor] = []
-        for p in self.actor.parameters():
-            if p.requires_grad:
-                trainables.append(p)
-
-        qlayer = getattr(self.pqc, "qlayer", None)
-        if qlayer is not None:
-            for name in ("params", "input_scaling_params"):
-                t = getattr(qlayer, name, None)
-                if isinstance(t, torch.Tensor) and t.requires_grad and not isinstance(t, nn.Parameter):
-                    trainables.append(t)
-
-        return trainables
-
-    def _debug_print_one_param(self):
-        """Print one representative param value so you can see updates."""
-        # Try common qlayer tensors first:
-        qlayer = getattr(self.pqc, "qlayer", None)
-        if qlayer is not None:
-            for name in ("params", "input_scaling_params"):
-                t = getattr(qlayer, name, None)
-                if isinstance(t, torch.Tensor):
-                    v = float(t.flatten()[0].detach().cpu().item())
-                    print(f"  [debug] qlayer.{name}[0] = {v:.6f}")
-                    return
-
-        # fallback: any actor parameter
-        for n, p in self.actor.named_parameters():
-            if p.requires_grad:
-                v = float(p.flatten()[0].detach().cpu().item())
-                print(f"  [debug] actor.{n}[0] = {v:.6f}")
-                return
 
 # ======================================================================
 # Low-complexity upgraded REINFORCE for PQC policies
@@ -1355,8 +1056,8 @@ Improvements over vanilla REINFORCE that matter specifically for PQC training:
                                    SOLVED_WINDOW consecutive evaluation episodes.
 
 Usage:
-    from qasp import create_model
-    policy = create_model("PQCBorn", policy_model_config, n_qubits=n_qubits)
+    from qasp import create_policy
+    policy = create_policy("PQCBorn", policy_model_config, n_qubits=n_qubits)
     trainer = Reinforce(policy, env_name="CartPole-v1")
     trainer.train()
 """
@@ -1568,7 +1269,7 @@ class Reinforce:
         config:   ReinforceConfig dataclass.  Defaults tuned for CartPole-v1.
 
     Example:
-        policy  = create_model("PQCBorn", policy_model_config, n_qubits=n_qubits)
+        policy  = create_policy("PQCBorn", policy_model_config, n_qubits=n_qubits)
         trainer = Reinforce(policy)
         trainer.train()
     """
@@ -1987,7 +1688,7 @@ class PPO:
     is not carried into the next rollout. Termination and time-limit truncation
     both mask GAE bootstrapping. max_steps is retained but not enforced by the
     collector; use the environment's time limit. See train for return records
-    and the full-window stopping check. This is distinct from TorchRLTrainer."""
+    and the full-window stopping check. The rollout length is controlled by steps_per_rollout."""
 
     policy: nn.Module
     env_name: str = "CartPole-v1"

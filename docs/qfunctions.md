@@ -35,7 +35,7 @@ config = {
 }
 model = create_qfunction(config, n_qubits=4, n_actions=2)
 # Equivalent: PQDQN.from_config(config, n_qubits=4, n_actions=2).
-# Legacy factory: create_model("PQDQN", config_with_n_actions, n_qubits=4).
+# Legacy factory: create_policy("PQDQN", config_with_n_actions, n_qubits=4).
 
 with DeepQLearning(model, "CartPole-v1", seed=7) as trainer:
     history = trainer.train(num_episodes=500)
@@ -245,8 +245,8 @@ print(model.draw(output="text"))
 The equivalent helper is `qasp.rl.draw_qfunction(model, output="tikz")`. To
 construct and draw directly from a dictionary, use
 `draw_qfunction(config=config, n_qubits=4, n_actions=2, output="tikz")`.
-The existing `draw_model(model=model, output="tikz")` and
-`draw_model(policy_class="PQDQN", policy_config_kwargs=config_with_n_actions,
+The existing `draw_policy(model=model, output="tikz")` and
+`draw_policy(policy_class="PQDQN", policy_config_kwargs=config_with_n_actions,
 n_qubits=4, output="tikz")` entry points also support PQDQN.
 
 Omitted inputs use a zero vector with the configured feature count. Supply one

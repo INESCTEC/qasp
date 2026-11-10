@@ -134,8 +134,13 @@ class EncodingAnsatz:
                 self.feature_map(inputs)
 
     def get_param_shapes(self):
-        # no variational parameters
-        """Return [(0,)] to satisfy CircuitBuilder without allocating variational parameters."""
+        """Describe optional trainable encoding weights and an empty ansatz block."""
+        if self.feature_map is not None and self.feature_map.input_scaling:
+            count = getattr(self.feature_map, 'features', None) or self.n_qubits
+            if isinstance(self.feature_map, NeuralEmbedding):
+                count *= (self.n_qubits if isinstance(self.feature_map.rotations, str)
+                          else len(self.feature_map.rotations))
+            return [(count,), (0,)]
         return [(0,)]
 
 

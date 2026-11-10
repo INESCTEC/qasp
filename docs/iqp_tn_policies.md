@@ -6,7 +6,7 @@ The unified [IQPSimulator](iqp_simulator.md) also works with these policy config
 
 Set `"device": "IQPTNSimulator"` in the ordinary QASP policy configuration.
 There is no custom policy wrapper and no need to import an example module.
-`create_model("PQCBorn", config, n_qubits=...)` builds the current
+`create_policy("PQCBorn", config, n_qubits=...)` builds the current
 `qasp.rl.policies.PQCBornVariance`; `"PQCSoftmax"` builds `PQCSoftmax`.
 
 The [executed notebook](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/iqp_tn_rl_policies.ipynb) shows the complete
@@ -22,7 +22,7 @@ public policy API or required by the notebook.
 from copy import deepcopy
 import numpy as np
 import torch
-from qasp.rl.model import create_model
+from qasp.rl.model import create_policy
 from qasp.rl.policies import PQCBornVariance
 
 n_qubits = 5
@@ -47,7 +47,7 @@ policy_config = {
     "diff_method": "backprop",
     "shots": None,
 }
-policy = create_model("PQCBorn", deepcopy(policy_config), n_qubits=n_qubits).double()
+policy = create_policy("PQCBorn", deepcopy(policy_config), n_qubits=n_qubits).double()
 assert isinstance(policy, PQCBornVariance)
 observation = torch.tensor([.2, -.4, .3, .1], dtype=torch.float64)
 probabilities = policy(observation)
@@ -113,7 +113,7 @@ angle_config["ansatz_config"] = {
     "reuploading": True,
 }
 angle_config["feature_map_config"]["rotations"] = ["X 0", "X 1", "X 2", "X 3"]
-angle_policy = create_model("PQCBorn", deepcopy(angle_config), n_qubits=n_qubits).double()
+angle_policy = create_policy("PQCBorn", deepcopy(angle_config), n_qubits=n_qubits).double()
 print("Commuting-X probabilities:", angle_policy(observation).detach().tolist())
 print("Executed backend:", angle_policy.circuit.device.last_report.selected)
 assert angle_policy.circuit.device.last_report.selected == "IQPTNSimulator"
@@ -146,7 +146,7 @@ The same commuting AngleAnsatz can learn its input projection:
 neural_config = deepcopy(angle_config)
 neural_config["feature_map"] = "NeuralEmbedding"
 neural_config["feature_map_config"] = {"features": 4, "rotations": "X"}
-neural_policy = create_model("PQCBorn", deepcopy(neural_config), n_qubits=n_qubits).double()
+neural_policy = create_policy("PQCBorn", deepcopy(neural_config), n_qubits=n_qubits).double()
 x = observation.clone().requires_grad_()
 loss = -neural_policy(x)[1].log()
 loss.backward()
@@ -196,7 +196,7 @@ from qasp import IQPTNSimulator
 
 optimized_config = deepcopy(angle_config)
 optimized_config["device"] = IQPTNSimulator(n_qubits, inference_execution="torchscript")
-optimized_policy = create_model("PQCBorn", optimized_config, n_qubits=n_qubits).double()
+optimized_policy = create_policy("PQCBorn", optimized_config, n_qubits=n_qubits).double()
 with torch.no_grad():
     optimized_policy(observation)  # warmup
     p = optimized_policy(observation)
@@ -213,7 +213,7 @@ subsequent calls reuse contractions with current parameters. Training outside
 that context keeps eager autograd. `policy.eval()` alone does not disable
 recording. Recompute rollout probabilities with autograd before training.
 
-For `PQCSoftmax`, construct it through `create_model("PQCSoftmax", config, ...)`
+For `PQCSoftmax`, construct it through `create_policy("PQCSoftmax", config, ...)`
 and use `Categorical(logits=policy(observation))` to include its trainable head.
 Its legacy `action_probs()` shortcut bypasses that head. The notebook shows a
 complete dictionary and optimizer step on the commuting AngleAnsatz.

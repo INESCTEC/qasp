@@ -43,10 +43,11 @@ with execution and gradient methods chosen for each circuit and readout.
 - [Top-level API](#top-level-api)
 - [Distributed statevector simulation (MPI)](#distributed-statevector-simulation-mpi)
 - [Manual circuit construction example](#manual-circuit-construction-example)
-- [High level RL policies from dictionaries and `create_model`](#high-level-rl-policies-from-dictionaries-and-create_model)
+- [High level RL policies from dictionaries and `create_policy`](#high-level-rl-policies-from-dictionaries-and-create_policy)
 - [Reinforcement learning example with REINFORCE](#reinforcement-learning-example-with-reinforce)
 - [Policy classes in `qasp.rl.policies`](#policy-classes-in-qasprlpolicies)
 - [Trainability and analysis utilities](#trainability-and-analysis-utilities)
+- [Fourier expressivity before and after training](#fourier-expressivity)
 - [Notebooks and example scripts](#notebooks-and-example-scripts)
 - [End-to-end CartPole examples](#end-to-end-cartpole-examples)
 - [Citing QASP](#citing-qasp)
@@ -58,6 +59,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - Build PQCs from composable **feature maps** and **ansätze**
 - Train **Born** and **softmax** policies on Gym/Gymnasium-style environments
 - Run lightweight **REINFORCE** training loops directly from QASP
+- Inspect each model output with **Fourier expressivity analysis**: complex coefficients, learned input frequencies, qubit sweeps, and before/after-training comparisons
 - Evaluate trainability with utilities such as:
   - model-agnostic cost-concentration diagnosis,
   - policy variance,
@@ -131,8 +133,19 @@ contains the full mathematical and performance study.
 
 ## Installation
 
-QASP **0.1.3** is an alpha research release. It requires **Python 3.10 or
-newer**, subject to dependency support; Python 3.12 is a tested starting point.
+QASP is an alpha research package. It requires **Python 3.10 or newer**,
+subject to dependency support; Python 3.12 is a tested starting point.
+
+**These examples follow GitHub main.** The `create_policy` / `draw_policy`
+helpers and Fourier expressivity analyzer are available in the source installation
+below and will be included in the next PyPI release. Install main to use them:
+
+```bash
+python -m pip install "qasp @ git+https://github.com/INESCTEC/qasp.git@main"
+```
+
+In existing code, update policy-factory and drawing imports/calls to
+`create_policy` and `draw_policy`. Their arguments and behavior are unchanged.
 
 ### From PyPI
 
@@ -428,7 +441,7 @@ qasp/
 ├── devices.py              # Shared device/MPI option handling
 ├── initialization.py       # Reusable NumPy/Torch parameter distributions
 └── rl/
-    ├── model.py            # create_model, draw_model
+    ├── model.py            # create_policy, draw_policy
     ├── policies.py         # PQCBorn, PQCSoftmax, related policy classes
     ├── metrics.py          # Legacy probability variance / heuristic Lie closure
     ├── pp_sim.py           # truncated Pauli propagation simulator
@@ -472,7 +485,7 @@ config = {
 classifier = create_classifier(config, n_qubits=4, n_classes=2)
 ```
 
-The same `init` and `input_scaling_init` settings work with `create_model`,
+The same `init` and `input_scaling_init` settings work with `create_policy`,
 `create_qfunction`, trainable `create_kernel` models, and `create_qcbm`.
 They apply to every reuploading layer and to `NeuralEmbedding` projection
 weights. Classical output heads keep their existing initialization.
@@ -1086,15 +1099,14 @@ gradients, and precomputed-kernel SVMs for every kernel class, run
 
 ### RL / training / analysis
 
-- `create_model`
-- `draw_model`
+- `create_policy`
+- `draw_policy`
 - `PQCBorn`
 - `PQCSoftmax`
 - `PQCBornVariance`
 - `LearnablePQCBorn`
 - `FastTruncatedPauliProp`
 - `REINFORCE`
-- `TorchRLTrainer`
 - `ContextualBanditTrainer`
 - `policy_variance`
 - `compute_DLA_generators`
@@ -1287,14 +1299,14 @@ This lower-level workflow is useful when:
 
 ---
 
-## High level RL policies from dictionaries and `create_model`
+## High level RL policies from dictionaries and `create_policy`
 
 This is the main high-level workflow for reinforcement learning with QASP.
 
 <!-- readme-circuit: neural_policy -->
 
 ```python
-from qasp import create_model, draw_model
+from qasp import create_policy, draw_policy
 import torch
 
 n_qubits = 6
@@ -1332,13 +1344,13 @@ policy_model_config = {
     "observables": observables,
 }
 
-policy = create_model("PQCSoftmax", policy_model_config, n_qubits=n_qubits)
+policy = create_policy("PQCSoftmax", policy_model_config, n_qubits=n_qubits)
 ```
 
 To visualize the resulting circuit:
 
 ```python
-draw_model(
+draw_policy(
     model=policy,
     policy_class="PQCSoftmax",
     n_qubits=n_qubits,
@@ -1356,7 +1368,7 @@ Open the vector PDF to inspect the individual gates at full size.
 <!-- readme-circuit: neural_policy -> neural_policy.tex -->
 
 ```python
-draw_model(
+draw_policy(
     model=policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True},
 )
@@ -1432,7 +1444,7 @@ prefix visible, draws every gate in the first variational layer inside a dashed
 blocks:
 
 ```python
-draw_model(
+draw_policy(
     model=policy,
     inputs=torch.zeros(4),
     output="tikz", return_tex=False,
@@ -1566,14 +1578,15 @@ QASP currently exposes several policy-model families.
 ### `PQCBorn`
 
 The direct class is a legacy sampler whose `forward` returns an action and log
-probability. The factory selector `create_model("PQCBorn", ...)` instead constructs
+probability. The factory selector `create_policy("PQCBorn", ...)` instead constructs
 `PQCBornVariance`, the current probability-returning decoder model.
 
 ### `PQCSoftmax`
 
 An expectation-score model with an optional biased affine head. `forward()`
-returns logits; use a logits-aware trainer or `Categorical(logits=...)`. The legacy
-`action_probs()` shortcut bypasses the head and PP path. `fc_layer=None` disables
+returns logits and preserves leading batch axes; use a logits-aware trainer or
+`Categorical(logits=...)`. `action_probs()` uses tanh-preprocessed inputs and
+softmax through the complete model, including the head and simulator. `fc_layer=None` disables
 the head; any non-None value currently creates one.
 
 ### `PQCBornVariance`
@@ -1695,6 +1708,50 @@ barren-plateau claim concerns how gradient variance scales with system size;
 a controlled cost-variance sweep alone does not establish that stronger
 claim without a corresponding gradient analysis.
 
+### Fourier expressivity
+
+Use `expressivity_analyzer` to inspect a model's current finite Fourier series.
+It supports classifiers, policies, Q-functions, fidelity kernels and projected
+kernel features. Each output has its own complex-coefficient column, including
+both logits of a two-action softmax policy:
+
+```python
+from qasp import expressivity_analyzer
+
+before = expressivity_analyzer(policy)
+# Train the same policy with your usual optimizer or QASP trainer.
+after = expressivity_analyzer(policy)
+
+print(after.output_labels)          # ("logit[0]", "logit[1]")
+print(after.coefficients.shape)     # (number_of_frequencies, 2)
+print(before.active_counts, after.active_counts)
+logits = after.evaluate(x)          # reconstruct both logits
+```
+
+The default policy spectrum includes output scaling and the affine head, before
+softmax. Explicit `observables=["X 0", "Z 0"]` selects individual quantum
+expectations instead. Fixed unscaled encodings keep their allowed frequencies;
+learned scales and neural projections can move them. Active counts alone are not
+a measure of predictive quality. Saved spectra remain independent snapshots.
+
+```python
+sweep = expressivity_analyzer(
+    model_factory=make_model, qubit_list=[2, 4, 6, 8],
+    observables=lambda n: ["Z 0", "Z" * n],
+)
+print(sweep.summary())
+```
+
+The analyzer uses ideal statevector evaluation and a phase grid, which can grow
+exponentially. Simulator scalability does not automatically transfer to spectrum
+analysis. `max_evaluations` bounds the grid per width.
+
+Follow the [interactive expressivity guide](https://andre-sequeira10.github.io/QASP/#/guide/expressivity),
+the [API and mathematical conventions](docs/expressivity.md), and the
+[before/after-training notebook](tutorials/tools/expressivity_training.ipynb).
+The notebook compares a classifier and two policy families, then checks a
+structured qubit sweep through 16 qubits against known analytical spectra.
+
 The legacy `qasp.rl.metrics` module provides probability-variance sampling and
 heuristic Lie-closure utilities. `compute_DLA_generators` returns closure sizes;
 the named gate-decomposition helpers supply heuristic generator lists rather
@@ -1758,14 +1815,14 @@ training budget and episode cap for a learning experiment.
 
 Choose `PQCSoftmax` to turn learned action logits into a categorical policy, or
 `PQCBorn` to decode circuit probabilities into action probabilities. The
-`create_model("PQCBorn", ...)` factory constructs the current
+`create_policy("PQCBorn", ...)` factory constructs the current
 `PQCBornVariance` implementation. Set the trainer's `logits` flag to match the
 selected model's output.
 
 <!-- readme-circuit: cartpole_policy -->
 
 ```python
-from qasp.rl import create_model, draw_model
+from qasp.rl import create_policy, draw_policy
 from copy import deepcopy
 import torch
 
@@ -1801,7 +1858,7 @@ else:
     )
 
 # Copy nested dictionaries because the policy factory resolves them in place.
-policy = create_model(policy_kind, deepcopy(config), n_qubits=4)
+policy = create_policy(policy_kind, deepcopy(config), n_qubits=4)
 ```
 
 ```python
@@ -1839,7 +1896,7 @@ shows the default softmax policy's four `Z` readouts before the classical head.
 <!-- readme-circuit: cartpole_policy -> cartpole_policy.tex -->
 
 ```python
-draw_model(
+draw_policy(
     model=policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
@@ -1861,8 +1918,8 @@ born_config.pop("fc_layer", None)
 born_config.update(
     policy="parity-like", parity_cnot_decomposition=False, training_method="probs",
 )
-born_policy = create_model("PQCBorn", born_config, n_qubits=4)
-draw_model(
+born_policy = create_policy("PQCBorn", born_config, n_qubits=4)
+draw_policy(
     model=born_policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )

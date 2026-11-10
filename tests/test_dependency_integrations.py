@@ -1,24 +1,35 @@
 """Exercise the QASP/TensorDict/TorchRL boundary with real quantum policies."""
-import pennylane  # Load the numerical runtime before Torch on macOS.
+import pennylane  # noqa: F401 - Load the numerical runtime before Torch on macOS.
 import pytest
 import torch
 from tensordict import TensorDict
 from tensordict.nn import TensorDictModule
 from torchrl.modules import ProbabilisticActor
 
-from qasp.rl.model import create_model
+from qasp.rl.model import create_policy, draw_policy
 from qasp.rl.torchrl import PQCBornWrapper
 
 
 def test_public_wildcard_import_resolves_lazy_rl_exports():
     import qasp
-    from qasp.rl import trl
+    from qasp.rl import torchrl
 
     namespace = {}
     exec('from qasp import *', namespace)
     assert set(qasp.__all__) <= namespace.keys()
-    assert namespace['TorchRLTrainer'] is trl.TorchRLTrainer
-    assert namespace['PQCWrapper'] is trl.PQCWrapper
+    assert namespace['create_policy'] is create_policy
+    assert namespace['draw_policy'] is draw_policy
+    from qasp.rl import create_policy as rl_factory
+    assert rl_factory is create_policy
+    rl_namespace = {}
+    exec('from qasp.rl import *', rl_namespace)
+    assert rl_namespace['create_policy'] is create_policy
+    assert rl_namespace['draw_policy'] is draw_policy
+    assert namespace['REINFORCE'] is torchrl.REINFORCE
+    assert namespace['PQCBornWrapper'] is torchrl.PQCBornWrapper
+    assert 'TorchRLTrainer' not in namespace
+    assert 'PQCWrapper' not in namespace
+    assert not hasattr(torchrl, 'TorchRLTrainer')
 
 
 @pytest.mark.parametrize('device', ['default.qubit', 'IQPSimulator', 'PauliPropagationSimulator'])
@@ -36,7 +47,7 @@ def test_torchrl_actor_preserves_quantum_policy_gradients(device):
     }
     if device == 'IQPSimulator':
         config['device_kwargs'] = {'backend': 'tn', 'mode': 'explicit'}
-    policy = create_model('PQCBorn', config, n_qubits=2).double()
+    policy = create_policy('PQCBorn', config, n_qubits=2).double()
     actor = ProbabilisticActor(
         module=TensorDictModule(PQCBornWrapper(policy, obs_dim=2),
                                in_keys=['observation'], out_keys=['probs']),

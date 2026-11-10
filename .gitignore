@@ -37,3 +37,6 @@ htmlcov/
 /tutorials/*/figures/
 /tutorials/*/*_executed.ipynb
 /tutorials/EXECUTED.md
+
+# Local configuration-audit logs, coverage and executed notebooks
+/validation/

@@ -16,8 +16,8 @@ _EXPORTS = {
     "cnot_decomposition": (".metrics", "cnot_decomposition"),
     "_policy_expressivity": (".metrics", "_policy_expressivity"),
     "_sample_worker_batch": (".metrics", "_sample_worker_batch"),
-    "create_model": (".model", "create_model"),
-    "draw_model": (".model", "draw_model"),
+    "create_policy": (".model", "create_policy"),
+    "draw_policy": (".model", "draw_policy"),
     "PQCBorn": (".policies", "PQCBorn"),
     "PQDQN": (".qfunctions", "PQDQN"),
     "create_qfunction": (".qfunctions", "create_qfunction"),
@@ -36,9 +36,6 @@ _EXPORTS = {
     "BanditAWRConfig": (".torchrl", "BanditAWRConfig"),
     "ContextualBanditTrainer": (".torchrl", "ContextualBanditTrainer"),
     "WindyTargetNavigationEnv": (".envs", "WindyTargetNavigationEnv"),
-    "PQCWrapper": (".trl", "PQCWrapper"),
-    # Preserve the historical final binding from qasp.rl.trl.
-    "TorchRLTrainer": (".trl", "TorchRLTrainer"),
 }
 
 

@@ -7,6 +7,7 @@ with `python -m pip install -e '.[dev]'` before opening a notebook.
 
 | Topic | Start here |
 | --- | --- |
+| Fourier spectra across qubit counts and observables | [expressivity_sweep.py](expressivity_sweep.py) |
 | Shared Pauli simulator across all five application modules | [pauli_propagation_modules.py](pauli_propagation_modules.py) |
 | IQP TN/VN, neural embedding, gradients and auto selection | [iqp_simulator.ipynb](iqp_simulator.ipynb) |
 | State initialization across models | [initialization_across_modules.ipynb](initialization_across_modules.ipynb) |

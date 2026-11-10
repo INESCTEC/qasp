@@ -118,7 +118,7 @@ def main():
         "observables": observables_parity,
     }
 
-    policy = create_model("PQCSoftmax", policy_model_config_softmax, n_qubits=n_qubits)
+    policy = create_policy("PQCSoftmax", policy_model_config_softmax, n_qubits=n_qubits)
 
     agent = REINFORCE(
         policy=policy,

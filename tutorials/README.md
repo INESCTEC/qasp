@@ -11,6 +11,7 @@ Start with the circuit builder, then choose the model you want to train. Each no
 | Reinforcement learning | [Quantum Q-learning](rl/quantum_q_learning.ipynb) | Train an online Q-function with replay and a target network, then compare action values. |
 | Generative learning | [Fit a Born machine](genlearn/born_machine.ipynb) | Learn a bitstring distribution with MMD and compare initial, fitted and target probabilities. |
 | Optimization | [MaxCut with QAOA](optimization/maxcut_qaoa.ipynb) | Initialize cost and mixer angles, optimize the expected energy and check a candidate against the exact discrete optimum. |
+| Tools | [Fourier expressivity across models](tools/expressivity_analyzer.ipynb) | Check classifier, policy, Q-function and kernel spectra against direct outputs. Use QASP random initializers and plot frequency counts, spectra, and coefficient statistics across qubit widths, with a fixed scalar analytic benchmark. This tutorial uses the analyzer from the source checkout. |
 | Tools | [Barren plateau diagnoser](tools/barren_plateau_diagnoser.ipynb) | Sweep seven compiled circuit widths from 4 to 16 qubits and compare measured parity variance with the analytic curve. |
 | Simulators | [Differentiable simulation](simulators/differentiable_simulation.ipynb) | Compare IQP tensor contraction, sampling and auto selection with exact Pauli propagation and a full-state reference. Check gradients and train with both exact backends. |
 
@@ -44,3 +45,5 @@ To display the same figure and also keep its LaTeX in memory, use `tex = draw_cl
 Inline previews require pdfLaTeX with the `standalone` and `quantikz` packages plus Ghostscript. QASP renders the image in a temporary directory and cleans up afterward. Jupyter stores the displayed image in the cell output when you save the notebook. To keep a paper-ready file separately, call `builder.save_tikz(..., standalone=True)` or write the module’s standalone source to a `.tex` file and compile it with pdfLaTeX.
 
 The repository tracks notebooks with cleared outputs. **Run All Cells** regenerates the printed results and figures. For more configurations and API signatures, see the [interactive documentation](https://andre-sequeira10.github.io/QASP/) and the [package guide](../docs/package_guide.md).
+
+- [Expressivity before/after training and qubit sweeps](tools/expressivity_training.ipynb): classifier and policy optimization, reconstructed outputs, coefficient plots, and a closed-form width check through 16 qubits.
