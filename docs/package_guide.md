@@ -112,7 +112,7 @@ for defaults, reproducibility, explicit arrays and optimization models.
 ## Drawing
 
 Source: [TikZ exporter](../qasp/circuits/tikz.py). Application adapters:
-`draw_model`, `draw_classifier`, `draw_kernel`, `draw_qfunction`,
+`draw_policy`, `draw_classifier`, `draw_kernel`, `draw_qfunction`,
 `draw_optimization`, and model `.draw()` methods where exposed.
 
 Use `output="tikz"` to obtain Quantikz/TikZ **source**. `standalone=True` creates a
@@ -121,7 +121,7 @@ with Quantikz. `compress=True` draws a complete first layer and represents later
 layers schematically, with supported reuploading boundaries. Compression does
 not change simulation. Numeric labels describe the supplied weights/input;
 symbolic labels show the parameter structure. In a policy with a
-`NeuralEmbedding`, `draw_model(..., output="tikz",
+`NeuralEmbedding`, `draw_policy(..., output="tikz",
 tikz_options={"symbolic_parameters": True})` labels each encoding angle
 $\langle\mathbf{s},\boldsymbol{\lambda}_j\rangle$ and numbers the ansatz
 angles separately. Reuploading adds the layer index to the projection weight.
@@ -154,7 +154,7 @@ tex = draw_classifier(classifier, inputs=x, output="tikz",
 draw_classifier(classifier, inputs=x, output="tikz", return_tex=False)
 ```
 
-The same flag works with `draw_model`, `draw_qfunction`, `draw_kernel`,
+The same flag works with `draw_policy`, `draw_qfunction`, `draw_kernel`,
 `draw_qcbm`, `draw_qaoa`, `draw_pce`, `draw_recursive_qaoa` and
 `draw_optimization`. For example, pass `x=x, y=y` to a fidelity kernel,
 or `parameters=result` to a QAOA drawing. Assign the default result to

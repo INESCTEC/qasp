@@ -122,7 +122,7 @@ def create_policy(policy_class, policy_config_kwargs, n_qubits):
     return pqc_model
 
 
-def draw_model(
+def draw_policy(
     num_inputs=1,
     policy_class=None,
     policy_config_kwargs=None,

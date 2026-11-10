@@ -98,11 +98,11 @@ def test_module_factory_values_gradients_and_batches(backend, layout, embedding,
     assert a.shape[0] == 2
     if layout == 'bare':torch.testing.assert_close(a[0], a[1])
     if backend == 'statevector':
-        from qasp import draw_classifier, draw_model, draw_qfunction
+        from qasp import draw_classifier, draw_policy, draw_qfunction
         import matplotlib.pyplot as plt
         draw = (lambda **kw: draw_classifier(actual, inputs=x[0], **kw)) if module == 'classifier' else (
             (lambda **kw: draw_qfunction(actual, inputs=x[0], **kw)) if module == 'qfunction' else
-            (lambda **kw: draw_model(model=actual, inputs=x[0], **kw)))
+            (lambda **kw: draw_policy(model=actual, inputs=x[0], **kw)))
         assert 'quantikz' in draw(output='tikz', tikz_options={'symbolic_parameters': True})
         figure, _ = draw()
         plt.close(figure)

@@ -428,7 +428,7 @@ qasp/
 ├── devices.py              # Shared device/MPI option handling
 ├── initialization.py       # Reusable NumPy/Torch parameter distributions
 └── rl/
-    ├── model.py            # create_policy, draw_model
+    ├── model.py            # create_policy, draw_policy
     ├── policies.py         # PQCBorn, PQCSoftmax, related policy classes
     ├── metrics.py          # Legacy probability variance / heuristic Lie closure
     ├── pp_sim.py           # truncated Pauli propagation simulator
@@ -1087,7 +1087,7 @@ gradients, and precomputed-kernel SVMs for every kernel class, run
 ### RL / training / analysis
 
 - `create_policy`
-- `draw_model`
+- `draw_policy`
 - `PQCBorn`
 - `PQCSoftmax`
 - `PQCBornVariance`
@@ -1293,7 +1293,7 @@ This is the main high-level workflow for reinforcement learning with QASP.
 <!-- readme-circuit: neural_policy -->
 
 ```python
-from qasp import create_policy, draw_model
+from qasp import create_policy, draw_policy
 import torch
 
 n_qubits = 6
@@ -1337,7 +1337,7 @@ policy = create_policy("PQCSoftmax", policy_model_config, n_qubits=n_qubits)
 To visualize the resulting circuit:
 
 ```python
-draw_model(
+draw_policy(
     model=policy,
     policy_class="PQCSoftmax",
     n_qubits=n_qubits,
@@ -1355,7 +1355,7 @@ Open the vector PDF to inspect the individual gates at full size.
 <!-- readme-circuit: neural_policy -> neural_policy.tex -->
 
 ```python
-draw_model(
+draw_policy(
     model=policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True},
 )
@@ -1431,7 +1431,7 @@ prefix visible, draws every gate in the first variational layer inside a dashed
 blocks:
 
 ```python
-draw_model(
+draw_policy(
     model=policy,
     inputs=torch.zeros(4),
     output="tikz", return_tex=False,
@@ -1786,7 +1786,7 @@ selected model's output.
 <!-- readme-circuit: cartpole_policy -->
 
 ```python
-from qasp.rl import create_policy, draw_model
+from qasp.rl import create_policy, draw_policy
 from copy import deepcopy
 import torch
 
@@ -1860,7 +1860,7 @@ shows the default softmax policy's four `Z` readouts before the classical head.
 <!-- readme-circuit: cartpole_policy -> cartpole_policy.tex -->
 
 ```python
-draw_model(
+draw_policy(
     model=policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )
@@ -1883,7 +1883,7 @@ born_config.update(
     policy="parity-like", parity_cnot_decomposition=False, training_method="probs",
 )
 born_policy = create_policy("PQCBorn", born_config, n_qubits=4)
-draw_model(
+draw_policy(
     model=born_policy, inputs=torch.zeros(4), output="tikz", return_tex=False,
     tikz_options={"standalone": True, "symbolic_parameters": True, "compress": True},
 )

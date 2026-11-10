@@ -17,7 +17,7 @@ _EXPORTS = {
     "_policy_expressivity": (".metrics", "_policy_expressivity"),
     "_sample_worker_batch": (".metrics", "_sample_worker_batch"),
     "create_policy": (".model", "create_policy"),
-    "draw_model": (".model", "draw_model"),
+    "draw_policy": (".model", "draw_policy"),
     "PQCBorn": (".policies", "PQCBorn"),
     "PQDQN": (".qfunctions", "PQDQN"),
     "create_qfunction": (".qfunctions", "create_qfunction"),

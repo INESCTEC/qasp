@@ -6,7 +6,7 @@ from tensordict import TensorDict
 from tensordict.nn import TensorDictModule
 from torchrl.modules import ProbabilisticActor
 
-from qasp.rl.model import create_policy
+from qasp.rl.model import create_policy, draw_policy
 from qasp.rl.torchrl import PQCBornWrapper
 
 
@@ -18,11 +18,13 @@ def test_public_wildcard_import_resolves_lazy_rl_exports():
     exec('from qasp import *', namespace)
     assert set(qasp.__all__) <= namespace.keys()
     assert namespace['create_policy'] is create_policy
+    assert namespace['draw_policy'] is draw_policy
     from qasp.rl import create_policy as rl_factory
     assert rl_factory is create_policy
     rl_namespace = {}
     exec('from qasp.rl import *', rl_namespace)
     assert rl_namespace['create_policy'] is create_policy
+    assert rl_namespace['draw_policy'] is draw_policy
     assert namespace['REINFORCE'] is torchrl.REINFORCE
     assert namespace['PQCBornWrapper'] is torchrl.PQCBornWrapper
     assert 'TorchRLTrainer' not in namespace

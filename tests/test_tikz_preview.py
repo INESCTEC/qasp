@@ -90,12 +90,12 @@ def test_model_tikz_previews_source_and_returns_it_on_request(kind, monkeypatch)
     else:
         model = QAOA(QUBO.maxcut(2, [(0, 1)]))
         kwargs = {"parameters": model.initial_parameters()}
-    from qasp import draw_classifier, draw_kernel, draw_model, draw_qcbm, draw_optimization
+    from qasp import draw_classifier, draw_kernel, draw_policy, draw_qcbm, draw_optimization
     figures = []
     monkeypatch.setattr(preview, "_in_notebook", lambda: True)
     monkeypatch.setattr(preview, "show_tikz", figures.append)
     if kind in ("policy", "qfunction"):
-        draw, kwargs = draw_model, dict(kwargs, model=model)
+        draw, kwargs = draw_policy, dict(kwargs, model=model)
     elif kind in ("fidelity", "projected"):
         draw, kwargs = draw_kernel, dict(kwargs, kernel=model)
     elif kind == "classifier":
