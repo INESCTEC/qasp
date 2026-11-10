@@ -12,13 +12,16 @@ from qasp.rl.torchrl import PQCBornWrapper
 
 def test_public_wildcard_import_resolves_lazy_rl_exports():
     import qasp
-    from qasp.rl import trl
+    from qasp.rl import torchrl
 
     namespace = {}
     exec('from qasp import *', namespace)
     assert set(qasp.__all__) <= namespace.keys()
-    assert namespace['TorchRLTrainer'] is trl.TorchRLTrainer
-    assert namespace['PQCWrapper'] is trl.PQCWrapper
+    assert namespace['REINFORCE'] is torchrl.REINFORCE
+    assert namespace['PQCBornWrapper'] is torchrl.PQCBornWrapper
+    assert 'TorchRLTrainer' not in namespace
+    assert 'PQCWrapper' not in namespace
+    assert not hasattr(torchrl, 'TorchRLTrainer')
 
 
 @pytest.mark.parametrize('device', ['default.qubit', 'IQPSimulator', 'PauliPropagationSimulator'])

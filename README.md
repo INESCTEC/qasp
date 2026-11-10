@@ -1094,7 +1094,6 @@ gradients, and precomputed-kernel SVMs for every kernel class, run
 - `LearnablePQCBorn`
 - `FastTruncatedPauliProp`
 - `REINFORCE`
-- `TorchRLTrainer`
 - `ContextualBanditTrainer`
 - `policy_variance`
 - `compute_DLA_generators`
@@ -1572,8 +1571,9 @@ probability. The factory selector `create_model("PQCBorn", ...)` instead constru
 ### `PQCSoftmax`
 
 An expectation-score model with an optional biased affine head. `forward()`
-returns logits; use a logits-aware trainer or `Categorical(logits=...)`. The legacy
-`action_probs()` shortcut bypasses the head and PP path. `fc_layer=None` disables
+returns logits and preserves leading batch axes; use a logits-aware trainer or
+`Categorical(logits=...)`. `action_probs()` uses tanh-preprocessed inputs and
+softmax through the complete model, including the head and simulator. `fc_layer=None` disables
 the head; any non-None value currently creates one.
 
 ### `PQCBornVariance`

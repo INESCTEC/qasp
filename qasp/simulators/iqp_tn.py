@@ -164,9 +164,25 @@ def _diagonal(op):
     return op.name == "PauliRot" and set(op.hyperparameters["pauli_word"]) <= {"I", "Z"}
 
 
+@qml.QueuingManager.stop_recording()
 def _operations(tape):
+    """Expand known embeddings and normalize inverses without detaching angles."""
     result = []
     def append(op):
+        if isinstance(op, qml.ops.op_math.Adjoint):
+            base = op.base
+            if isinstance(base, qml.ops.op_math.Adjoint):
+                append(base.base)
+                return
+            if base.name in {"AngleEmbedding", "IQPEmbedding"}:
+                for child in reversed(base.decomposition()):
+                    append(qml.adjoint(child))
+                return
+            if base.has_adjoint:
+                inverse = base.adjoint()
+                if not isinstance(inverse, qml.ops.op_math.Adjoint):
+                    append(inverse)
+                    return
         if op.name in {"AngleEmbedding", "IQPEmbedding"}:
             for child in op.decomposition():
                 append(child)
@@ -176,7 +192,21 @@ def _operations(tape):
             result.append(op)
     for op in tape.operations:
         append(op)
-    return result
+    # In an IQP fidelity overlap the closing H layer meets the opening H
+    # layer of the inverse. Cancel only these structural identities, never
+    # rotations whose current trainable angles merely happen to be equal.
+    last, removed = {}, set()
+    for pos, op in enumerate(result):
+        if op.name == "Hadamard":
+            wire = op.wires[0]
+            previous = last.get(wire)
+            if previous is not None and result[previous].name == "Hadamard":
+                removed.update((previous, pos))
+                last[wire] = None
+                continue
+        for wire in op.wires:
+            last[wire] = pos
+    return [op for pos, op in enumerate(result) if pos not in removed]
 
 
 def _pauli_axes(op):

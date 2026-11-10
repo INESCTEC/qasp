@@ -14,6 +14,21 @@ from pennylane import numpy as np, qnode
 import os
 from qasp.devices import create_device
 
+
+class _ParameterOnlyTorchLayer(qml.qnn.TorchLayer):
+    """Preserve sample axes for an unencoded, input-independent circuit."""
+
+    def _evaluate_qnode(self, x):
+        if x.ndim <= 1:
+            return super()._evaluate_qnode(x)
+        # The input values are unused. Execute once, then broadcast the result;
+        # autograd accumulates parameter derivatives over all requested samples.
+        result = super()._evaluate_qnode(x.new_zeros(x.shape[-1]))
+        def expand(value):
+            return value.unsqueeze(0).expand(x.shape[0], *value.shape)
+        return tuple(expand(value) for value in result) if isinstance(result, tuple) else expand(result)
+
+
 class CircuitBuilder:
     """Assemble a QASP ansatz, measurement, QNode and optional TorchLayer.
 
@@ -609,6 +624,27 @@ class CircuitBuilder:
                     if self.diff_method == "spsa"
                     else None,
                 )
+                # Lightning's adjoint preprocessing can retain an extra batch
+                # axis when a broadcasted PauliRot is decomposed. Expand at the
+                # QNode boundary so each device tape has scalar gate angles.
+                # The transform preserves a QNode, TorchLayer compatibility,
+                # and differentiation through the stacked results.
+                if (
+                    self.device.name == "lightning.qubit"
+                    and qnode_diff_method in {"adjoint", "best"}
+                ):
+                    self.qnode = qml.transforms.decompose(
+                        self.qnode,
+                        gate_set=set(qml.ops.qubit.__all__) | {
+                            "CNOT", "CZ", "CY", "CH", "SWAP", "CSWAP", "Toffoli",
+                            "CRX", "CRY", "CRZ", "CRot", "ControlledPhaseShift",
+                        },
+                    )
+                    self.qnode = qml.transforms.broadcast_expand(self.qnode)
+                elif qnode_diff_method == "parameter-shift" or self.device.name == "default.tensor":
+                    # Parameter-shift cannot differentiate broadcasted gate
+                    # angles directly (e.g. trainable neural input projections).
+                    self.qnode = qml.transforms.broadcast_expand(self.qnode)
         #if shots is not None:
             #self.qnode = qml.set_shots(self.qnode, shots=shots)
 
@@ -718,7 +754,16 @@ class CircuitBuilder:
                 spec = resolve_initializer(specs[name], legacy_discrete_pi=True)
                 self.init_method[name] = functools.partial(initialize_tensor, spec=spec)
 
-        self.qlayer = qml.qnn.TorchLayer(
-            self.qnode, self.weight_shapes, init_method=self.init_method
-        )
+        layer_node, layer_class = self.qnode, qml.qnn.TorchLayer
+        if self.ansatz.feature_map is None:
+            # Keep the direct compiled signature node(params) unchanged while
+            # supplying the input placeholder required by TorchLayer.
+            from copy import copy
+            parameter_circuit = self.qnode.func
+            def circuit(inputs=None, params=None):
+                return parameter_circuit(params=params)
+            layer_node = copy(self.qnode)
+            layer_node.func = circuit
+            layer_class = _ParameterOnlyTorchLayer
+        self.qlayer = layer_class(layer_node, self.weight_shapes, init_method=self.init_method)
         return self.qlayer

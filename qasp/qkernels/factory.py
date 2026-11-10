@@ -194,6 +194,9 @@ def draw_kernel(
             "or 'latex'."
         )
 
+    from .kernels import QFKernel
+    if isinstance(kernel, QFKernel):
+        return kernel.draw(style=style, decimals=decimals)
     if isinstance(kernel, _OVERLAP_KERNELS):
         return kernel.draw(x=x, y=y, style=style, decimals=decimals)
     return kernel.draw(x=x, style=style, decimals=decimals)

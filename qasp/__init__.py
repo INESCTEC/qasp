@@ -125,11 +125,9 @@ _RL_EXPORTS = {
     "LearnablePQCBorn",
     "FastTruncatedPauliProp",
     "PQCBornWrapper",
-    "TorchRLTrainer",
     "REINFORCE",
     "BanditAWRConfig",
     "ContextualBanditTrainer",
-    "PQCWrapper",
     "WindyTargetNavigationEnv",
 }
 
@@ -192,8 +190,8 @@ __all__ = [
     "draw_model", "PQCBorn", "PQCSoftmax", "PQCBornVariance", 
     "LearnablePQCBorn", "FastTruncatedPauliProp", "DifferentiablePauliProp",
     "PQCBornWrapper",
-    "TorchRLTrainer", "REINFORCE", "BanditAWRConfig", 
-    "ContextualBanditTrainer", "PQCWrapper", "WindyTargetNavigationEnv"
+    "REINFORCE", "BanditAWRConfig",
+    "ContextualBanditTrainer", "WindyTargetNavigationEnv"
 ]
 
 from .simulators import IQPSimulator, IQPOptions, IQPReport, IQPTNSimulator, IQPTNOptions, DecoderSpec, action_probs

@@ -693,12 +693,18 @@ class PQCSoftmax(nn.Module):
 
         # x = torch.tanh(x)
 
-        """Return unnormalized single-sample action logits, without input tanh.
+        """Return unnormalized action logits, preserving leading input batch axes.
 
         Execute expectations (or PP), scale them by output_scaling and the optional
         inverse-temperature multiplier, then apply the optional affine head.
-        Statevector output is flattened, so this is not an arbitrary-batch API.
         Use softmax on the final axis or Categorical(logits=...) for probabilities."""
+        if x.ndim > 1:
+            flat = x.reshape(-1, x.shape[-1])
+            if not len(flat):
+                return x.new_empty((*x.shape[:-1], self.n_actions))
+            return torch.stack([self.forward(row, temperature=temperature) for row in flat]).reshape(
+                *x.shape[:-1], -1
+            )
         if self.device == "lightning.pp":
 
             out = self._get_pp_output(x)
@@ -732,23 +738,13 @@ class PQCSoftmax(nn.Module):
         return out
     
     def action_probs(self, x, temperature=None):
-        """Legacy tanh/softmax path over raw layer outputs.
+        """Return action probabilities using tanh inputs and the complete model.
 
-        This method bypasses the affine head, the PP execution route and the
-        trainable output_scaling_weight. It can return a different number of
-        outputs from n_actions when a head is configured. For the complete model
-        use softmax(self.forward(x), dim=-1), with input preprocessing as desired."""
-        x = torch.tanh(x)           # each entry ∈ (-1, 1)
-        out = self.qlayer(x).flatten()
-        #check if output scaling is needed
-        if self.output_scaling is not None:
-            out = out*self.output_scaling
-        if temperature is not None:
-            out = out*temperature
-        
-        #nn functional softmax
-        probs = torch.nn.functional.softmax(out, dim=-1)
-        return probs
+        The configured head, backend and trainable output scale are shared with
+        forward. Leading batch axes are preserved; tanh retains this method's
+        historical input preprocessing.
+        """
+        return torch.softmax(self.forward(torch.tanh(x), temperature=temperature), dim=-1)
 
 class _PolicyDecoder(nn.Module):
     """Precompute a basis-state-to-action map and aggregate with scatter-add.

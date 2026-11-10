@@ -36,9 +36,6 @@ _EXPORTS = {
     "BanditAWRConfig": (".torchrl", "BanditAWRConfig"),
     "ContextualBanditTrainer": (".torchrl", "ContextualBanditTrainer"),
     "WindyTargetNavigationEnv": (".envs", "WindyTargetNavigationEnv"),
-    "PQCWrapper": (".trl", "PQCWrapper"),
-    # Preserve the historical final binding from qasp.rl.trl.
-    "TorchRLTrainer": (".trl", "TorchRLTrainer"),
 }
 
 

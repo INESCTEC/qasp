@@ -106,10 +106,7 @@ mocks; Ray is installed/imported but no distributed training job was run.
 PennyLane's optional MPS/TN device dependencies (`quimb`, etc.) are not validated
 by this matrix; QASP's own TN backend is covered.
 
-Historical `qasp.rl.trl` classes remain prototypes, as documented in the
-[package guide](package_guide.md). The separate external
-`qasp.rl.torchrl.TorchRLTrainer` adapter is also outside the supported training
-matrix: its old TorchRL 0.7.2/Gymnasium 1.0 combination rejects environment
-construction, and the source references legacy APIs. Passing the maintained
-REINFORCE/DQN tests or the actor/gradient integration test does not certify those
-legacy trainer classes.
+The unused `TorchRLTrainer` adapters and legacy `PQCWrapper` have been removed.
+Use the maintained REINFORCE, PPO, contextual-bandit or DeepQLearning trainers.
+`PQCBornWrapper` remains available for composing QASP policies with external
+TorchRL actors; its value/gradient integration is tested separately.
