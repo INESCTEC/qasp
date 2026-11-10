@@ -497,6 +497,10 @@ A PQDQN is classified as a generic model: supply a scalar
 Do not label cost concentration alone proof of a barren plateau or inability
 to learn. See [diagnostic validation](https://github.com/andre-sequeira10/QASP/blob/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718/examples/barren_plateau_diagnoser_validation.ipynb).
 
+The [Fourier expressivity analyzer](expressivity.md) computes signed frequencies and
+observable-specific coefficients for policies, Q-functions, classifiers and kernels.
+It supports trained encoding scales and width sweeps.
+
 [Legacy RL metrics](../qasp/rl/metrics.py) retain `policy_variance` and heuristic
 Lie-closure utilities. `compute_DLA_generators` returns closure **sizes**, not
 generators. `fourier_analysis` performs no Fourier transform and has legacy

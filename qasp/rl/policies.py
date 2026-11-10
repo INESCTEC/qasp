@@ -1770,9 +1770,9 @@ class LearnablePQCBorn(nn.Module):
 
         n_qubits_measure chooses subset size; all combinations are enumerated.
         The selector uses an affine categorical distribution over subsets, and
-        returns a score-function log probability. This path assumes an instantiated
-        ansatz with a feature_map during setup; class-only configuration is not a
-        complete supported path. Other arguments mirror the legacy Born policy.
+        returns a score-function log probability. Supply a configured circuit
+        builder or ansatz and feature-map classes with their component dictionaries.
+        The selector takes its input dimension from the constructed feature map.
         Use current fixed-decoder policies for validated training examples."""
         super().__init__()   
         self.mpi = mpi
@@ -1783,17 +1783,18 @@ class LearnablePQCBorn(nn.Module):
         if self.circuit_builder is None and ansatz is None:
             raise ValueError("Either circuit_builder or ansatz must be provided.")
         
-        self.ansatz = ansatz if self.circuit_builder is None else self.circuit_builder.ansatz
         self.ansatz_config = ansatz_config
         self.feature_map = feature_map if self.circuit_builder is None else self.circuit_builder.feature_map
         self.feature_map_config = feature_map_config
         self.n_qubits=n_qubits
         self.n_actions=n_actions
         self.policy_type = "LearnablePQCBorn"
-        if self.circuit_builder is not None:
-            self.n_layers=self.circuit_builder.ansatz.n_layers
-        else:
-            self.n_layers=self.ansatz_config["n_layers"]
+        if self.circuit_builder is None:
+            self.fm = self.feature_map(**self.feature_map_config)
+            self.circuit_builder = CircuitBuilder(n_qubits=n_qubits)
+            self.circuit_builder.set_ansatz(ansatz(**self.ansatz_config, feature_map=self.fm))
+        self.ansatz = self.circuit_builder.ansatz
+        self.n_layers = self.ansatz.n_layers
         self.init = init
         self.input_scaling_init = input_scaling_init
         self.diff_method = diff_method
@@ -1835,15 +1836,6 @@ class LearnablePQCBorn(nn.Module):
 
     def build_policy(self):
         """Build a call-time measurement circuit and its TorchLayer for the experimental selector."""
-        if self.circuit_builder is None:
-
-            self.fm = self.feature_map(**self.feature_map_config)
-
-            ans = self.ansatz(**self.ansatz_config, feature_map=self.fm)
-
-            self.circuit_builder = CircuitBuilder(n_qubits=self.n_qubits)
-            self.circuit_builder.set_ansatz(ans)           # pass the IQPAnsatz instance
-
         self.circuit_builder.set_measurement("probs", wires=range(self.n_qubits))
         self.c = self.circuit_builder.build_adaptive(for_torchlayer=True)
 

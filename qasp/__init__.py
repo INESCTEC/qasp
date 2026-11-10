@@ -132,6 +132,7 @@ _RL_EXPORTS = {
 }
 
 _LAZY_EXPORTS = {
+    "expressivity_analyzer": (".diagnostics", "expressivity_analyzer"),
     "barren_plateau_diagnoser": (
         ".diagnostics",
         "barren_plateau_diagnoser",
@@ -175,7 +176,7 @@ __all__ = [
     "recall_score", "f1_score", "confusion_matrix", "roc_auc_score",
     "pr_auc_score", "average_precision_score",
     "classification_metrics", "top_k_accuracy", "log_loss", "brier_score",
-    "barren_plateau_diagnoser",
+    "barren_plateau_diagnoser", "expressivity_analyzer",
     "QUBO", "PauliTerm", "QAOA", "WarmStartQAOA", "RQAOA",
     "RecursiveQAOA", "LRQAOA", "LinearRampQAOA", "PCE",
     "PauliCorrelationEncoding", "OptimizationResult", "RecursiveQAOAResult",

@@ -11,10 +11,12 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'validation'
+OUT = Path(os.environ.get('QASP_VALIDATION_OUTPUT', ROOT / 'validation')).resolve()
 CHECK = OUT / 'wheel-check'
 (CHECK / 'tests').mkdir(parents=True, exist_ok=True)
 (CHECK / 'examples').mkdir(exist_ok=True)
+(CHECK / 'tools').mkdir(exist_ok=True)
+shutil.copy2(ROOT / 'tools/validate_expressivity.py', CHECK / 'tools/validate_expressivity.py')
 for source in (ROOT / 'tests').glob('*.py'):
     shutil.copy2(source, CHECK / 'tests' / source.name)
 for name in ['pqdqn_cartpole_experiment.py', 'pqdqn_paper_figures.py']:
@@ -38,7 +40,7 @@ from pathlib import Path
 import hashlib, importlib.metadata as m, json, platform, sys
 import numpy
 import qasp
-root = Path(sys.argv[1]); output = root / 'validation'
+root = Path(sys.argv[1]); output = Path(sys.argv[2])
 installed = Path(qasp.__file__).parent
 assert 'site-packages' in str(installed), installed
 source = root / 'qasp'
@@ -58,7 +60,7 @@ report = {'python': sys.version, 'platform': platform.platform(), 'qasp_location
 (output / 'environment.json').write_text(json.dumps(report, indent=2))
 print(f'Verified {len(checks)} installed source files and removal of the legacy trainer.')
 '''
-subprocess.run([sys.executable, '-c', provenance, str(ROOT)], cwd=CHECK, env=env, check=True)
+subprocess.run([sys.executable, '-c', provenance, str(ROOT), str(OUT)], cwd=CHECK, env=env, check=True)
 with (OUT / 'requirements-lock.txt').open('w') as output:
     subprocess.run([sys.executable, '-m', 'pip', 'freeze'], cwd=CHECK, env=env, stdout=output, check=True)
 (OUT / 'requirements-dependencies.txt').write_text(''.join(

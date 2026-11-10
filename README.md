@@ -1695,6 +1695,27 @@ barren-plateau claim concerns how gradient variance scales with system size;
 a controlled cost-variance sweep alone does not establish that stronger
 claim without a corresponding gradient analysis.
 
+### Fourier expressivity
+
+Analyze a trained model’s current encoding scales and compare observables with
+`expressivity_analyzer`. It returns signed frequency vectors, complex coefficients,
+magnitudes and active counts for RL policies, Q-functions, classifiers and kernels.
+
+```python
+from qasp import expressivity_analyzer
+
+spectrum = expressivity_analyzer(model, observables=["X 0", "Z 0"])
+print(spectrum.n_frequencies, spectrum.active_counts)
+values = spectrum.evaluate(x)
+
+sweep = expressivity_analyzer(model_factory=make_model, qubit_list=[2, 4, 6],
+                             observables=lambda n: ["Z 0", "Z" * n])
+print(sweep.summary())
+```
+
+For input-coordinate conventions, two-input kernels, analysis limits and a worked
+width comparison, see the [Fourier expressivity guide](docs/expressivity.md).
+
 The legacy `qasp.rl.metrics` module provides probability-variance sampling and
 heuristic Lie-closure utilities. `compute_DLA_generators` returns closure sizes;
 the named gate-decomposition helpers supply heuristic generator lists rather
