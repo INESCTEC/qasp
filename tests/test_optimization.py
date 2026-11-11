@@ -20,6 +20,8 @@ from qasp.optimization import (
 )
 
 
+pytestmark = pytest.mark.filterwarnings("error:The 'id' argument is deprecated")
+
 @pytest.fixture
 def triangle_maxcut():
     return QUBO.maxcut(3, [(0, 1), (1, 2), (0, 2)])

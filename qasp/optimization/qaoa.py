@@ -336,7 +336,7 @@ class QAOA:
         if self.warm_start is not None:
             angles = 2.0 * np.arcsin(np.sqrt(self.warm_start))
             for wire, angle in enumerate(angles):
-                qml.RY(angle, wires=wire, id=f"qasp:warm_init:{wire}")
+                qml.RY(angle, wires=wire)._qasp_parameter_id = f"qasp:warm_init:{wire}"
             return
         if isinstance(self.initial_state, str):
             state = self.initial_state.lower()
@@ -355,12 +355,12 @@ class QAOA:
     @staticmethod
     def _apply_pauli_evolution(term: PauliTerm, angle, *, gate_id=None):
         """Queue exp(-i * angle * coefficient * PauliWord) using a PauliRot with twice that angle."""
-        qml.PauliRot(
+        rotation = qml.PauliRot(
             2.0 * angle * term.coefficient,
             term.pauli,
             wires=term.wires,
-            id=gate_id,
         )
+        rotation._qasp_parameter_id = gate_id
 
     def _apply_warm_mixer(self, beta_values, *, layer: int):
         """Queue exact local evolutions about the warm-start axes, with mixer_evolution_sign applied to beta."""
@@ -371,20 +371,14 @@ class QAOA:
             # Exact evolution under -sin(theta)X-cos(theta)Z, whose ground
             # state is the warm-start state prepared above.
             qml.RY(
-                -theta,
-                wires=wire,
-                id=f"qasp:warm_basis:pre:{layer}:{wire}",
-            )
+                -theta, wires=wire,
+            )._qasp_parameter_id = f"qasp:warm_basis:pre:{layer}:{wire}"
             qml.RZ(
-                -2.0 * self.mixer_evolution_sign * beta,
-                wires=wire,
-                id=f"qasp:mixer:{layer}:{wire}",
-            )
+                -2.0 * self.mixer_evolution_sign * beta, wires=wire,
+            )._qasp_parameter_id = f"qasp:mixer:{layer}:{wire}"
             qml.RY(
-                theta,
-                wires=wire,
-                id=f"qasp:warm_basis:post:{layer}:{wire}",
-            )
+                theta, wires=wire,
+            )._qasp_parameter_id = f"qasp:warm_basis:post:{layer}:{wire}"
 
     def _apply_layers(self, parameters):
         """Queue initial-state preparation and every cost/mixer layer using standard or multi-angle parameter ordering."""

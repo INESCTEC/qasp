@@ -159,7 +159,7 @@ class IQPAnsatz:
             '''
             if (self.reuploading or l == 0):
                 for n in range(self.n_qubits):
-                    # qml.RZ(phase[n], wires=n, id = 'input-encoding gate')
+                    # qml.RZ(phase[n], wires=n)
                     qml.RZ(phase[n], wires=n)
             else:
                 for n in range(self.n_qubits):
@@ -232,7 +232,7 @@ class IQPAnsatz:
 
                 if (self.reuploading or l == 0):
                     for n in range(self.n_qubits):
-                        qml.RZ(phase[n], wires=n, id = 'input-encoding gate')
+                        qml.RZ(phase[n], wires=n)
                 else:
                     for n in range(self.n_qubits):
                         qml.RZ(phase[n], wires=n) 
@@ -418,8 +418,7 @@ class AngleAnsatz:
                             qml.PauliRot(
                                 theta=phase[counter],
                                 pauli_word=r,
-                                wires=[n],
-                                id='input-encoding gate'
+                                wires=[n]
                             )
                             counter += 1
                 else:
@@ -444,7 +443,7 @@ class AngleAnsatz:
                         if pauli == "WC":
                             qml.WireCut(wires=qubits)
                         else:
-                            qml.PauliRot(theta=phase[index],pauli_word=pauli, wires=qubits, id = 'input-encoding gate')
+                            qml.PauliRot(theta=phase[index],pauli_word=pauli, wires=qubits)
                     else:
                         if pauli == "WC":
                             qml.WireCut(wires=qubits)
@@ -520,8 +519,7 @@ class AngleAnsatz:
                                 qml.PauliRot(
                                     theta=phase[counter],
                                     pauli_word=r,
-                                    wires=[n],
-                                    id='input-encoding gate'
+                                    wires=[n]
                                 )
                                 counter += 1
                     else:
@@ -543,7 +541,7 @@ class AngleAnsatz:
                         qubits = [int(i) for i in wires]
                         "apply the rotation to the qubit"
                         if (self.reuploading or l == 0):
-                            qml.PauliRot(theta=phase[index],pauli_word=pauli, wires=qubits, id = 'input-encoding gate')
+                            qml.PauliRot(theta=phase[index],pauli_word=pauli, wires=qubits)
                         else:
                             qml.PauliRot(theta=phase[index],pauli_word=pauli, wires=qubits)                    
         elif self.parity_gates != None:

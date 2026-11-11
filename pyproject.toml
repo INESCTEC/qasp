@@ -50,6 +50,8 @@ dependencies = [
 preview = ["ipython>=8"]
 dev = [
   "ipykernel",
+  "nbclient",
+  "nbformat",
   "pytest",
   "ruff",
   "scikit-learn",

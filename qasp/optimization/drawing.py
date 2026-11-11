@@ -53,12 +53,12 @@ def _numeric_label(value, decimals):
 
 
 def _qaoa_parameter_formatter(model: QAOA, decimals: int):
-    """Create paper-friendly gamma/beta labels from QAOA operation IDs."""
+    """Create paper-friendly gamma/beta labels from QAOA operation metadata."""
 
     def formatter(value, operation, parameter_index, global_index):
         """Translate tagged QAOA operations into layer/term-aware gamma, beta or warm-start labels for Quantikz."""
         del parameter_index
-        operation_id = str(getattr(operation, "id", "") or "")
+        operation_id = str(getattr(operation, "_qasp_parameter_id", "") or "")
         parts = operation_id.split(":")
         if len(parts) >= 3 and parts[:2] == ["qasp", "warm_init"]:
             return rf"\vartheta_{{{int(parts[2]) + 1}}}"

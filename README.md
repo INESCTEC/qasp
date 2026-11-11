@@ -46,6 +46,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - [Manual circuit construction example](#manual-circuit-construction-example)
 - [High level RL policies from dictionaries and `create_policy`](#high-level-rl-policies-from-dictionaries-and-create_policy)
 - [Reinforcement learning example with REINFORCE](#reinforcement-learning-example-with-reinforce)
+- [Optional RLlib integration](#optional-rllib-integration)
 - [Policy classes in `qasp.rl.policies`](#policy-classes-in-qasprlpolicies)
 - [Trainability and analysis utilities](#trainability-and-analysis-utilities)
 - [Fourier expressivity before and after training](#fourier-expressivity)
@@ -60,6 +61,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - Build PQCs from composable **feature maps** and **ansätze**
 - Train **Born** and **softmax** policies on Gym/Gymnasium-style environments
 - Run lightweight **REINFORCE** training loops directly from QASP
+- Optionally train existing policies and PQDQN models with **RLlib PPO/Double DQN**, distributed rollouts and Slurm
 - Inspect each model output with **Fourier expressivity analysis**: complex coefficients, learned input frequencies, qubit sweeps, and before/after-training comparisons
 - Evaluate trainability with utilities such as:
   - model-agnostic cost-concentration diagnosis,
@@ -460,6 +462,7 @@ qasp/
     ├── pp_sim.py           # truncated Pauli propagation simulator
     ├── differentiable_pp_sim.py
     ├── torchrl.py          # DQN, REINFORCE, PPO, bandits and TorchRL adapter
+    ├── rllib.py            # Opt-in PPO/DQN adapters for existing QASP models
     ├── qfunctions/         # PQDQN models, Pauli readouts and drawings
     ├── envs.py             # Windy target-navigation environment
     └── trl.py              # Historical TorchRL prototype (see limitations)
@@ -1631,6 +1634,52 @@ The trainer supports several knobs that are useful in experiments:
 This makes it straightforward to compare PQC policies across environments such as CartPole, Acrobot, and contextual bandits.
 
 ---
+
+## Optional RLlib integration
+
+Keep constructing `PQCSoftmax`, Born policies and `PQDQN` through `qasp.rl` as
+usual. Import `qasp.rl.rllib` only when you want RLlib to manage PPO or Double
+DQN training, rollout workers, replay and checkpoints. Existing QASP trainers,
+model constructors and direct PyTorch calls keep their original behavior.
+
+The adapters are included in this source checkout; the published QASP 0.3.0
+wheel predates them. Install the checkout with the tested Ray version:
+
+```bash
+python -m pip install -e . "ray[rllib]==2.60.0"
+```
+
+Given your existing `policy` and `q_model` objects:
+
+```python
+from qasp.rl.rllib import ppo_module_spec, dqn_module_spec
+from ray.rllib.algorithms.ppo import PPOConfig
+from ray.rllib.algorithms.dqn import DQNConfig
+
+ppo_config = (
+    PPOConfig().environment("CartPole-v1")
+    .rl_module(rl_module_spec=ppo_module_spec(policy))
+    .env_runners(num_env_runners=2)
+)
+dqn_config = (
+    DQNConfig().environment("CartPole-v1")
+    .training(dueling=False, num_atoms=1, double_q=True)
+    .rl_module(rl_module_spec=dqn_module_spec(q_model))
+    .env_runners(num_env_runners=2)
+)
+```
+
+PPO adds a classical critic; DQN uses an independent target Q-network. Hybrid
+PyTorch models and worker-local factories are supported. The supplied objects
+are snapshotted, so RLlib trains independent copies. Set `num_env_runners=0`
+for local rollouts or connect Ray to a Slurm allocation for distributed sampling.
+
+The [CartPole notebook](examples/cartpole_rllib.ipynb) defines the complete
+training recipe. With one training seed and 100 separate greedy test episodes,
+PPO reached **497.49/500** and PQDQN reached **500.00/500**, above the 475 target.
+These are local training results; multi-node Slurm convergence was not tested.
+See the [adapter guide](docs/rllib.md), [command-line example](examples/rllib_cartpole.py)
+and [Slurm template](examples/slurm/rllib_cartpole.sbatch) for execution and limits.
 
 ## Policy classes in `qasp.rl.policies`
 
