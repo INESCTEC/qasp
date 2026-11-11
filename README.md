@@ -683,13 +683,39 @@ draw_qcbm(model, output="tikz", return_tex=False, tikz_options={
 
 ### Combinatorial optimization
 
-- `QUBO`
+- `QUBO`, `GraphSolution`
 - `QAOA`, `WarmStartQAOA`
 - `RecursiveQAOA`, `RQAOA`
 - `LRQAOA`, `LinearRampQAOA`
 - `PauliCorrelationEncoding`, `PCE`
 - `create_optimizer`
 - `draw_optimization`, `draw_qaoa`, `draw_pce`, `draw_recursive_qaoa`
+
+`QUBO` includes **14 graph formulations**: MaxCut, maximum independent set,
+minimum vertex cover, maximum clique, maximum matching, minimum dominating set,
+minimum edge cover, graph coloring, Max-K-Cut, fixed-size graph partitioning,
+densest-k subgraph, Hamiltonian path, Hamiltonian cycle and traveling salesperson.
+These factories are available in the pending source update
+([PR #15](https://github.com/INESCTEC/qasp/pull/15)).
+See the [formulation guide](docs/graph_problems.md) for equations, inputs, penalty
+bounds and variable counts, and the [graph tutorial](tutorials/optimization/graph_problems.ipynb)
+for training and drawing examples.
+
+```python
+from qasp import QUBO
+
+problem = QUBO.minimum_vertex_cover(4, [(0, 1), (1, 2), (2, 3)])
+print(problem.n_variables, problem.variable_labels)
+# After training a solver with this problem:
+# candidate = problem.decode(result.bitstring)
+# print(candidate.solution, candidate.objective, candidate.feasible)
+```
+
+`decode()` reports the original graph score, feasibility and auxiliary-bit
+consistency separately from penalized QUBO energy. Coloring, routing and coverage
+encodings can require more binary variables than graph vertices: QAOA uses
+`problem.n_variables` qubits. All factories also work with PCE and QAOA variants;
+the chosen circuit must still meet the simulator's gate and readout requirements.
 
 <!-- readme-circuit: optimization -->
 

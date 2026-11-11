@@ -296,6 +296,12 @@ Sources: [QUBO](../qasp/optimization/problem.py), [QAOA](../qasp/optimization/qa
 `QUBO` represents \(c+x^TQx\) with binary variables; an off-diagonal pair has
 coefficient (Q_{ij}+Q_{ji}), without an implicit factor of one half. Its Ising
 conversion uses (x_i=(1-Z_i)/2). `QUBO.maxcut` minimizes the **negative** cut.
+There are [14 named graph formulations](graph_problems.md), covering cuts, vertex
+sets, covers, matching, coloring, partitioning and routes. They share automatic
+penalty bounds, encoding metadata and `problem.decode(result.bitstring)` for
+original scores and graph/auxiliary feasibility. QAOA uses the total binary
+variable count, which can exceed the graph vertex count. See the
+[graph tutorial](../tutorials/optimization/graph_problems.ipynb).
 `QAOA` supports shared or multi-angle parameters, standard/custom mixers and
 warm starts. `WarmStartQAOA` enables the relaxed initialization path.
 `LRQAOA` uses a deterministic angle ramp rather than a classical training loop.
