@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="856.8pt" viewBox="0 0 1152 856.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="1065.6pt" viewBox="0 0 1152 1065.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <title>QASP architecture</title>
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>QASP architecture</dc:title>
-    <dc:date>2026-11-03T16:13:24.256647</dc:date>
-    <dc:description>Feature maps, ansatz templates, initialization, circuit construction, simulators and five application modules.</dc:description>
+    <dc:date>2026-11-11T12:22:21.478936</dc:date>
+    <dc:description>Building blocks, circuit construction, simulators, five application modules and a bottom diagnostics tier with the barren plateau diagnoser and Fourier expressivity analyzer.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.10.3, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -24,8 +24,8 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M 0 856.8
-L 1152 856.8
+   <path d="M 0 1065.6
+L 1152 1065.6
 L 1152 0
 L 0 0
 z
@@ -43,139 +43,179 @@ Q 34.56 583.2 34.56 571.68
 L 34.56 432
 Q 34.56 420.48 46.08 420.48
 z
-" clip-path="url(#p99b75120c9)" style="fill: #edf1f8; stroke: #c8d4e3; stroke-width: 1.2; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #edf1f8; stroke: #c8d4e3; stroke-width: 1.2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 277.92 172.8
 Q 292.041475 172.8 304.150488 172.8
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 298.950488 170.2
 L 304.150488 172.8
 L 298.950488 175.4
 z
-" clip-path="url(#p99b75120c9)" style="fill: #087f8c; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #087f8c; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_4">
     <path d="M 437.76 228.96
 Q 437.76 254.600024 437.76 278.227588
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 440.36 273.027588
 L 437.76 278.227588
 L 435.16 273.027588
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="line2d_1">
     <path d="M 723.6 228.96
 L 723.6 252
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8"/>
    </g>
    <g id="line2d_2">
     <path d="M 723.6 252
 L 622.8 252
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8"/>
    </g>
    <g id="patch_5">
     <path d="M 622.8 252
 Q 622.8 266.121475 622.8 278.230488
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 625.4 273.030488
 L 622.8 278.230488
 L 620.2 273.030488
 z
-" clip-path="url(#p99b75120c9)" style="fill: #6a46ba; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #6a46ba; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #6a46ba; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_6">
     <path d="M 243.36 332.64
 Q 256.759805 332.64 268.147148 332.64
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 262.947148 330.04
 L 268.147148 332.64
 L 262.947148 335.24
 z
-" clip-path="url(#p99b75120c9)" style="fill: #087f8c; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #087f8c; stroke: #087f8c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_7">
     <path d="M 740.16 332.64
 Q 753.559805 332.64 764.947148 332.64
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 759.747148 330.04
 L 764.947148 332.64
 L 759.747148 335.24
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_8">
     <path d="M 943.2 385.92
 Q 943.2 401.121343 943.2 414.310224
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 945.8 409.110224
 L 943.2 414.310224
 L 940.6 409.110224
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="line2d_3">
     <path d="M 138.24 650.88
 L 1013.76 650.88
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.6; stroke-linecap: square"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.6; stroke-linecap: square"/>
    </g>
    <g id="line2d_4">
     <path d="M 576 616.32
 L 576 650.88
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.6; stroke-linecap: square"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.6; stroke-linecap: square"/>
    </g>
    <g id="patch_9">
     <path d="M 138.24 650.88
 Q 138.24 658.518047 138.24 664.143633
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 140.84 658.943633
 L 138.24 664.143633
 L 135.64 658.943633
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_10">
     <path d="M 357.12 650.88
 Q 357.12 658.518047 357.12 664.143633
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 359.72 658.943633
 L 357.12 664.143633
 L 354.52 658.943633
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_11">
     <path d="M 576 650.88
 Q 576 658.518047 576 664.143633
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 578.6 658.943633
 L 576 664.143633
 L 573.4 658.943633
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_12">
     <path d="M 794.88 650.88
 Q 794.88 658.518047 794.88 664.143633
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 797.48 658.943633
 L 794.88 664.143633
 L 792.28 658.943633
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="patch_13">
     <path d="M 1013.76 650.88
 Q 1013.76 658.518047 1013.76 664.143633
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
     <path d="M 1016.36 658.943633
 L 1013.76 664.143633
 L 1011.16 658.943633
 z
-" clip-path="url(#p99b75120c9)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 138.24 786.24
+L 138.24 802.8
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.5"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 357.12 786.24
+L 357.12 802.8
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.5"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 576 786.24
+L 576 802.8
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.5"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 138.24 802.8
+L 852.48 802.8
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.5"/>
    </g>
    <g id="patch_14">
+    <path d="M 299.52 802.8
+Q 299.52 828.080706 299.52 851.34895
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+    <path d="M 302.12 846.14895
+L 299.52 851.34895
+L 296.92 846.14895
+z
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 852.48 802.8
+Q 852.48 828.080706 852.48 851.34895
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+    <path d="M 855.08 846.14895
+L 852.48 851.34895
+L 849.88 846.14895
+z
+" clip-path="url(#p2bc80104cc)" style="fill: #62768c; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #62768c; stroke-width: 1.8; stroke-linecap: round"/>
+   </g>
+   <g id="patch_16">
     <path d="M 44.64 118.08
 L 267.84 118.08
 Q 277.92 118.08 277.92 128.16
@@ -186,9 +226,9 @@ Q 34.56 228.96 34.56 218.88
 L 34.56 128.16
 Q 34.56 118.08 44.64 118.08
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_15">
+   <g id="patch_17">
     <path d="M 318.24 118.08
 L 557.28 118.08
 Q 567.36 118.08 567.36 128.16
@@ -199,9 +239,9 @@ Q 308.16 228.96 308.16 218.88
 L 308.16 128.16
 Q 308.16 118.08 318.24 118.08
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_16">
+   <g id="patch_18">
     <path d="M 607.68 118.08
 L 1107.36 118.08
 Q 1117.44 118.08 1117.44 128.16
@@ -212,9 +252,9 @@ Q 597.6 228.96 597.6 218.88
 L 597.6 128.16
 Q 597.6 118.08 607.68 118.08
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_17">
+   <g id="patch_19">
     <path d="M 44.64 282.24
 L 233.28 282.24
 Q 243.36 282.24 243.36 292.32
@@ -225,9 +265,9 @@ Q 34.56 385.92 34.56 375.84
 L 34.56 292.32
 Q 34.56 282.24 44.64 282.24
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_18">
+   <g id="patch_20">
     <path d="M 282.24 282.24
 L 730.08 282.24
 Q 740.16 282.24 740.16 292.32
@@ -238,9 +278,9 @@ Q 272.16 385.92 272.16 375.84
 L 272.16 292.32
 Q 272.16 282.24 282.24 282.24
 z
-" clip-path="url(#p99b75120c9)" style="fill: #edf5fc; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #edf5fc; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_19">
+   <g id="patch_21">
     <path d="M 779.04 282.24
 L 1107.36 282.24
 Q 1117.44 282.24 1117.44 292.32
@@ -251,9 +291,9 @@ Q 768.96 385.92 768.96 375.84
 L 768.96 292.32
 Q 768.96 282.24 779.04 282.24
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_20">
+   <g id="patch_22">
     <path d="M 61.92 460.8
 L 375.84 460.8
 Q 385.92 460.8 385.92 470.88
@@ -264,9 +304,9 @@ Q 51.84 565.92 51.84 555.84
 L 51.84 470.88
 Q 51.84 460.8 61.92 460.8
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_21">
+   <g id="patch_23">
     <path d="M 410.4 460.8
 L 741.6 460.8
 Q 751.68 460.8 751.68 470.88
@@ -277,9 +317,9 @@ Q 400.32 565.92 400.32 555.84
 L 400.32 470.88
 Q 400.32 460.8 410.4 460.8
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_22">
+   <g id="patch_24">
     <path d="M 776.16 460.8
 L 1090.08 460.8
 Q 1100.16 460.8 1100.16 470.88
@@ -290,9 +330,9 @@ Q 766.08 565.92 766.08 555.84
 L 766.08 470.88
 Q 766.08 460.8 776.16 460.8
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_23">
+   <g id="patch_25">
     <path d="M 44.64 668.16
 L 231.84 668.16
 Q 241.92 668.16 241.92 678.24
@@ -303,9 +343,9 @@ Q 34.56 786.24 34.56 776.16
 L 34.56 678.24
 Q 34.56 668.16 44.64 668.16
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_24">
+   <g id="patch_26">
     <path d="M 263.52 668.16
 L 450.72 668.16
 Q 460.8 668.16 460.8 678.24
@@ -316,9 +356,9 @@ Q 253.44 786.24 253.44 776.16
 L 253.44 678.24
 Q 253.44 668.16 263.52 668.16
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_25">
+   <g id="patch_27">
     <path d="M 482.4 668.16
 L 669.6 668.16
 Q 679.68 668.16 679.68 678.24
@@ -329,9 +369,9 @@ Q 472.32 786.24 472.32 776.16
 L 472.32 678.24
 Q 472.32 668.16 482.4 668.16
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_26">
+   <g id="patch_28">
     <path d="M 701.28 668.16
 L 888.48 668.16
 Q 898.56 668.16 898.56 678.24
@@ -342,9 +382,9 @@ Q 691.2 786.24 691.2 776.16
 L 691.2 678.24
 Q 691.2 668.16 701.28 668.16
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
-   <g id="patch_27">
+   <g id="patch_29">
     <path d="M 920.16 668.16
 L 1107.36 668.16
 Q 1117.44 668.16 1117.44 678.24
@@ -355,308 +395,377 @@ Q 910.08 786.24 910.08 776.16
 L 910.08 678.24
 Q 910.08 668.16 920.16 668.16
 z
-" clip-path="url(#p99b75120c9)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_30">
+    <path d="M 44.64 855.36
+L 554.4 855.36
+Q 564.48 855.36 564.48 865.44
+L 564.48 970.56
+Q 564.48 980.64 554.4 980.64
+L 44.64 980.64
+Q 34.56 980.64 34.56 970.56
+L 34.56 865.44
+Q 34.56 855.36 44.64 855.36
+z
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_31">
+    <path d="M 597.6 855.36
+L 1107.36 855.36
+Q 1117.44 855.36 1117.44 865.44
+L 1117.44 970.56
+Q 1117.44 980.64 1107.36 980.64
+L 597.6 980.64
+Q 587.52 980.64 587.52 970.56
+L 587.52 865.44
+Q 587.52 855.36 597.6 855.36
+z
+" clip-path="url(#p2bc80104cc)" style="fill: #ffffff; stroke: #ccd8e5; stroke-width: 1.3; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
-    <text style="font-weight: 700; font-size: 28.8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #14243b" x="34.56" y="46.107" transform="rotate(-0 34.56 46.107)">QASP</text>
+    <text style="font-weight: 700; font-size: 28.8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #14243b" x="34.56" y="45.64125" transform="rotate(-0 34.56 45.64125)">QASP</text>
    </g>
    <g id="text_2">
-    <text style="font-size: 18.72px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="145.44" y="44.04555" transform="rotate(-0 145.44 44.04555)">From reusable quantum building blocks to learning and optimization</text>
+    <text style="font-size: 18.72px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="145.44" y="43.743544" transform="rotate(-0 145.44 43.743544)">From reusable quantum building blocks to learning and optimization</text>
    </g>
    <g id="text_3">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="69.617475" transform="rotate(-0 34.56 69.617475)">Conceptual architecture  ·  Arrows show composition and shared infrastructure, not a mandatory execution sequence.</text>
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="69.420009" transform="rotate(-0 34.56 69.420009)">Conceptual architecture  ·  Arrows show composition and shared infrastructure, not a mandatory execution sequence.</text>
    </g>
    <g id="text_4">
-    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="101.8188" transform="rotate(-0 34.56 101.8188)">01</text>
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="101.6325" transform="rotate(-0 34.56 101.6325)">01</text>
    </g>
    <g id="text_5">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="102.21615" transform="rotate(-0 60.48 102.21615)">BUILDING BLOCKS</text>
-   </g>
-   <g id="line2d_5">
-    <path d="M 48.96 134.64
-L 48.96 212.4
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
-   </g>
-   <g id="text_6">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="61.92" y="148.0482" transform="rotate(-0 61.92 148.0482)">Feature maps</text>
-   </g>
-   <g id="text_7">
-    <text style="font-size: 12.096px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="171.81774" transform="rotate(-0 61.92 171.81774)">AngleEmbedding</text>
-   </g>
-   <g id="text_8">
-    <text style="font-size: 12.096px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="190.53774" transform="rotate(-0 61.92 190.53774)">NeuralEmbedding</text>
-   </g>
-   <g id="text_9">
-    <text style="font-size: 11.780452px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="209.170669" transform="rotate(-0 61.92 209.170669)">Input encoding + trainable scales</text>
-   </g>
-   <g id="line2d_6">
-    <path d="M 322.56 134.64
-L 322.56 212.4
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
-   </g>
-   <g id="text_10">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="335.52" y="148.0482" transform="rotate(-0 335.52 148.0482)">Ansatz templates</text>
-   </g>
-   <g id="text_11">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="335.52" y="171.857475" transform="rotate(-0 335.52 171.857475)">AngleAnsatz  ·  IQPAnsatz</text>
-   </g>
-   <g id="text_12">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="335.52" y="190.577475" transform="rotate(-0 335.52 190.577475)">Feature map + gate structure</text>
-   </g>
-   <g id="text_13">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="335.52" y="209.297475" transform="rotate(-0 335.52 209.297475)">Layers · entanglers · reuploading</text>
-   </g>
-   <g id="line2d_7">
-    <path d="M 612 134.64
-L 612 212.4
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
-   </g>
-   <g id="text_14">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="624.96" y="148.0482" transform="rotate(-0 624.96 148.0482)">Parameter initialization</text>
-   </g>
-   <g id="text_15">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="624.96" y="172.05615" transform="rotate(-0 624.96 172.05615)">Normal · Uniform · Beta · TruncatedNormal · LogNormal</text>
-   </g>
-   <g id="text_16">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="624.96" y="190.77615" transform="rotate(-0 624.96 190.77615)">Gamma · Exponential · Laplace · Rademacher</text>
-   </g>
-   <g id="text_17">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="624.96" y="209.49615" transform="rotate(-0 624.96 209.49615)">Constant · Zeros · Ones · Choice</text>
-   </g>
-   <g id="text_18">
-    <text style="font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="447.84" y="255.1788" transform="rotate(-0 447.84 255.1788)">compose</text>
-   </g>
-   <g id="text_19">
-    <text style="font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="748.8" y="255.1788" transform="rotate(-0 748.8 255.1788)">Ansatz weights + input scales / neural projections</text>
-   </g>
-   <g id="text_20">
-    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="269.5788" transform="rotate(-0 34.56 269.5788)">02</text>
-   </g>
-   <g id="text_21">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="269.97615" transform="rotate(-0 60.48 269.97615)">CONSTRUCTION AND EXECUTION</text>
-   </g>
-   <g id="line2d_8">
-    <path d="M 48.96 298.8
-L 48.96 369.36
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
-   </g>
-   <g id="text_22">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="61.92" y="312.2082" transform="rotate(-0 61.92 312.2082)">Readout</text>
-   </g>
-   <g id="text_23">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="336.017475" transform="rotate(-0 61.92 336.017475)">Pauli expectations</text>
-   </g>
-   <g id="text_24">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="354.737475" transform="rotate(-0 61.92 354.737475)">Probabilities · variances</text>
-   </g>
-   <g id="text_25">
-    <text style="font-size: 11.505473px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="373.254792" transform="rotate(-0 61.92 373.254792)">Observable / decoder choice</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="102.006562" transform="rotate(-0 60.48 102.006562)">BUILDING BLOCKS</text>
    </g>
    <g id="line2d_9">
-    <path d="M 286.56 298.8
-L 286.56 369.36
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 48.96 134.64
+L 48.96 212.4
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_26">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="299.52" y="312.2082" transform="rotate(-0 299.52 312.2082)">CircuitBuilder</text>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="61.92" y="147.76875" transform="rotate(-0 61.92 147.76875)">Feature maps</text>
    </g>
-   <g id="text_27">
-    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="299.52" y="336.6135" transform="rotate(-0 299.52 336.6135)">Ansatz + measurement → quantum function → QNode</text>
+   <g id="text_7">
+    <text style="font-size: 12.096px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="171.622597" transform="rotate(-0 61.92 171.622597)">AngleEmbedding</text>
    </g>
-   <g id="text_28">
-    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="299.52" y="355.3335" transform="rotate(-0 299.52 355.3335)">Optional TorchLayer; configurable differentiation</text>
+   <g id="text_8">
+    <text style="font-size: 12.096px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="190.342598" transform="rotate(-0 61.92 190.342598)">NeuralEmbedding</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 11.646114px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="208.945715" transform="rotate(-0 61.92 208.945715)">Input encoding + trainable scales</text>
    </g>
    <g id="line2d_10">
-    <path d="M 783.36 298.8
-L 783.36 369.36
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 322.56 134.64
+L 322.56 212.4
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_29">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="796.32" y="312.2082" transform="rotate(-0 796.32 312.2082)">Device selection</text>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="335.52" y="147.769425" transform="rotate(-0 335.52 147.769425)">Ansatz templates</text>
    </g>
-   <g id="text_30">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="796.32" y="336.035925" transform="rotate(-0 796.32 336.035925)">qasp.devices.create_device</text>
+   <g id="text_11">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="335.52" y="171.660009" transform="rotate(-0 335.52 171.660009)">AngleAnsatz  ·  IQPAnsatz</text>
    </g>
-   <g id="text_31">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="796.32" y="354.755925" transform="rotate(-0 796.32 354.755925)">device · device_kwargs · wires · shots</text>
+   <g id="text_12">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="335.52" y="190.379531" transform="rotate(-0 335.52 190.379531)">Feature map + gate structure</text>
    </g>
-   <g id="text_32">
-    <text style="font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #4e6179" x="930.24" y="406.3788" transform="rotate(-0 930.24 406.3788)">select backend</text>
-   </g>
-   <g id="text_33">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="53.28" y="444.93615" transform="rotate(-0 53.28 444.93615)">SIMULATORS AND EXECUTION BACKENDS</text>
+   <g id="text_13">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="335.52" y="209.100009" transform="rotate(-0 335.52 209.100009)">Layers · entanglers · reuploading</text>
    </g>
    <g id="line2d_11">
-    <path d="M 66.24 477.36
-L 66.24 549.36
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 612 134.64
+L 612 212.4
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_34">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="79.2" y="490.7682" transform="rotate(-0 79.2 490.7682)">IQPSimulator</text>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="624.96" y="147.769425" transform="rotate(-0 624.96 147.769425)">Parameter initialization</text>
    </g>
-   <g id="text_35">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="79.2" y="514.77615" transform="rotate(-0 79.2 514.77615)">Commuting IQP circuits</text>
+   <g id="text_15">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="624.96" y="171.847069" transform="rotate(-0 624.96 171.847069)">Normal · Uniform · Beta · TruncatedNormal · LogNormal</text>
    </g>
-   <g id="text_36">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="79.2" y="533.49615" transform="rotate(-0 79.2 533.49615)">Exact TN · sampled Van den Nest · auto</text>
+   <g id="text_16">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="624.96" y="190.567069" transform="rotate(-0 624.96 190.567069)">Gamma · Exponential · Laplace · Rademacher</text>
    </g>
-   <g id="text_37">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="79.2" y="552.21615" transform="rotate(-0 79.2 552.21615)">Torch gradients; VN multicore execution</text>
+   <g id="text_17">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="624.96" y="209.287069" transform="rotate(-0 624.96 209.287069)">Constant · Zeros · Ones · Choice</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="447.84" y="254.9925" transform="rotate(-0 447.84 254.9925)">compose</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="748.8" y="254.99295" transform="rotate(-0 748.8 254.99295)">Ansatz weights + input scales / neural projections</text>
+   </g>
+   <g id="text_20">
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="269.3925" transform="rotate(-0 34.56 269.3925)">02</text>
+   </g>
+   <g id="text_21">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="269.766563" transform="rotate(-0 60.48 269.766563)">CONSTRUCTION AND EXECUTION</text>
    </g>
    <g id="line2d_12">
-    <path d="M 414.72 477.36
-L 414.72 549.36
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 48.96 298.8
+L 48.96 369.36
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_38">
-    <text style="font-weight: 700; font-size: 16.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="427.68" y="490.504838" transform="rotate(-0 427.68 490.504838)">PauliPropagationSimulator</text>
+   <g id="text_22">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="61.92" y="311.929425" transform="rotate(-0 61.92 311.929425)">Readout</text>
    </g>
-   <g id="text_39">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="427.68" y="514.77615" transform="rotate(-0 427.68 514.77615)">General supported Clifford / Pauli rotations</text>
+   <g id="text_23">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="335.820009" transform="rotate(-0 61.92 335.820009)">Pauli expectations</text>
    </g>
-   <g id="text_40">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="427.68" y="533.49615" transform="rotate(-0 427.68 533.49615)">Exact by default; optional truncation</text>
+   <g id="text_24">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="354.540009" transform="rotate(-0 61.92 354.540009)">Probabilities · variances</text>
    </g>
-   <g id="text_41">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="427.68" y="552.21615" transform="rotate(-0 427.68 552.21615)">Differentiable Heisenberg propagation</text>
+   <g id="text_25">
+    <text style="font-size: 11.643876px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="373.105134" transform="rotate(-0 61.92 373.105134)">Observable / decoder choice</text>
    </g>
    <g id="line2d_13">
-    <path d="M 780.48 477.36
-L 780.48 549.36
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 286.56 298.8
+L 286.56 369.36
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_42">
-    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="793.44" y="490.7007" transform="rotate(-0 793.44 490.7007)">PennyLane devices</text>
+   <g id="text_26">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="299.52" y="311.929425" transform="rotate(-0 299.52 311.929425)">CircuitBuilder</text>
    </g>
-   <g id="text_43">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="793.44" y="514.77615" transform="rotate(-0 793.44 514.77615)">default.qubit · Lightning · tensor networks</text>
+   <g id="text_27">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="299.52" y="336.381188" transform="rotate(-0 299.52 336.381188)">Ansatz + measurement → quantum function → QNode</text>
    </g>
-   <g id="text_44">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="793.44" y="533.49615" transform="rotate(-0 793.44 533.49615)">Other compatible installed plugins</text>
-   </g>
-   <g id="text_45">
-    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="793.44" y="552.21615" transform="rotate(-0 793.44 552.21615)">Kokkos / MPI where supported</text>
-   </g>
-   <g id="text_46">
-    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #4e6179" x="576" y="610.2135" transform="rotate(-0 576 610.2135)">Shared circuit, readout, execution and gradient contracts</text>
-   </g>
-   <g id="text_47">
-    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="636.7788" transform="rotate(-0 34.56 636.7788)">03</text>
-   </g>
-   <g id="text_48">
-    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="637.17615" transform="rotate(-0 60.48 637.17615)">APPLICATION MODULES</text>
+   <g id="text_28">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="299.52" y="355.101188" transform="rotate(-0 299.52 355.101188)">Optional TorchLayer; configurable differentiation</text>
    </g>
    <g id="line2d_14">
-    <path d="M 48.96 684.72
-L 48.96 769.68
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 783.36 298.8
+L 783.36 369.36
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_49">
-    <text style="font-weight: 700; font-size: 12.184927px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="61.92" y="696.674681" transform="rotate(-0 61.92 696.674681)">Reinforcement learning</text>
+   <g id="text_29">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="796.32" y="311.929425" transform="rotate(-0 796.32 311.929425)">Device selection</text>
    </g>
-   <g id="text_50">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="721.838138" transform="rotate(-0 61.92 721.838138)">qasp.rl</text>
+   <g id="text_30">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="796.32" y="336.007069" transform="rotate(-0 796.32 336.007069)">qasp.devices.create_device</text>
    </g>
-   <g id="text_51">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="740.558138" transform="rotate(-0 61.92 740.558138)">Born / softmax policies</text>
+   <g id="text_31">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="796.32" y="354.727069" transform="rotate(-0 796.32 354.727069)">device · device_kwargs · wires · shots</text>
    </g>
-   <g id="text_52">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="759.278138" transform="rotate(-0 61.92 759.278138)">PQDQN Q-functions</text>
+   <g id="text_32">
+    <text style="font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #4e6179" x="930.24" y="406.19295" transform="rotate(-0 930.24 406.19295)">select backend</text>
    </g>
-   <g id="text_53">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="777.998138" transform="rotate(-0 61.92 777.998138)">REINFORCE · DQN · PPO</text>
+   <g id="text_33">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="53.28" y="444.726563" transform="rotate(-0 53.28 444.726563)">SIMULATORS AND EXECUTION BACKENDS</text>
    </g>
    <g id="line2d_15">
-    <path d="M 267.84 684.72
-L 267.84 769.68
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 66.24 477.36
+L 66.24 549.36
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_54">
-    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="280.8" y="697.3335" transform="rotate(-0 280.8 697.3335)">Classifiers</text>
+   <g id="text_34">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="79.2" y="490.489425" transform="rotate(-0 79.2 490.489425)">IQPSimulator</text>
    </g>
-   <g id="text_55">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="721.838138" transform="rotate(-0 280.8 721.838138)">qasp.classifiers</text>
+   <g id="text_35">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="79.2" y="514.567069" transform="rotate(-0 79.2 514.567069)">Commuting IQP circuits</text>
    </g>
-   <g id="text_56">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="740.558138" transform="rotate(-0 280.8 740.558138)">PQCClassifier</text>
+   <g id="text_36">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="79.2" y="533.287069" transform="rotate(-0 79.2 533.287069)">Exact TN · sampled Van den Nest · auto</text>
    </g>
-   <g id="text_57">
-    <text style="font-size: 11.623449px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="759.207345" transform="rotate(-0 280.8 759.207345)">Expectation / Born readouts</text>
-   </g>
-   <g id="text_58">
-    <text style="font-size: 11.504842px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="777.894617" transform="rotate(-0 280.8 777.894617)">Losses, training and metrics</text>
+   <g id="text_37">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="79.2" y="552.007069" transform="rotate(-0 79.2 552.007069)">Torch gradients; VN multicore execution</text>
    </g>
    <g id="line2d_16">
-    <path d="M 486.72 684.72
-L 486.72 769.68
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 414.72 477.36
+L 414.72 549.36
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_59">
-    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="499.68" y="697.3335" transform="rotate(-0 499.68 697.3335)">Quantum kernels</text>
+   <g id="text_38">
+    <text style="font-weight: 700; font-size: 16.56px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="427.68" y="490.302366" transform="rotate(-0 427.68 490.302366)">PauliPropagationSimulator</text>
    </g>
-   <g id="text_60">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="721.838138" transform="rotate(-0 499.68 721.838138)">qasp.qkernels</text>
+   <g id="text_39">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="427.68" y="514.567069" transform="rotate(-0 427.68 514.567069)">General supported Clifford / Pauli rotations</text>
    </g>
-   <g id="text_61">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="740.558138" transform="rotate(-0 499.68 740.558138)">Fidelity · projected · Fisher</text>
+   <g id="text_40">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="427.68" y="533.287069" transform="rotate(-0 427.68 533.287069)">Exact by default; optional truncation</text>
    </g>
-   <g id="text_62">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="759.278138" transform="rotate(-0 499.68 759.278138)">Trainable kernels</text>
-   </g>
-   <g id="text_63">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="777.998138" transform="rotate(-0 499.68 777.998138)">Kernel-target alignment</text>
+   <g id="text_41">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="427.68" y="552.007069" transform="rotate(-0 427.68 552.007069)">Differentiable Heisenberg propagation</text>
    </g>
    <g id="line2d_17">
-    <path d="M 705.6 684.72
-L 705.6 769.68
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 780.48 477.36
+L 780.48 549.36
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
    </g>
-   <g id="text_64">
-    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="718.56" y="697.3335" transform="rotate(-0 718.56 697.3335)">Optimization</text>
+   <g id="text_42">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="793.44" y="490.489425" transform="rotate(-0 793.44 490.489425)">PennyLane devices</text>
    </g>
-   <g id="text_65">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="721.838138" transform="rotate(-0 718.56 721.838138)">qasp.optimization</text>
+   <g id="text_43">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="793.44" y="514.567069" transform="rotate(-0 793.44 514.567069)">default.qubit · Lightning · tensor networks</text>
    </g>
-   <g id="text_66">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="740.558138" transform="rotate(-0 718.56 740.558138)">QUBO → Ising</text>
+   <g id="text_44">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="793.44" y="533.287069" transform="rotate(-0 793.44 533.287069)">Other compatible installed plugins</text>
    </g>
-   <g id="text_67">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="759.278138" transform="rotate(-0 718.56 759.278138)">QAOA variants · PCE</text>
+   <g id="text_45">
+    <text style="font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="793.44" y="552.007069" transform="rotate(-0 793.44 552.007069)">Kokkos / MPI where supported</text>
    </g>
-   <g id="text_68">
-    <text style="font-size: 11.059378px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="777.771697" transform="rotate(-0 718.56 777.771697)">Classical optimizer interfaces</text>
+   <g id="text_46">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #4e6179" x="576" y="609.981188" transform="rotate(-0 576 609.981188)">Shared circuit, readout, execution and gradient contracts</text>
+   </g>
+   <g id="text_47">
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="636.5925" transform="rotate(-0 34.56 636.5925)">03</text>
+   </g>
+   <g id="text_48">
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="636.966563" transform="rotate(-0 60.48 636.966563)">APPLICATION MODULES</text>
    </g>
    <g id="line2d_18">
+    <path d="M 48.96 684.72
+L 48.96 769.68
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_49">
+    <text style="font-weight: 700; font-size: 12.066022px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="61.92" y="696.494809" transform="rotate(-0 61.92 696.494809)">Reinforcement learning</text>
+   </g>
+   <g id="text_50">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="721.64648" transform="rotate(-0 61.92 721.64648)">qasp.rl</text>
+   </g>
+   <g id="text_51">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="740.36648" transform="rotate(-0 61.92 740.36648)">Born / softmax policies</text>
+   </g>
+   <g id="text_52">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="759.08648" transform="rotate(-0 61.92 759.08648)">PQDQN Q-functions</text>
+   </g>
+   <g id="text_53">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="777.806016" transform="rotate(-0 61.92 777.806016)">REINFORCE · DQN · PPO</text>
+   </g>
+   <g id="line2d_19">
+    <path d="M 267.84 684.72
+L 267.84 769.68
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_54">
+    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="280.8" y="697.101188" transform="rotate(-0 280.8 697.101188)">Classifiers</text>
+   </g>
+   <g id="text_55">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="721.64648" transform="rotate(-0 280.8 721.64648)">qasp.classifiers</text>
+   </g>
+   <g id="text_56">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="740.36648" transform="rotate(-0 280.8 740.36648)">PQCClassifier</text>
+   </g>
+   <g id="text_57">
+    <text style="font-size: 11.329904px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="758.943562" transform="rotate(-0 280.8 758.943562)">Expectation / Born readouts</text>
+   </g>
+   <g id="text_58">
+    <text style="font-size: 11.217918px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="280.8" y="777.634468" transform="rotate(-0 280.8 777.634468)">Losses, training and metrics</text>
+   </g>
+   <g id="line2d_20">
+    <path d="M 486.72 684.72
+L 486.72 769.68
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_59">
+    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="499.68" y="697.101188" transform="rotate(-0 499.68 697.101188)">Quantum kernels</text>
+   </g>
+   <g id="text_60">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="721.64648" transform="rotate(-0 499.68 721.64648)">qasp.qkernels</text>
+   </g>
+   <g id="text_61">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="740.36648" transform="rotate(-0 499.68 740.36648)">Fidelity · projected · Fisher</text>
+   </g>
+   <g id="text_62">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="759.08648" transform="rotate(-0 499.68 759.08648)">Trainable kernels</text>
+   </g>
+   <g id="text_63">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="499.68" y="777.80648" transform="rotate(-0 499.68 777.80648)">Kernel-target alignment</text>
+   </g>
+   <g id="line2d_21">
+    <path d="M 705.6 684.72
+L 705.6 769.68
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #1573b8; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_64">
+    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="718.56" y="697.101188" transform="rotate(-0 718.56 697.101188)">Optimization</text>
+   </g>
+   <g id="text_65">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="721.64648" transform="rotate(-0 718.56 721.64648)">qasp.optimization</text>
+   </g>
+   <g id="text_66">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="740.36648" transform="rotate(-0 718.56 740.36648)">14 graph QUBOs → Ising</text>
+   </g>
+   <g id="text_67">
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="759.08648" transform="rotate(-0 718.56 759.08648)">QAOA variants · PCE</text>
+   </g>
+   <g id="text_68">
+    <text style="font-size: 9.844676px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="718.56" y="777.277693" transform="rotate(-0 718.56 777.277693)">Decoded objectives + feasibility</text>
+   </g>
+   <g id="line2d_22">
     <path d="M 924.48 684.72
 L 924.48 769.68
-" clip-path="url(#p99b75120c9)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="text_69">
-    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="937.44" y="697.27725" transform="rotate(-0 937.44 697.27725)">Generative learning</text>
+    <text style="font-weight: 700; font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="937.44" y="697.101188" transform="rotate(-0 937.44 697.101188)">Generative learning</text>
    </g>
    <g id="text_70">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="721.838138" transform="rotate(-0 937.44 721.838138)">qasp.genlearn</text>
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="721.64648" transform="rotate(-0 937.44 721.64648)">qasp.genlearn</text>
    </g>
    <g id="text_71">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="740.558138" transform="rotate(-0 937.44 740.558138)">PQCBM</text>
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="740.366016" transform="rotate(-0 937.44 740.366016)">PQCBM</text>
    </g>
    <g id="text_72">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="759.278138" transform="rotate(-0 937.44 759.278138)">MMD · NLL objectives</text>
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="759.08648" transform="rotate(-0 937.44 759.08648)">MMD · NLL objectives</text>
    </g>
    <g id="text_73">
-    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="777.998138" transform="rotate(-0 937.44 777.998138)">Training and sampling</text>
+    <text style="font-size: 11.88px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="937.44" y="777.80648" transform="rotate(-0 937.44 777.80648)">Training and sampling</text>
    </g>
    <g id="text_74">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="816.257475" transform="rotate(-0 34.56 816.257475)">QAOA builds cost / mixer QNodes directly and shares device selection; PCE can use CircuitBuilder.</text>
+    <text style="font-weight: 700; font-size: 11.52px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1573b8" x="34.56" y="835.3125" transform="rotate(-0 34.56 835.3125)">04</text>
    </g>
    <g id="text_75">
-    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="837.137475" transform="rotate(-0 34.56 837.137475)">Backend eligibility depends on the circuit, readout and gradient method. Initializer support follows each model’s configuration.</text>
+    <text style="font-weight: 700; font-size: 12.96px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="60.48" y="835.686563" transform="rotate(-0 60.48 835.686563)">DIAGNOSTICS</text>
+   </g>
+   <g id="line2d_23">
+    <path d="M 48.96 871.92
+L 48.96 964.08
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #087f8c; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_76">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #087f8c" x="61.92" y="885.049425" transform="rotate(-0 61.92 885.049425)">Barren plateau diagnoser</text>
+   </g>
+   <g id="text_77">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="909.501188" transform="rotate(-0 61.92 909.501188)">Cost + expectation variance across initializations</text>
+   </g>
+   <g id="text_78">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="928.221188" transform="rotate(-0 61.92 928.221188)">Qubit sweeps for compiled circuits and supported task models</text>
+   </g>
+   <g id="text_79">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="61.92" y="946.941188" transform="rotate(-0 61.92 946.941188)">Inspect concentration as architecture and width change</text>
+   </g>
+   <g id="line2d_24">
+    <path d="M 601.92 871.92
+L 601.92 964.08
+" clip-path="url(#p2bc80104cc)" style="fill: none; stroke: #6a46ba; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="text_80">
+    <text style="font-weight: 700; font-size: 17.28px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6a46ba" x="614.88" y="885.049425" transform="rotate(-0 614.88 885.049425)">Fourier expressivity analyzer</text>
+   </g>
+   <g id="text_81">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="614.88" y="909.501188" transform="rotate(-0 614.88 909.501188)">Output-resolved frequencies + complex coefficients</text>
+   </g>
+   <g id="text_82">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="614.88" y="928.221188" transform="rotate(-0 614.88 928.221188)">Encoded policies, classifiers and fidelity / projected kernels</text>
+   </g>
+   <g id="text_83">
+    <text style="font-size: 14.4px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="614.88" y="946.941188" transform="rotate(-0 614.88 946.941188)">Qubit sweeps · compare spectra before and after training</text>
+   </g>
+   <g id="text_84">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="1009.020009" transform="rotate(-0 34.56 1009.020009)">Dashed links: analysis of supported readouts. Fourier extraction uses its own bounded ideal-statevector evaluation.</text>
+   </g>
+   <g id="text_85">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="1029.900009" transform="rotate(-0 34.56 1029.900009)">QAOA builds cost / mixer QNodes directly and shares device selection; PCE can use CircuitBuilder.</text>
+   </g>
+   <g id="text_86">
+    <text style="font-size: 12.24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4e6179" x="34.56" y="1050.780009" transform="rotate(-0 34.56 1050.780009)">Backend eligibility depends on the circuit, readout and gradient method. Initializer support follows each model’s configuration.</text>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p99b75120c9">
-   <rect x="0" y="0" width="1152" height="856.8"/>
+  <clipPath id="p2bc80104cc">
+   <rect x="0" y="0" width="1152" height="1065.6"/>
   </clipPath>
  </defs>
 </svg>

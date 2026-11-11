@@ -88,8 +88,11 @@ ansatz with a measurement and compiles it into a QNode, optionally wrapped in a
 trainable TorchLayer. Initializers configure circuit weights and input scales;
 the shared device layer selects a compatible simulator. These components support
 RL, classifiers, kernels, optimization and generative learning.
+The bottom diagnostics tier adds the barren plateau diagnoser for concentration
+and qubit sweeps, and the Fourier expressivity analyzer for output-resolved
+spectra before and after training.
 
-[![QASP architecture: feature maps, ansatz templates and parameter initialization feed circuit construction, shared simulators and five application modules](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/architecture/qasp-architecture.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.svg)
+[![QASP architecture: building blocks, shared simulators, five application modules, and a bottom tier with the barren plateau diagnoser and Fourier expressivity analyzer](https://raw.githubusercontent.com/INESCTEC/qasp/main/docs/assets/architecture/qasp-architecture.png)](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.svg)
 
 [Editable vector diagram](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.svg) ·
 [PNG](https://github.com/INESCTEC/qasp/blob/main/docs/assets/architecture/qasp-architecture.png) ·
@@ -99,6 +102,10 @@ This is a conceptual dependency view. QAOA constructs cost/mixer QNodes directly
 and shares device selection; PCE can use `CircuitBuilder`. Backend compatibility
 still depends on the circuit, measurement and differentiation method. Full
 initializer options are listed under [parameter initialization](#parameter-initialization).
+Dashed links identify supported analysis paths. The [barren plateau diagnoser](#trainability-and-analysis-utilities)
+also accepts compiled building-block circuits. The [Fourier analyzer](docs/expressivity.md)
+supports encoded policies, classifiers, and fidelity/projected kernels; its own
+bounded statevector calculation has different scaling from the model's simulator.
 
 ## Documentation
 

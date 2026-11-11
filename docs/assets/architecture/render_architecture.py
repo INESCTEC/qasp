@@ -1,18 +1,25 @@
 """Render QASP's conceptual architecture. Run with QASP's Matplotlib dependency.
 
-Writes qasp-architecture.svg and qasp-architecture.png beside this script.
+Writes SVG and PNG beside this script; --output-dir selects another folder.
+Use --pdf to also export the vector figure for the manuscript.
 """
 from pathlib import Path
+import argparse
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
-OUT=Path(__file__).resolve().parent
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--output-dir',type=Path,default=Path(__file__).resolve().parent)
+parser.add_argument('--pdf',action='store_true')
+args=parser.parse_args()
+OUT=args.output_dir
+OUT.mkdir(parents=True,exist_ok=True)
 plt.rcParams.update({'font.family':'DejaVu Sans','svg.fonttype':'none'})
-fig,ax=plt.subplots(figsize=(16,11.9),dpi=100)
+fig,ax=plt.subplots(figsize=(16,14.8),dpi=100)
 fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
-ax.set_xlim(0,1600);ax.set_ylim(1190,0);ax.axis('off')
+ax.set_xlim(0,1600);ax.set_ylim(1480,0);ax.axis('off')
 fig.patch.set_facecolor('#f8fafc')
 fit_labels=[]
 ink='#14243b';muted='#4e6179';line='#62768c';blue='#1573b8';purple='#6a46ba';teal='#087f8c'
@@ -62,13 +69,29 @@ ax.plot([800,800],[856,904],color=line,lw=1.6,zorder=1)
 apps=[('Reinforcement learning','qasp.rl',['Born / softmax policies','PQDQN Q-functions','REINFORCE · DQN · PPO'],blue),
       ('Classifiers','qasp.classifiers',['PQCClassifier','Expectation / Born readouts','Losses, training and metrics'],teal),
       ('Quantum kernels','qasp.qkernels',['Fidelity · projected · Fisher','Trainable kernels','Kernel-target alignment'],purple),
-      ('Optimization','qasp.optimization',['QUBO → Ising','QAOA variants · PCE','Classical optimizer interfaces'],blue),
+      ('Optimization','qasp.optimization',['14 graph QUBOs → Ising','QAOA variants · PCE','Decoded objectives + feasibility'],blue),
       ('Generative learning','qasp.genlearn',['PQCBM','MMD · NLL objectives','Training and sampling'],teal)]
 for i,(title,module,lines,color) in enumerate(apps):
     x=48+i*304;arrow([(x+144,904),(x+144,928)])
     box(x,928,288,164,title,[module,*lines],color,title_size=20,body_size=16.5)
-text(48,1129,'QAOA builds cost / mixer QNodes directly and shares device selection; PCE can use CircuitBuilder.',17,muted)
-text(48,1158,'Backend eligibility depends on the circuit, readout and gradient method. Initializer support follows each model’s configuration.',17,muted)
+# Diagnostics inspect supported readouts; they are not a required training stage.
+for x in (192,496,800):
+    ax.plot([x,x],[1092,1115],color=line,lw=1.5,linestyle='--',zorder=1)
+ax.plot([192,1184],[1115,1115],color=line,lw=1.5,linestyle='--',zorder=1)
+arrow([(416,1115),(416,1188)],dashed=True)
+arrow([(1184,1115),(1184,1188)],dashed=True)
+section(1156,'04','DIAGNOSTICS')
+box(48,1188,736,174,'Barren plateau diagnoser',[
+    'Cost + expectation variance across initializations',
+    'Qubit sweeps for compiled circuits and supported task models',
+    'Inspect concentration as architecture and width change'],teal,body_size=20)
+box(816,1188,736,174,'Fourier expressivity analyzer',[
+    'Output-resolved frequencies + complex coefficients',
+    'Encoded policies, classifiers and fidelity / projected kernels',
+    'Qubit sweeps · compare spectra before and after training'],purple,body_size=20)
+text(48,1397,'Dashed links: analysis of supported readouts. Fourier extraction uses its own bounded ideal-statevector evaluation.',17,muted)
+text(48,1426,'QAOA builds cost / mixer QNodes directly and shares device selection; PCE can use CircuitBuilder.',17,muted)
+text(48,1455,'Backend eligibility depends on the circuit, readout and gradient method. Initializer support follows each model’s configuration.',17,muted)
 fig.canvas.draw()
 renderer=fig.canvas.get_renderer()
 for label,available in fit_labels:
@@ -76,8 +99,10 @@ for label,available in fit_labels:
     if width>available: label.set_fontsize(label.get_fontsize()*available/width*.98)
 fig.canvas.draw()
 assert all(label.get_window_extent(renderer).width<=available+.1 for label,available in fit_labels)
-fig.savefig(OUT/'qasp-architecture.svg',facecolor=fig.get_facecolor(),metadata={'Title':'QASP architecture','Description':'Feature maps, ansatz templates, initialization, circuit construction, simulators and five application modules.'})
+fig.savefig(OUT/'qasp-architecture.svg',facecolor=fig.get_facecolor(),metadata={'Title':'QASP architecture','Description':'Building blocks, circuit construction, simulators, five application modules and a bottom diagnostics tier with the barren plateau diagnoser and Fourier expressivity analyzer.'})
 fig.savefig(OUT/'qasp-architecture.png',dpi=140,facecolor=fig.get_facecolor())
+if args.pdf:
+    fig.savefig(OUT/'qasp-architecture.pdf',facecolor=fig.get_facecolor())
 svg_path=OUT/'qasp-architecture.svg'
 svg_path.write_text('\n'.join(line.rstrip() for line in svg_path.read_text().splitlines())+'\n')
 plt.close(fig)
