@@ -5,8 +5,9 @@ linear/quadratic-term and Ising constructors. Every factory returns the same
 `QUBO` object accepted by QAOA, multi-angle QAOA, warm-start QAOA, recursive QAOA,
 linear-ramp QAOA and PCE. No graph-library dependency is required.
 
-These factories are in the pending source update, not yet in the PyPI release.
-See [PR #15](https://github.com/INESCTEC/qasp/pull/15).
+Install or upgrade with `python -m pip install --upgrade qasp`.
+The [online guide](https://andre-sequeira10.github.io/QASP/#/guide/qubo-ising)
+provides a catalog of constructors and decoded metrics.
 
 ## Choose a formulation
 

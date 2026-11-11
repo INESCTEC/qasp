@@ -41,6 +41,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - [General differentiable Pauli propagation](#general-differentiable-pauli-propagation)
 - [Package layout](#package-layout)
 - [Top-level API](#top-level-api)
+- [Graph problems and optimization](#combinatorial-optimization)
 - [Distributed statevector simulation (MPI)](#distributed-statevector-simulation-mpi)
 - [Manual circuit construction example](#manual-circuit-construction-example)
 - [High level RL policies from dictionaries and `create_policy`](#high-level-rl-policies-from-dictionaries-and-create_policy)
@@ -72,6 +73,7 @@ with execution and gradient methods chosen for each circuit and readout.
 - Train binary and multiclass PQC classifiers with MSE, hinge, binary cross-entropy, or categorical cross-entropy
 - Decode Born probabilities into classes with contiguous, parity, or majority partitions
 - Evaluate classifiers with accuracy, balanced accuracy, precision, recall, F1, ROC AUC, PR AUC, confusion matrices, log loss, and Brier score
+- Build 14 graph QUBO formulations with automatic penalties and constraint-aware solution decoding
 - Solve QUBOs with standard, multi-angle, warm-start, recursive, and linear-ramp QAOA
 - Define custom QAOA mixers and PCE parameterized circuits with QASP dictionaries
 - Export [paper-ready circuit drawings](#exporting-publication-ready-tikz-circuits) as editable TikZ/Quantikz, with symbolic parameters, gate colors, and repeated-layer compression
@@ -135,9 +137,6 @@ contains the full mathematical and performance study.
 
 QASP is an alpha research package. It requires **Python 3.10 or newer**,
 subject to dependency support; Python 3.12 is a tested starting point.
-
-**QASP 0.2.0** includes the Fourier expressivity analyzer, configuration and
-simulator fixes, and the `create_policy` / `draw_policy` helpers.
 
 When upgrading from 0.1.x, replace `create_model` with `create_policy` and
 `draw_model` with `draw_policy` in imports and calls. Their arguments are unchanged.
@@ -695,20 +694,25 @@ draw_qcbm(model, output="tikz", return_tex=False, tikz_options={
 minimum vertex cover, maximum clique, maximum matching, minimum dominating set,
 minimum edge cover, graph coloring, Max-K-Cut, fixed-size graph partitioning,
 densest-k subgraph, Hamiltonian path, Hamiltonian cycle and traveling salesperson.
-These factories are available in the pending source update
-([PR #15](https://github.com/INESCTEC/qasp/pull/15)).
 See the [formulation guide](docs/graph_problems.md) for equations, inputs, penalty
 bounds and variable counts, and the [graph tutorial](tutorials/optimization/graph_problems.ipynb)
 for training and drawing examples.
 
 ```python
-from qasp import QUBO
+from qasp import Normal, QAOA, QUBO
 
 problem = QUBO.minimum_vertex_cover(4, [(0, 1), (1, 2), (2, 3)])
-print(problem.n_variables, problem.variable_labels)
-# After training a solver with this problem:
-# candidate = problem.decode(result.bitstring)
-# print(candidate.solution, candidate.objective, candidate.feasible)
+model = QAOA(problem, n_layers=2, backend="torch",
+              device="default.qubit", diff_method="backprop",
+              init=Normal(0, 0.2), seed=7)
+result = model.solve(optimizer="Adam",
+                     optimizer_options={"max_steps": 40, "lr": 0.05})
+candidate = problem.decode(result.bitstring)
+print("Selected vertices:", candidate.solution["vertices"])
+print("Original cover cost:", candidate.objective, "direction:", candidate.sense)
+print("Graph feasible:", candidate.feasible, "encoding feasible:", candidate.encoding_feasible)
+print("Constraint violations:", candidate.violations, candidate.encoding_violations)
+print("Candidate QUBO energy:", candidate.energy, "training objective:", result.objective)
 ```
 
 `decode()` reports the original graph score, feasibility and auxiliary-bit
@@ -716,6 +720,12 @@ consistency separately from penalized QUBO energy. Coloring, routing and coverag
 encodings can require more binary variables than graph vertices: QAOA uses
 `problem.n_variables` qubits. All factories also work with PCE and QAOA variants;
 the chosen circuit must still meet the simulator's gate and readout requirements.
+`candidate.solution` contains the selected vertices/edges, partition or groups,
+color labels, or route, depending on the formulation. `objective` is the original
+weight/cost (or zero for a valid feasibility problem); it can be `None` for a
+malformed encoding. A graph score alone does not certify feasibility. See the
+[online catalog and decoded metrics](https://andre-sequeira10.github.io/QASP/#/guide/qubo-ising)
+for all problem-specific outputs and examples.
 
 <!-- readme-circuit: optimization -->
 
