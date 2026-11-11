@@ -10,7 +10,7 @@ from .optimizers import (
     create_optimizer,
 )
 from .pce import PCE, PauliCorrelationEncoding, build_pauli_correlation_encoding
-from .problem import PauliTerm, QUBO
+from .problem import GraphSolution, PauliTerm, QUBO
 from .qaoa import LRQAOA, LinearRampQAOA, QAOA, WarmStartQAOA
 from .recursive import RQAOA, RecursiveQAOA
 from .results import OptimizationResult, RecursiveQAOAResult
@@ -18,6 +18,7 @@ from .results import OptimizationResult, RecursiveQAOAResult
 __all__ = [
     "AVAILABLE_OPTIMIZERS",
     "ClassicalOptimizer",
+    "GraphSolution",
     "LRQAOA",
     "LinearRampQAOA",
     "OptimizationResult",

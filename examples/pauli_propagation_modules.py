@@ -95,6 +95,8 @@ def run_examples():
         "classifier_scores": scores.detach().tolist(), "kernel_gram": gram.detach().tolist(),
         "mmd_loss": float(born_loss.detach()), "qaoa_energy": float(result.energy),
         "pce_objective": float(pce_result.objective),
+        "pce_raw_energy": float(pce_result.metadata["raw_energy"]),
+        "pce_improved_energy": float(pce_result.energy),
     }
 
 

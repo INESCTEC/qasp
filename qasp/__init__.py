@@ -75,6 +75,7 @@ from .classifiers import (
 
 # 6. Combinatorial optimization
 from .optimization import (
+    GraphSolution,
     AVAILABLE_OPTIMIZERS,
     PENNYLANE_OPTIMIZERS,
     SCIPY_OPTIMIZERS,
@@ -177,7 +178,7 @@ __all__ = [
     "pr_auc_score", "average_precision_score",
     "classification_metrics", "top_k_accuracy", "log_loss", "brier_score",
     "barren_plateau_diagnoser", "expressivity_analyzer",
-    "QUBO", "PauliTerm", "QAOA", "WarmStartQAOA", "RQAOA",
+    "QUBO", "GraphSolution", "PauliTerm", "QAOA", "WarmStartQAOA", "RQAOA",
     "RecursiveQAOA", "LRQAOA", "LinearRampQAOA", "PCE",
     "PauliCorrelationEncoding", "OptimizationResult", "RecursiveQAOAResult",
     "build_pauli_correlation_encoding", "ClassicalOptimizer",

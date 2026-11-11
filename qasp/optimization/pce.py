@@ -41,8 +41,8 @@ def build_pauli_correlation_encoding(
     """Assign each variable to an equal-Pauli correlation observable.
 
     The default order-two encoding provides ``3 * binomial(n_qubits, 2)``
-    observables, following the X/X, Y/Y, and Z/Z construction in the IBM PCE
-    tutorial.
+    observables, following Sciorilli et al., Nature Communications 16, 476
+    (2025), https://doi.org/10.1038/s41467-024-55346-z.
     """
     n_variables = int(n_variables)
     correlation_order = int(correlation_order)
@@ -86,6 +86,36 @@ def _observable(term: PauliTerm):
     return result
 
 
+def _positive_graph_scale(n_variables, couplings):
+    """Paper's weighted scale, componentwise for disconnected positive graphs.
+
+    MaxCut weights are twice the Ising couplings. Kruskal's algorithm computes
+    a minimum spanning forest; isolated vertices contribute zero. Taking the
+    positive part for signed graphs follows the authors' reference code, but
+    the positive-weight lower-bound interpretation does not extend to them.
+    """
+    edges = sorted((2.0 * value, i, j) for (i, j), value in couplings.items() if value > 0)
+    parent = list(range(n_variables))
+    size = [1] * n_variables
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    forest_weight = 0.0
+    for weight, i, j in edges:
+        a, b = find(i), find(j)
+        if a != b:
+            if size[a] < size[b]:
+                a, b = b, a
+            parent[b] = a
+            size[a] += size[b]
+            forest_weight += weight
+    return math.fsum(weight for weight, _, _ in edges) / 2.0 + forest_weight / 4.0
+
+
 class PauliCorrelationEncoding:
     """Solve a QUBO using PCE and a dictionary-defined QASP circuit.
 
@@ -103,6 +133,10 @@ class PauliCorrelationEncoding:
 
     A preconfigured :class:`qasp.circuits.CircuitBuilder` may instead be passed
     under the ``builder`` key.
+
+    For ``QUBO.maxcut``, the loss follows Eqs. (2) and (5) of Sciorilli et al.,
+    https://doi.org/10.1038/s41467-024-55346-z. ``solve`` includes their final
+    single-bit improvement sweep; the ansatz and optimizer remain configurable.
     """
 
     def __init__(
@@ -118,6 +152,7 @@ class PauliCorrelationEncoding:
         paulis: str = "XYZ",
         alpha: float | None = None,
         regularization: float = 0.5,
+        regularization_scale: float | None = None,
         shots: int | None = None,
         diff_method: str | None = "auto",
         backend: str = "numpy",
@@ -137,8 +172,14 @@ class PauliCorrelationEncoding:
             n_qubits: Encoding register size, or None for the minimum sufficient size.
             correlation_order: Number of wires in each same-axis Pauli product.
             paulis: Axis families used to encode the original binary variables.
-            alpha: Positive tanh slope; defaults to the encoding qubit count.
-            regularization: Nonnegative multiplier of the surrogate regularizer.
+            alpha: Finite positive tanh slope; defaults to
+                n_qubits ** floor(correlation_order / 2).
+            regularization: Finite nonnegative beta in the paper; defaults to 0.5.
+            regularization_scale: Optional finite nonnegative override of nu.
+                By default, half the positive MaxCut edge weight plus one quarter
+                of its minimum spanning forest weight. For general QUBOs, add
+                sum(abs(h_i)) for Ising fields as a scale-homogeneous extension;
+                this is not a MaxCut bound for arbitrary QUBOs or signed graphs.
             shots: Analytic execution when None; otherwise finite-shot training.
             diff_method: Auto chooses backprop for QASP Torch simulators, otherwise adjoint analytically; parameter-shift with shots.
             backend: NumPy/Autograd or Torch optimization interface.
@@ -156,12 +197,17 @@ class PauliCorrelationEncoding:
             correlation_order=correlation_order,
             paulis=paulis,
         )
-        self.alpha = float(self.n_qubits if alpha is None else alpha)
-        if self.alpha <= 0:
-            raise ValueError("alpha must be positive.")
+        self.correlation_order = int(correlation_order)
+        self.alpha = float(self.n_qubits ** (self.correlation_order // 2) if alpha is None else alpha)
+        if not np.isfinite(self.alpha) or self.alpha <= 0:
+            raise ValueError("alpha must be finite and positive.")
         self.regularization = float(regularization)
-        if self.regularization < 0:
-            raise ValueError("regularization must be nonnegative.")
+        if not np.isfinite(self.regularization) or self.regularization < 0:
+            raise ValueError("regularization must be finite and nonnegative.")
+        if regularization_scale is not None:
+            regularization_scale = float(regularization_scale)
+            if not np.isfinite(regularization_scale) or regularization_scale < 0:
+                raise ValueError("regularization_scale must be finite and nonnegative.")
         self.seed = seed
         self.rng = np.random.default_rng(seed)
         self.backend = normalize_backend(backend)
@@ -210,6 +256,21 @@ class PauliCorrelationEncoding:
         self.ising_offset, self.ising_linear, self.ising_quadratic = (
             self.problem.to_ising()
         )
+        self.regularization_scale = (
+            _positive_graph_scale(self.problem.n_variables, self.ising_quadratic)
+            + math.fsum(abs(value) for value in self.ising_linear.values())
+            if regularization_scale is None else regularization_scale
+        )
+        # Construct once from the original binary cost, including small terms.
+        # A sweep then visits each variable and each adjacency list only once.
+        matrix = self.problem.matrix
+        self._binary_linear = np.diag(matrix).copy()
+        self._neighbors = [[] for _ in range(self.problem.n_variables)]
+        for i, j in combinations(range(self.problem.n_variables), 2):
+            coefficient = float(matrix[i, j] + matrix[j, i])
+            if coefficient != 0.0:
+                self._neighbors[i].append((j, coefficient))
+                self._neighbors[j].append((i, coefficient))
 
     def _default_circuit(self):
         """Return the two-layer Hadamard-initialized Y/Z/neighbor-ZZ ansatz dictionary used when no circuit is supplied."""
@@ -329,21 +390,26 @@ class PauliCorrelationEncoding:
         return np.tanh(self.alpha * self.expectations(parameters))
 
     def loss_tensor(self, parameters):
-        """Return the differentiable PCE surrogate objective."""
+        """Return the paper-normalized differentiable PCE loss.
+
+        With soft spins s, the data term is 2*(E_Ising(s)-offset). For MaxCut
+        this is exactly sum_(i,j) w_ij*s_i*s_j, each edge counted once. Add
+        beta*nu*mean(s**2)**2. Constants in the original QUBO do not enter the
+        training objective; decoded result.energy retains their original scale.
+        """
         spins = qml.math.tanh(self.alpha * self.expectations_tensor(parameters))
-        value = self.ising_offset
+        # The zero term keeps constant problems connected to autodiff.
+        value = 0.0 * qml.math.sum(spins)
         value += sum(
-            coefficient * spins[index]
+            2.0 * coefficient * spins[index]
             for index, coefficient in self.ising_linear.items()
         )
         value += sum(
-            coefficient * spins[i] * spins[j]
+            2.0 * coefficient * spins[i] * spins[j]
             for (i, j), coefficient in self.ising_quadratic.items()
         )
         if self.regularization:
-            n_edges = len(self.ising_quadratic)
-            nu = n_edges / 2.0 + (self.problem.n_variables - 1) / 4.0
-            value += self.regularization * nu * qml.math.mean(spins**2) ** 2
+            value += self.regularization * self.regularization_scale * qml.math.mean(spins**2) ** 2
         return value
 
     def loss(self, parameters) -> float:
@@ -371,6 +437,29 @@ class PauliCorrelationEncoding:
         # x=(1-Z)/2; zero expectations deterministically map to x=0.
         return "".join("0" if spin >= 0.0 else "1" for spin in spins)
 
+    def improve_bitstring(self, bitstring: str) -> str:
+        """Apply one sequential single-bit improvement sweep to the original QUBO.
+
+        Visit variables in index order and retain only strictly improving flips.
+        This is the paper's final classical step, not an iteration to a local
+        optimum. It is independent of the circuit and can also be applied to a
+        QAOA candidate for a comparison with identical postprocessing. Runtime
+        is O(N+E) with the adjacency lists constructed during initialization.
+        """
+        if not isinstance(bitstring, str) or len(bitstring) != self.problem.n_variables or any(bit not in "01" for bit in bitstring):
+            raise ValueError("bitstring must contain one binary digit per QUBO variable.")
+        bits = np.fromiter((int(bit) for bit in bitstring), dtype=int)
+        fields = self._binary_linear.copy()
+        for i, neighbors in enumerate(self._neighbors):
+            fields[i] += math.fsum(weight * bits[j] for j, weight in neighbors)
+        for i, neighbors in enumerate(self._neighbors):
+            step = 1 - 2 * bits[i]
+            if step * fields[i] < 0.0:
+                bits[i] += step
+                for j, weight in neighbors:
+                    fields[j] += weight * step
+        return "".join(map(str, bits))
+
     def draw(self, parameters=None, **drawing_options):
         """Draw the PCE ansatz as Matplotlib, text, or Quantikz/TikZ."""
         from .drawing import draw_pce
@@ -383,6 +472,7 @@ class PauliCorrelationEncoding:
         *,
         optimizer=None,
         optimizer_options: dict | None = None,
+        postprocess: bool = True,
     ) -> OptimizationResult:
         """Optimize the surrogate and return an OptimizationResult.
 
@@ -391,7 +481,14 @@ class PauliCorrelationEncoding:
         are forwarded with maxiter=100 unless overridden. The result records decoded
         QUBO energy separately from surrogate objective, flat parameters, history,
         backend/measurement metadata and the underlying optimizer result. No exact
-        optimality guarantee follows from optimizer success."""
+        optimality guarantee follows from optimizer success.
+
+        postprocess=True applies one classical single-bit improvement sweep.
+        Metadata always retains raw_bitstring and raw_energy before this step.
+        decode(parameters) is the raw circuit candidate, not necessarily the
+        returned postprocessed bitstring. The sweep is outside autodiff."""
+        if not isinstance(postprocess, (bool, np.bool_)):
+            raise TypeError("postprocess must be a boolean.")
         x0 = self.initial_parameters(initial_parameters)
         optimizer = optimizer or ("Adam" if self.backend == "torch" else "COBYLA")
         options = {"maxiter": 100}
@@ -428,7 +525,9 @@ class PauliCorrelationEncoding:
                 optimizer_options=options,
             )
         parameters = np.asarray(raw_result.x, dtype=float).reshape(-1)
-        bitstring = self.decode(parameters)
+        expectations = self.expectations(parameters)
+        raw_bitstring = "".join("0" if value >= 0.0 else "1" for value in expectations)
+        bitstring = self.improve_bitstring(raw_bitstring) if postprocess else raw_bitstring
         return OptimizationResult(
             algorithm="pauli_correlation_encoding",
             parameters=parameters,
@@ -442,14 +541,19 @@ class PauliCorrelationEncoding:
             metadata={
                 "n_qubits": self.n_qubits,
                 "alpha": self.alpha,
+                "correlation_order": self.correlation_order,
                 "regularization": self.regularization,
+                "regularization_scale": self.regularization_scale,
+                "raw_bitstring": raw_bitstring,
+                "raw_energy": self.problem.energy(raw_bitstring),
+                "postprocess": bool(postprocess),
                 "backend": self.backend,
                 "mpi": self.mpi,
                 "training_shots": self.training_shots,
                 "diff_method": self.diff_method,
                 "optimizer": getattr(raw_result, "optimizer", None),
                 "pauli_labels": self.pauli_labels,
-                "expectations": self.expectations(parameters),
+                "expectations": expectations,
             },
             raw_result=raw_result,
         )

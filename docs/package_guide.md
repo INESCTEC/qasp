@@ -296,6 +296,12 @@ Sources: [QUBO](../qasp/optimization/problem.py), [QAOA](../qasp/optimization/qa
 `QUBO` represents \(c+x^TQx\) with binary variables; an off-diagonal pair has
 coefficient (Q_{ij}+Q_{ji}), without an implicit factor of one half. Its Ising
 conversion uses (x_i=(1-Z_i)/2). `QUBO.maxcut` minimizes the **negative** cut.
+There are [14 named graph formulations](graph_problems.md), covering cuts, vertex
+sets, covers, matching, coloring, partitioning and routes. They share automatic
+penalty bounds, encoding metadata and `problem.decode(result.bitstring)` for
+original scores and graph/auxiliary feasibility. QAOA uses the total binary
+variable count, which can exceed the graph vertex count. See the
+[graph tutorial](../tutorials/optimization/graph_problems.ipynb).
 `QAOA` supports shared or multi-angle parameters, standard/custom mixers and
 warm starts. `WarmStartQAOA` enables the relaxed initialization path.
 `LRQAOA` uses a deterministic angle ramp rather than a classical training loop.
@@ -303,8 +309,13 @@ warm starts. `WarmStartQAOA` enables the relaxed initialization path.
 remaining problem exactly and reconstructs the original bitstring.
 
 `PauliCorrelationEncoding` maps binary variables to Pauli correlations, trains
-a smooth surrogate on fewer qubits when the encoding permits, and decodes a
-binary candidate. The optimized surrogate and candidate QUBO energy are
+a smooth surrogate on fewer qubits when the encoding permits, and applies one
+single-bit improvement sweep after sign decoding. Its MaxCut loss and weighted
+regularization follow the original PCE paper. `solve(postprocess=False)` disables
+the sweep; `result.metadata["raw_bitstring"]` and `["raw_energy"]` always retain
+the raw candidate. See [the PCE guide](pce.md) and
+[PCE versus QAOA notebook](../tutorials/optimization/pce_vs_qaoa.ipynb).
+The optimized surrogate and candidate QUBO energy are
 **different quantities**. Backend adapters support SciPy, PennyLane/Autograd and
 Torch optimizers with different callable/gradient contracts.
 
