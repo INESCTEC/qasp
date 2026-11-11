@@ -104,7 +104,10 @@ fig.savefig(OUT/'qasp-architecture.png',dpi=140,facecolor=fig.get_facecolor())
 if args.pdf:
     fig.savefig(OUT/'qasp-architecture.pdf',facecolor=fig.get_facecolor())
 svg_path=OUT/'qasp-architecture.svg'
-svg_path.write_text('\n'.join(line.rstrip() for line in svg_path.read_text().splitlines())+'\n')
+# Browser SVG viewers may not have Matplotlib's bundled DejaVu font installed.
+svg = svg_path.read_text().replace("font-family: 'DejaVu Sans'",
+                                   "font-family: 'DejaVu Sans', sans-serif")
+svg_path.write_text('\n'.join(line.rstrip() for line in svg.splitlines())+'\n')
 plt.close(fig)
 print(OUT/'qasp-architecture.svg')
 print(OUT/'qasp-architecture.png')
