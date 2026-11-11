@@ -5,6 +5,7 @@ import importlib.util
 
 import numpy as np
 import pytest
+import qasp
 import ray
 import torch
 from ray.rllib.algorithms.algorithm import Algorithm
@@ -40,7 +41,7 @@ def test_distributed_rollouts_checkpoint_and_resume(algorithm, tmp_path, monkeyp
         assert len(workers) == 2
         state = module.get_state(inference_only=True)
         for worker in workers:
-            assert "site-packages/qasp" in worker["source"]
+            assert Path(worker["source"]).resolve() == Path(qasp.__file__).resolve()
             for key, value in worker["state"].items():
                 np.testing.assert_allclose(value, state[key], atol=1e-6)
         assert 1 <= example.evaluate(algo.get_module(), 2)["mean"] <= 500
