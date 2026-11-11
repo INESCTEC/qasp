@@ -9,13 +9,13 @@ md('''# Use existing QASP models with RLlib on CartPole
 
 Construct your models with **`qasp.rl` exactly as before**. If you choose RLlib, import two optional adapters from **`qasp.rl.rllib`** and pass the existing objects to native `PPOConfig` or `DQNConfig`. Existing QASP trainers and model APIs are unchanged.
 
-The full recipe was validated with **QASP 0.3.0**, the optional integration, and Ray 2.60.0 in `qasp-validation`. Install this source checkout before running the notebook:
+The integration is included in **QASP 0.4.0**. Install the RLlib extra and notebook support before running:
 
 ```bash
-python -m pip install -e ".[dev]" "ray[rllib]==2.60.0"
+python -m pip install --upgrade "qasp[rllib,dev]"
 ```
 
-No separate adapter package is needed. Choose the interpreter where QASP was installed; this validation uses `qasp-validation`. The source also removes deprecated PennyLane gate IDs without changing circuit calculations.
+No separate adapter package is needed. Choose the interpreter where QASP was installed; this validation uses `qasp-validation`. For development from a source checkout, install with `python -m pip install -e ".[rllib,dev]"`. The release removes deprecated PennyLane gate IDs without changing circuit calculations.
 
 Full mode trains for up to 500 iterations per algorithm, selects a checkpoint using 50 validation episodes, and evaluates 100 separate test episodes against a mean-return target of 475. Run the cells to reproduce the recorded full result in `docs/rllib.md`. Repository copies have cleared outputs; executed copies and checkpoints stay local.'''),
 code('''import os

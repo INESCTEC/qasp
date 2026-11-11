@@ -3,10 +3,10 @@
 Keep defining and using your models through `qasp.rl` as before. The new
 `qasp.rl.rllib` submodule is an explicit opt-in; existing model code, exports,
 trainers and dependencies have not been changed. There is no separate adapter
-package and no replacement model-definition format. The source checkout includes
-this integration; PyPI QASP 0.3.0 predates it. Install this checkout with
-`python -m pip install -e . "ray[rllib]==2.60.0"` to use the integration and the
-PennyLane gate-metadata compatibility fix. Restart existing notebook kernels.
+package and no replacement model-definition format. QASP 0.4.0 includes
+this integration and the PennyLane gate-metadata compatibility fix. Install with
+`python -m pip install --upgrade "qasp[rllib]"` to select the supported Ray version.
+Restart existing notebook kernels.
 
 ```python
 from qasp.rl import PQCSoftmax, PQDQN
@@ -153,28 +153,29 @@ Ray's network ports must be reachable inside the allocation. Start Ray outside
 the QASP repository root when testing an installed release: Ray prepends the
 driver's working directory to worker import paths. The examples do this explicitly.
 
-## Development validation against PyPI
+## Installation and validation
 
-The new optional submodule is not yet part of the published QASP 0.3.0 wheel.
-To test it against that exact release without replacing any published model or
-trainer code, use the existing `qasp-validation` environment:
+Install the published release into an isolated environment:
 
 ```bash
-.venvs/qasp-validation/bin/python -I tests/rllib/prepare_environment.py
-MPLCONFIGDIR=/tmp/qasp-rllib-mpl OMP_NUM_THREADS=1 \
-  .venvs/qasp-validation/bin/python -I -m pytest tests/rllib -q
+python -m pip install "qasp[rllib,dev]==0.4.0"
+python -m pip check
+python -m pytest tests/rllib -q
 ```
 
-The preparation script stages only `qasp/rl/rllib.py` beside the installed package
-and verifies all 62 existing PyPI Python sources are unchanged. It creates no new
-distribution and does not edit package metadata. Once this addition is released
-as part of QASP, this development-only step is unnecessary.
+For development from a source checkout, use
+`python -m pip install -e ".[rllib,dev]"`. The tests support source and wheel
+installations, and verify that rollout workers use the same QASP installation
+as the driver. The historical `tests/rllib/prepare_environment.py` helper only
+reproduces adapter staging against QASP 0.3.0; it is unnecessary for this release.
 
 The source also removes deprecated PennyLane `id` gate arguments and stores
 QAOA drawing labels as QASP metadata. These changes preserve circuit values and
 gradients. The warning was treated as an error in regression tests.
 
-Validation uses QASP 0.3.0, Ray 2.60.0, PyTorch 2.15.0 and PennyLane 0.45.1.
+The original CartPole validation used PyPI QASP 0.3.0 with the new adapters and
+gate-metadata fix, Ray 2.60.0, PyTorch 2.15.0 and PennyLane 0.45.1. QASP 0.4.0
+ships that implementation directly.
 Tests cover existing API use with Ray imports blocked, unchanged caller objects,
 model-output parity, hybrid and quantum gradients, target updates, checkpoint
 roundtrips, distributed PPO/DQN rollouts, worker provenance and resumed training.

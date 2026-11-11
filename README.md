@@ -1642,11 +1642,11 @@ usual. Import `qasp.rl.rllib` only when you want RLlib to manage PPO or Double
 DQN training, rollout workers, replay and checkpoints. Existing QASP trainers,
 model constructors and direct PyTorch calls keep their original behavior.
 
-The adapters are included in this source checkout; the published QASP 0.3.0
-wheel predates them. Install the checkout with the tested Ray version:
+The adapters are included from QASP 0.4.0. Install the RLlib extra to select
+the supported Ray version while keeping existing QASP model APIs:
 
 ```bash
-python -m pip install -e . "ray[rllib]==2.60.0"
+python -m pip install --upgrade "qasp[rllib]"
 ```
 
 Given your existing `policy` and `q_model` objects:
