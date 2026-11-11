@@ -741,6 +741,17 @@ dictionary convention used by the classifier and RL factories. See
 `examples/optimization_algorithms.ipynb` for executable examples of every
 algorithm.
 
+PCE follows the correlation encoding and MaxCut loss of
+[Sciorilli et al.](https://doi.org/10.1038/s41467-024-55346-z), including weighted
+regularization and a final single-bit improvement sweep. `regularization=0.5`
+is the paper's beta, and the default `alpha` depends on correlation order.
+`result.metadata["raw_bitstring"]` and `["raw_energy"]` retain the circuit's
+candidate; `result.bitstring` and `.energy` describe the improved solution.
+Use `solve(postprocess=False)` to inspect circuit decoding alone.
+See the [PCE guide](docs/pce.md) and the
+[PCE versus QAOA tutorial](tutorials/optimization/pce_vs_qaoa.ipynb) for the
+equations, simulator settings, gradients and a comparison on shared MaxCut instances.
+
 QAOA minimizes the expectation value of the QUBO Hamiltonian directly. With
 analytic execution (`shots=None`), the default differentiation method is
 adjoint. With finite-shot training, it switches to parameter-shift; either use

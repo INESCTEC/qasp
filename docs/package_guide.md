@@ -303,8 +303,13 @@ warm starts. `WarmStartQAOA` enables the relaxed initialization path.
 remaining problem exactly and reconstructs the original bitstring.
 
 `PauliCorrelationEncoding` maps binary variables to Pauli correlations, trains
-a smooth surrogate on fewer qubits when the encoding permits, and decodes a
-binary candidate. The optimized surrogate and candidate QUBO energy are
+a smooth surrogate on fewer qubits when the encoding permits, and applies one
+single-bit improvement sweep after sign decoding. Its MaxCut loss and weighted
+regularization follow the original PCE paper. `solve(postprocess=False)` disables
+the sweep; `result.metadata["raw_bitstring"]` and `["raw_energy"]` always retain
+the raw candidate. See [the PCE guide](pce.md) and
+[PCE versus QAOA notebook](../tutorials/optimization/pce_vs_qaoa.ipynb).
+The optimized surrogate and candidate QUBO energy are
 **different quantities**. Backend adapters support SciPy, PennyLane/Autograd and
 Torch optimizers with different callable/gradient contracts.
 

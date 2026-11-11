@@ -185,6 +185,8 @@ def draw_pce(
 
     In Jupyter, TikZ output previews the generated figure. By default the
     LaTeX string is also returned; return_tex=False displays only.
+    Slash-separated basis labels denote separate readout settings. TikZ uses
+    row_sep="0.7cm" by default to leave room for these labels.
     """
     if model is None:
         if problem is None:
@@ -205,6 +207,7 @@ def draw_pce(
         options = dict(tikz_options or {})
         options.setdefault("decimals", decimals)
         options.setdefault("symbolic_parameters", True)
+        options.setdefault("row_sep", "0.7cm")
         tex = circuit_to_tikz(
             model.builder,
             circuit_kwargs=circuit_kwargs,

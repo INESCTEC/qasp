@@ -17,6 +17,7 @@ with `python -m pip install -e '.[dev]'` before opening a notebook.
 | Policy-gradient RL and diagnostics | [cartpole_policies_and_variance.ipynb](cartpole_policies_and_variance.ipynb) |
 | Q-functions, readouts and short DQN runs | [pqdqn_observables_validation.ipynb](pqdqn_observables_validation.ipynb) |
 | QAOA variants and PCE | [optimization_algorithms.ipynb](optimization_algorithms.ipynb) |
+| PCE versus QAOA, with simulator gradient checks | [pce_vs_qaoa.ipynb](../tutorials/optimization/pce_vs_qaoa.ipynb) |
 | Circuit drawing | [drawing_quantum_circuits.ipynb](drawing_quantum_circuits.ipynb) |
 
 Run a cross-module gradient check in the configured development environment:

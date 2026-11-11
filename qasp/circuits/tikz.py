@@ -782,10 +782,20 @@ def _measurement_column(
 
     Tensor products put local basis meters on participating wires. Identity
     is a known constant and adds no meter. This schematic does not encode
-    classical product reconstruction or a model's affine readout head."""
+    classical product reconstruction or a model's affine readout head.
+    Multiple labels on one wire denote alternative readouts on separate
+    preparations; incompatible bases must not silently overwrite one another."""
     if not measurements:
         return None
     column = [r"\qw" for _ in wire_order]
+    readout_labels: dict[int, list[str]] = {}
+
+    def add_readout(position, label):
+        labels = readout_labels.setdefault(position, [])
+        if label not in labels:
+            labels.append(label)
+        column[position] = _meter(r"\,/\,".join(labels), colors.get("measurement"))
+
     used = False
     for measurement in measurements:
         class_name = measurement.__class__.__name__
@@ -810,7 +820,7 @@ def _measurement_column(
                     label = rf"\langle {observable_label}\rangle"
                 else:
                     label = rf"\operatorname{{Var}}({observable_label})"
-                column[positions[0]] = _meter(label, colors.get("measurement"))
+                add_readout(positions[0], label)
             else:
                 # A tensor-product observable is physically measured on every
                 # participating qubit, not only on the first wire.
@@ -823,9 +833,7 @@ def _measurement_column(
                         continue
                     if class_name == "VarianceMP":
                         label = rf"\operatorname{{Var}}({label})"
-                    column[row_for_wire[wire]] = _meter(
-                        label, colors.get("measurement")
-                    )
+                    add_readout(row_for_wire[wire], label)
         elif class_name in {"StateMP", "DensityMatrixMP"}:
             column[min(positions)] = _meter(
                 r"\mathrm{state}", colors.get("measurement")
