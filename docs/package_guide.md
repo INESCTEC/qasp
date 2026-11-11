@@ -338,6 +338,10 @@ See [optimization notebook](../examples/optimization_algorithms.ipynb).
 
 ## RL policies, Q-functions and trainers
 
+For optional RLlib PPO/Double DQN training with existing models, see the
+[RLlib guide](rllib.md) and [CartPole notebook](../examples/cartpole_rllib.ipynb).
+Importing the existing `qasp.rl` API does not import the new adapter.
+
 Sources: [policies](../qasp/rl/policies.py), [factory/drawing](../qasp/rl/model.py),
 [Q-functions](../qasp/rl/qfunctions/models.py), [observables](../qasp/rl/qfunctions/observables.py),
 [Q-function drawing](../qasp/rl/qfunctions/drawing.py), [trainers](../qasp/rl/torchrl.py),

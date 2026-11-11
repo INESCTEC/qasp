@@ -15,6 +15,7 @@ with `python -m pip install -e '.[dev]'` before opening a notebook.
 | Fidelity and projected kernels | [iqp_quantum_kernels_validation.ipynb](iqp_quantum_kernels_validation.ipynb), [script](iqp_quantum_kernels.py) |
 | Generative learning | [pqcbm_generative_learning.ipynb](pqcbm_generative_learning.ipynb), [script](pqcbm_generative_learning.py) |
 | Policy-gradient RL and diagnostics | [cartpole_policies_and_variance.ipynb](cartpole_policies_and_variance.ipynb) |
+| RLlib PPO/PQDQN and distributed rollouts | [cartpole_rllib.ipynb](cartpole_rllib.ipynb), [script](rllib_cartpole.py), [Slurm](slurm/rllib_cartpole.sbatch) |
 | Q-functions, readouts and short DQN runs | [pqdqn_observables_validation.ipynb](pqdqn_observables_validation.ipynb) |
 | QAOA variants and PCE | [optimization_algorithms.ipynb](optimization_algorithms.ipynb) |
 | PCE versus QAOA, with simulator gradient checks | [pce_vs_qaoa.ipynb](../tutorials/optimization/pce_vs_qaoa.ipynb) |
