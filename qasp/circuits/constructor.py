@@ -498,7 +498,11 @@ class CircuitBuilder:
             engine. This name is not an installed PennyLane device plugin.
 
         Backend/differentiation compatibility is validated by PennyLane and the
-        selected plugin. Compilation requires ``build`` to have set ``circuit``."""
+        selected plugin. The default.tensor MPS path decomposes PauliRot and
+        MultiRZ into elementary gates to avoid incorrect native-MPO local
+        expectations in the tested PennyLane/Quimb stack. This retains MPS
+        execution and parameter-shift gradients, with additional circuit gates.
+        Compilation requires ``build`` to have set ``circuit``."""
         options = dict(self.dev_kwargs)
         options.update(device_kwargs or {})
         if mpi and device == "lightning.pp":
@@ -624,6 +628,16 @@ class CircuitBuilder:
                     if self.diff_method == "spsa"
                     else None,
                 )
+                if self.device.name == "default.tensor" and self.device.method == "mps":
+                    # The native PauliRot/MultiRZ MPO path in the tested
+                    # PennyLane/Quimb stack gives incorrect local expectations
+                    # after reuploading. Use equivalent elementary gates on
+                    # the same MPS device; retain parameter-shift derivatives.
+                    mps_gates = (set(qml.ops.qubit.__all__) | {
+                        "CNOT", "CZ", "CY", "CH", "SWAP", "CSWAP", "Toffoli",
+                        "CRX", "CRY", "CRZ", "CRot", "ControlledPhaseShift",
+                    }) - {"PauliRot", "MultiRZ"}
+                    self.qnode = qml.transforms.decompose(self.qnode, gate_set=mps_gates)
                 # Lightning's adjoint preprocessing can retain an extra batch
                 # axis when a broadcasted PauliRot is decomposed. Expand at the
                 # QNode boundary so each device tape has scalar gate angles.

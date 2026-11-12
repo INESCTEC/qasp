@@ -190,7 +190,7 @@ class _ParameterFormatter:
         if self.symbolic:
             base, _ = _base_operation(operation)
             feature_index = getattr(base, "_qasp_feature_index", None)
-            if feature_index is not None and self.overlap_partners:
+            if feature_index is not None:
                 return self.feature_angle(feature_index, base._qasp_scale_layer)
             projection = getattr(base, "_qasp_neural_projection", None)
             if projection is not None:

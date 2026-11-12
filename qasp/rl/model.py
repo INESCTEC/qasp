@@ -123,7 +123,7 @@ def create_policy(policy_class, policy_config_kwargs, n_qubits):
 
 
 def draw_policy(
-    num_inputs=1,
+    num_inputs=None,
     policy_class=None,
     policy_config_kwargs=None,
     n_qubits=None,
@@ -138,7 +138,9 @@ def draw_policy(
     Set ``output="tikz"`` to return LaTeX source. ``tikz_options`` is passed
     to :func:`qasp.circuits.circuit_to_tikz` and can contain options such as
     ``standalone``, ``wire_labels``, and ``symbolic_parameters``.
-    For PQDQN, omitted inputs use the configured feature count and zero values.
+    Omitted inputs use the feature map's configured feature count; num_inputs
+    can override this for policies. PQDQN uses zero-valued default inputs.
+    NumPy arrays, Python lists and Torch tensors are accepted as inputs.
 
     In Jupyter, TikZ output previews the generated figure. By default the
     LaTeX string is also returned; return_tex=False displays only.
@@ -167,19 +169,22 @@ def draw_policy(
     if output not in {"matplotlib", "mpl", "tikz", "tex", "latex"}:
         raise ValueError("output must be 'matplotlib' or 'tikz'")
 
-    draw_inputs = inputs if inputs is not None else np.random.random(num_inputs)
-    circuit_kwargs = {
-        "inputs": draw_inputs,
-        "params": pqc_model.qlayer.state_dict()["params"],
-    }
+    import torch
+
+    state = pqc_model.qlayer.state_dict()
     builder = getattr(pqc_model, "circuit_builder", None)
     feature_map = getattr(getattr(builder, "ansatz", None), "feature_map", getattr(pqc_model, "fm", None))
-    if feature_map is None:
-        circuit_kwargs.pop("inputs", None)
+    circuit_kwargs = {"params": state["params"]}
+    if feature_map is not None:
+        count = num_inputs if num_inputs is not None else (
+            getattr(feature_map, "features", None) or pqc_model.n_qubits
+        )
+        draw_inputs = inputs if inputs is not None else np.random.random(count)
+        circuit_kwargs["inputs"] = torch.as_tensor(
+            draw_inputs, dtype=state["params"].dtype, device=state["params"].device
+        )
     if getattr(feature_map, "input_scaling", False):
-        circuit_kwargs["input_scaling_params"] = pqc_model.qlayer.state_dict()[
-            "input_scaling_params"
-        ]
+        circuit_kwargs["input_scaling_params"] = state["input_scaling_params"]
 
     if output in {"tikz", "tex", "latex"}:
         from qasp.circuits import circuit_to_tikz
