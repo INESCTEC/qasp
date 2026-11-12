@@ -20,12 +20,28 @@ from .readout import ActionProbsMP
 
 @dataclass(frozen=True)
 class PauliPropagationOptions:
-    """Exact defaults; k, tau and topM enable optional approximations.
+    """Configure exact propagation or explicit approximation budgets.
 
-    k projects the initial observable and limits Pauli weight during propagation. prune enables tau/topM
-    selection, with masks held fixed by autograd. Neither approximation provides
-    a general error bound or guarantees positive probabilities. max_probability_wires
-    bounds exponential readout expansion, not total propagation memory.
+    Attributes:
+        k: Maximum number of non-identity factors in a Pauli word. Applies to
+            the initial observable and during propagation, independently of
+            ``prune``. None retains every weight; this is not a gate-arity limit.
+        prune: Enable coefficient selection using ``tau`` and ``topM``.
+        tau: Discard merged coefficients with magnitude strictly below this
+            nonnegative threshold when pruning. Not an output-error tolerance.
+        topM: Retain at most this positive number of largest-magnitude terms
+            after thresholding at pruning points; None disables the count limit.
+            Intermediate expansion and the autograd graph can exceed this size.
+        prune_every: Coefficient-selection interval in reversed gates, plus a
+            final selection. Zero means final-only. Does not control ``k``.
+        max_probability_wires: Maximum measured wires in each dense probability
+            or computational-projector expansion, not the total circuit width.
+
+    Exact defaults are ``k=None`` and ``prune=False``. Pruning decisions use
+    detached magnitudes; autograd differentiates the currently retained paths.
+    Neither approximation has a general error bound or guarantees nonnegative
+    probabilities/variances. The device does not clip or renormalize results.
+    Readout limits and topM are not global memory caps.
     """
     k: int | None = None
     prune: bool = False

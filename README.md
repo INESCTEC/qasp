@@ -349,6 +349,9 @@ These are measured CPU workloads, not universal speedup or equal-accuracy claims
 
 ## General differentiable Pauli propagation
 
+Follow the [interactive Pauli propagation guide](https://andre-sequeira10.github.io/QASP/#/guide/pauli-propagation)
+from an exact two-qubit circuit to neural-policy training and approximation checks.
+
 `PauliPropagationSimulator` lives in `qasp.simulators` alongside `IQPSimulator`
 and is also exported from `qasp`. It handles noncommuting circuits through
 Clifford and arbitrary Pauli-rotation propagation, with exact execution by default.
@@ -364,37 +367,43 @@ execution = {
 }
 ```
 
-For example, construct and train a noncommuting neural policy directly through
-`qasp.rl.policies` using that execution dictionary:
+For example, construct and train a noncommuting neural policy through the
+configuration factory. Circuit and embedding weights share one Torch optimizer:
 
 ```python
-import numpy as np
 import torch
-from qasp import AngleAnsatz, NeuralEmbedding
-from qasp.rl.policies import PQCSoftmax
+from qasp.initialization import Normal
+from qasp.rl import create_policy
 
-policy = PQCSoftmax(
-    n_qubits=3, n_actions=2,
-    ansatz=AngleAnsatz,
-    ansatz_config={
-        "n_qubits": 3, "n_layers": 2,
-        "rotations": ["Y 0", "Z 1", "X 2", "XYZ 0 1 2"],
+execution = {
+    "device": "PauliPropagationSimulator",
+    "device_kwargs": {"k": None, "prune": False},
+    "diff_method": "backprop", "shots": None,
+}
+config = {
+    "n_actions": 2, "observables": ["Z 0", "ZZ 0 1"], "fc_layer": None,
+    "feature_map": "NeuralEmbedding",
+    "feature_map_config": {"features": 2, "rotations": ["Y 0", "YY 0 1"]},
+    "ansatz": "AngleAnsatz",
+    "ansatz_config": {
+        "n_layers": 2, "rotations": "ZY", "reuploading": True,
         "include_imprimitive": True, "imprimitive": "CNOT",
-        "imprimitive_pattern": "chain", "reuploading": True,
+        "imprimitive_pattern": "chain",
     },
-    feature_map=NeuralEmbedding,
-    feature_map_config={"n_qubits": 3, "features": 2, "rotations": "Y"},
-    observables=["Z 0", "XZ 1 2"], fc_layer=None, **execution,
-).double()
-x = torch.tensor(np.array([.2, -.4]), dtype=torch.float64, requires_grad=True)
-optimizer = torch.optim.Adam(policy.parameters(), lr=.01)
+    "init": Normal(0.0, 0.3), "input_scaling_init": Normal(0.0, 0.5),
+    **execution,
+}
+policy = create_policy("PQCSoftmax", config, n_qubits=2).double()
+x = torch.tensor([0.2, -0.4], dtype=torch.float64, requires_grad=True)
+optimizer = torch.optim.Adam(policy.parameters(), lr=0.01)
 optimizer.zero_grad()
 loss = -torch.log_softmax(policy(x), dim=-1)[1]
-loss.backward()  # Circuit parameters, neural embedding and inputs share the graph.
-assert torch.isfinite(x.grad).all()
+loss.backward()
+assert x.grad is not None and torch.isfinite(x.grad).all()
 assert all(p.grad is not None and torch.isfinite(p.grad).all()
            for p in policy.parameters())
 optimizer.step()
+print("One action-loss update:", loss.item())
 ```
 
 | Application | Supported analytic paths |
@@ -429,7 +438,7 @@ and MPI are unsupported. Supported unitary templates are decomposed into native
 Clifford/Pauli rotations; unsupported operations raise an error. Scalar tapes
 are evaluated sequentially, with no dedicated worker pool.
 Existing `lightning.pp` adapters and old engine imports remain compatible;
-see the [algorithm, module coverage and migration guide](https://github.com/INESCTEC/qasp/blob/main/docs/pauli_propagation.md).
+see the [worked derivation, option reference, gradient checks and research references](https://github.com/INESCTEC/qasp/blob/main/docs/pauli_propagation.md).
 
 ---
 

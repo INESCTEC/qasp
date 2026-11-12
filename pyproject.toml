@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qasp"
-version = "0.4.0"
+version = "0.4.1"
 description = "Quantum Agent Software Package for quantum circuits, optimization, classifiers, kernels, RL policies, and simulation workflows."
 readme = "README.md"
 requires-python = ">=3.10"

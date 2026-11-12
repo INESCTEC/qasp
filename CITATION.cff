@@ -9,8 +9,8 @@ authors:
     given-names: "André"
     email: "andre.m.sequeira@inesctec.pt"
     affiliation: "Quantum Software Engineering, HASLab, INESC TEC, Braga, Portugal"
-version: "0.4.0"
-date-released: "2026-11-11"
+version: "0.4.1"
+date-released: "2026-11-12"
 # Add a DOI only when one has been assigned.
 repository-code: "https://github.com/INESCTEC/qasp"
 url: "https://github.com/INESCTEC/qasp"
