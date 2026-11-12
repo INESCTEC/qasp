@@ -144,13 +144,9 @@ contains the full mathematical and performance study.
 
 ## Installation
 
-QASP is an alpha research package. It requires **Python 3.10 or newer**,
+Install the latest published QASP release from [PyPI](https://pypi.org/project/qasp/).
+QASP requires **Python 3.10 or newer**,
 subject to dependency support; Python 3.12 is a tested starting point.
-
-When upgrading from 0.1.x, replace `create_model` with `create_policy` and
-`draw_model` with `draw_policy` in imports and calls. Their arguments are unchanged.
-The unused `TorchRLTrainer` and `PQCWrapper` prototypes were removed;
-`PQCBornWrapper` and the maintained RL trainers remain available.
 
 ### From PyPI
 
@@ -170,10 +166,34 @@ plugins, GPU/MPI libraries and tensor-device dependencies require separate
 installation appropriate to your platform. See the
 [device and compilation guide](https://andre-sequeira10.github.io/QASP/#/guide/execution?step=compile).
 
+### Optional RLlib integration for quantum reinforcement learning
+
+Install the RLlib extra to select the supported Ray/RLlib version:
+
+```bash
+python -m pip install --upgrade "qasp[rllib]"
+python -m pip check
+```
+
+Keep defining quantum or hybrid policies and `PQDQN` models through `qasp.rl`.
+The optional `qasp.rl.rllib` adapters connect these models to RLlib's PPO with a
+classical critic or DQN/Double DQN, including distributed rollout workers and
+checkpoints. See the [RLlib integration guide](docs/rllib.md),
+[CartPole notebook](examples/cartpole_rllib.ipynb) and
+[Slurm example](examples/slurm/rllib_cartpole.sbatch).
+
+### Optional notebook and TikZ previews
+
 For inline TikZ previews in Jupyter, install the optional Python extra:
 
 ```bash
 python -m pip install --upgrade "qasp[preview]" jupyterlab
+```
+
+To use RLlib and notebook previews together:
+
+```bash
+python -m pip install --upgrade "qasp[rllib,preview]" jupyterlab
 ```
 
 Rendering TikZ also requires a local TeX distribution with Quantikz and
@@ -191,7 +211,7 @@ python -m pip install -e .
 ### Development install
 
 ```bash
-python -m pip install -e .[dev]
+python -m pip install -e ".[dev]"
 ```
 
 ---
@@ -1642,7 +1662,7 @@ usual. Import `qasp.rl.rllib` only when you want RLlib to manage PPO or Double
 DQN training, rollout workers, replay and checkpoints. Existing QASP trainers,
 model constructors and direct PyTorch calls keep their original behavior.
 
-The adapters are included from QASP 0.4.0. Install the RLlib extra to select
+The adapters are included in the published package. Install the RLlib extra to select
 the supported Ray version while keeping existing QASP model APIs:
 
 ```bash
