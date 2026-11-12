@@ -65,9 +65,8 @@ with execution and gradient methods chosen for each circuit and readout.
 - Inspect each model output with **Fourier expressivity analysis**: complex coefficients, learned input frequencies, qubit sweeps, and before/after-training comparisons
 - Evaluate trainability with utilities such as:
   - model-agnostic cost-concentration diagnosis,
-  - policy variance,
-  - exploratory Lie-closure dimensions (with documented heuristic limitations)
-- Use PennyLane **lightning.qubit** / **lightning.kokkos** and the shared differentiable **PauliPropagationSimulator** (legacy `lightning.pp` remains available)
+  - policy variance
+- Use PennyLane **lightning.qubit** / **lightning.kokkos** and the shared differentiable **PauliPropagationSimulator**.
 - Run differentiable commuting models with **IQPSimulator**: exact TN, sampled Van den Nest, or automatic selection, with multicore forward/backward execution
 - Compare different observable/readout designs, including local `Z`, pairwise `ZZ`, and parity-based observables
 - Build global-fidelity, local-fidelity, and projected quantum kernels, including trainable IQP encodings
@@ -111,6 +110,10 @@ bounded statevector calculation has different scaling from the model's simulator
 
 ## Documentation
 
+Explore the **[interactive QASP documentation](https://andre-sequeira10.github.io/QASP/)**:
+Building Blocks → Simulators → Modules, with step-by-step configuration,
+training and visualization examples, searchable APIs and argument descriptions.
+
 The [module tutorials](https://github.com/INESCTEC/qasp/tree/main/tutorials) are runnable Jupyter notebooks covering circuit construction, training, results, Matplotlib and TikZ drawings, trainability diagnostics and differentiable simulation.
 
 In Jupyter, `draw_classifier(model, inputs=x, output="tikz", return_tex=False)`
@@ -119,10 +122,6 @@ assign the result to `tex`.
 The same convention applies across module drawing helpers.
 See the [drawing guide](docs/package_guide.md#preview-any-circuit-in-jupyter)
 for optional rendering dependencies and examples.
-
-Explore the **[interactive QASP documentation](https://andre-sequeira10.github.io/QASP/)**:
-Building Blocks → Simulators → Modules, with step-by-step configuration,
-training and visualization examples, searchable APIs and argument descriptions.
 
 
 This repository contains the library, regression tests and a [curated example set](https://github.com/INESCTEC/qasp/blob/main/examples/README.md). Notebook outputs, experiment datasets and paper sources/PDFs are kept in the [upstream research archive](https://github.com/andre-sequeira10/QASP/tree/3bda8622bd6f5ddfb7c05a0dfd0538c1b0ccd718). See the [repository layout policy](https://github.com/INESCTEC/qasp/blob/main/docs/repository_layout.md) for what is retained and how to keep the checkout small.
@@ -472,6 +471,8 @@ qasp/
 ├── simulators/             # IQPSimulator, PauliPropagationSimulator and shared engines
 ├── diagnostics/
 │   └── barren_plateau.py   # classifier/kernel/policy cost concentration
+│   └── expressivity.py     # Fourier based expressivity analyzer 
+
 ├── devices.py              # Shared device/MPI option handling
 ├── initialization.py       # Reusable NumPy/Torch parameter distributions
 └── rl/
