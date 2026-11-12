@@ -155,8 +155,7 @@ Create an isolated environment, then install the published package:
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install --upgrade qasp
+python -m pip install qasp
 python -m pip check
 python -c "from importlib.metadata import version; import qasp; print(version('qasp'))"
 ```
@@ -171,7 +170,7 @@ installation appropriate to your platform. See the
 Install the RLlib extra to select the supported Ray/RLlib version:
 
 ```bash
-python -m pip install --upgrade "qasp[rllib]"
+python -m pip install "qasp[rllib]"
 python -m pip check
 ```
 
@@ -187,13 +186,13 @@ checkpoints. See the [RLlib integration guide](docs/rllib.md),
 For inline TikZ previews in Jupyter, install the optional Python extra:
 
 ```bash
-python -m pip install --upgrade "qasp[preview]" jupyterlab
+python -m pip install "qasp[preview]" jupyterlab
 ```
 
 To use RLlib and notebook previews together:
 
 ```bash
-python -m pip install --upgrade "qasp[rllib,preview]" jupyterlab
+python -m pip install "qasp[rllib,preview]" jupyterlab
 ```
 
 Rendering TikZ also requires a local TeX distribution with Quantikz and
@@ -1666,7 +1665,7 @@ The adapters are included in the published package. Install the RLlib extra to s
 the supported Ray version while keeping existing QASP model APIs:
 
 ```bash
-python -m pip install --upgrade "qasp[rllib]"
+python -m pip install "qasp[rllib]"
 ```
 
 Given your existing `policy` and `q_model` objects:
