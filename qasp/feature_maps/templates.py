@@ -48,9 +48,9 @@ class AngleEmbedding:
     def __call__(self, inputs=None, input_scaling_params=None, *, layer_index=1) -> None:
         """Queue encoding rotations and optional entanglers; return None.
 
-        ``inputs`` is a feature vector (or PennyLane-compatible broadcast input for
-        string rotations). If scaling is enabled, ``input_scaling_params`` must
-        broadcast against it. Explicit Pauli specifications consume one input each;
+        ``inputs`` is a feature vector or a batch with features on the last axis.
+        If scaling is enabled, ``input_scaling_params`` must broadcast against it.
+        Explicit Pauli specifications consume one feature each;
         the implementation pairs entries using zip, so supply matching lengths."""
         if self.input_scaling:
             inputs = qml.math.multiply(inputs, input_scaling_params)
@@ -66,7 +66,8 @@ class AngleEmbedding:
                 )
                 rotation._qasp_scale_layer = layer_index
         else:
-            for (index,pf) in zip(range(len(inputs)), self.rotations):
+            input_shape = qml.math.shape(inputs)
+            for (index,pf) in zip(range(input_shape[-1]), self.rotations):
                 "get the first element of the list and convert it to a string"
                 parts = pf.split(" ")
                 pauli = parts[0]
@@ -74,7 +75,10 @@ class AngleEmbedding:
                 "get the second element of the list and convert it to a list of integers"
                 qubits = [int(i) for i in wires]
                 "apply the rotation to the qubit"
-                rotation = qml.PauliRot(theta=inputs[index], pauli_word=pauli, wires=qubits)
+                # Keep the leading sample axis when selecting a feature. The
+                # vector case also supports ordinary Python lists of features.
+                angle = inputs[..., index] if len(input_shape) > 1 else inputs[index]
+                rotation = qml.PauliRot(theta=angle, pauli_word=pauli, wires=qubits)
                 rotation._qasp_scale_layer = layer_index
                 rotation._qasp_feature_index = index + 1
         
