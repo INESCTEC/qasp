@@ -1203,13 +1203,23 @@ gradients, and precomputed-kernel SVMs for every kernel class, run
 
 ## Distributed statevector simulation (MPI)
 
-Pass `device="lightning.kokkos", mpi=True` to QAOA (including warm-start and
+Distributed statevector simulation has been tested with a distributed
+installation of PennyLane's `lightning.kokkos` device on the Fujitsu A64FX
+Arm partition of the [Deucalion supercomputer](https://docs.deucalion.acnca.pt/deuc_supercomp/deucalion/).
+So far, QASP's distributed statevector execution has only been tested on
+Deucalion's Arm partition.
+
+This functionality requires a PennyLane Lightning device built and installed
+with distributed (MPI) support, together with a compatible MPI runtime on the
+cluster. Installing QASP alone does not provide that distributed device
+installation.
+
+With the distributed installation available, pass
+`device="lightning.kokkos", mpi=True` to QAOA (including warm-start and
 linear-ramp variants), PCE, RQAOA, classifiers, kernels, RL policies, or
-`CircuitBuilder.compile`. Classifier and RL configurations also retain the
-older `enable_mpi=True` alias where it was previously supported. Kernels
-already accepted `mpi`; all named device paths now forward it, including
-`lightning.gpu` and custom MPI-capable plugins. Unsupported plugins raise
-their own error; QASP does not fall back to a serial device.
+`CircuitBuilder.compile`. QASP forwards the MPI configuration to the device;
+unsupported plugins raise their own error rather than falling back to serial
+execution.
 
 ```python
 from qasp import QAOA, QUBO, PCE, RecursiveQAOA, create_classifier, create_kernel
