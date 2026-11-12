@@ -56,3 +56,34 @@ def test_custom_pauli_encoding_still_accepts_feature_list():
     tape = qml.tape.make_qscript(embedding)([0.2, -0.4])
     assert [op.data[0] for op in tape.operations] == [0.2, -0.4]
     assert [op.hyperparameters["pauli_word"] for op in tape.operations] == ["Y", "YY"]
+
+
+@pytest.mark.parametrize("scaled", [False, True])
+@pytest.mark.parametrize("reupload", [False, True])
+def test_custom_pauli_drawing_labels_features_and_layer_scales(scaled, reupload):
+    from qasp import AngleAnsatz, CircuitBuilder
+    from qasp.circuits import circuit_to_tikz
+
+    embedding = AngleEmbedding(3, features=2, rotations=["Y 0", "YY 0 1"],
+                               input_scaling=scaled)
+    ansatz = AngleAnsatz(3, n_layers=2, feature_map=embedding, rotations="ZY",
+                        reuploading=reupload, include_imprimitive=False)
+    builder = CircuitBuilder(3)
+    builder.set_ansatz(ansatz)
+    builder.set_measurement("expectation", observables=["ZZZ 0 1 2"])
+    builder.build()
+    arguments = {"inputs": torch.tensor([0.2, -0.4]), "params": torch.zeros(12)}
+    if scaled:
+        arguments["input_scaling_params"] = torch.ones(4)
+    tex = circuit_to_tikz(builder, circuit_kwargs=arguments, symbolic_parameters=True)
+    assert tex.count(r"f_{1}") == (2 if reupload else 1)
+    assert tex.count(r"f_{2}") == (2 if reupload else 1)
+    assert r"\theta_{12}" in tex
+    assert r"\theta_{13}" not in tex
+    if scaled:
+        for layer in range(1, 3 if reupload else 2):
+            for feature in (1, 2):
+                index = f"{layer},{feature}" if reupload else str(feature)
+                assert rf"f_{{{feature}}}\lambda_{{{index}}}" in tex
+    else:
+        assert r"\lambda" not in tex
